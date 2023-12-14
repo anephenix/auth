@@ -3,6 +3,7 @@
 		"createDatabase": "node scripts/createDatabase.js",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
 		"dev": "nodemon server.js",
+		"lint": "npx eslint .",
 		"migrate": "npx knex migrate:latest",
 		"start": "node server.js",
 		"test": "npx mocha test/**/*.js",
@@ -20,6 +21,7 @@
 	},
 	"devDependencies": {
 		"@cucumber/cucumber": "^10.0.1",
+		"eslint": "^8.55.0",
 		"husky": "^8.0.3",
 		"lint-staged": "^15.2.0",
 		"mocha": "^10.2.0",
