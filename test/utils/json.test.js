@@ -1,7 +1,19 @@
+const assert = require('assert');
+const { parse } = require('../../utils/json');
+
 describe('json utils', () => {
 	describe('#parse', () => {
 		describe('when the request body is valid JSON', () => {
-			it('should parse the JSON data');
+			it('should parse the JSON data', async () => {
+				const data = { foo: 'bar' };
+				const req = { body: JSON.stringify(data) };
+				req.on = (event, callback) => {
+					if (event === 'data') return callback(req.body);
+					if (event === 'end') return callback();
+				};
+				const parsed = await parse(req);
+				assert.deepEqual(parsed, data);
+			});
 		});
 
 		describe('when the request body is invalid JSON', () => {
