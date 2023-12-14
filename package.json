@@ -1,0 +1,32 @@
+{
+	"scripts": {
+		"createDatabase": "node scripts/createDatabase.js",
+		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
+		"dev": "nodemon server.js",
+		"migrate": "npx knex migrate:latest",
+		"start": "node server.js",
+		"test": "npx mocha test/**/*.js",
+		"prepare": "husky install"
+	},
+	"dependencies": {
+		"bcrypt": "^5.1.1",
+		"bluebird": "^3.7.2",
+		"knex": "^3.1.0",
+		"objection": "^3.1.3",
+		"objection-password": "^3.0.0",
+		"pg": "^8.11.3",
+		"redis": "^4.6.11",
+		"uuid": "^9.0.1"
+	},
+	"devDependencies": {
+		"@cucumber/cucumber": "^10.0.1",
+		"husky": "^8.0.3",
+		"lint-staged": "^15.2.0",
+		"mocha": "^10.2.0",
+		"nodemon": "^3.0.2",
+		"prettier": "3.1.1"
+	},
+	"lint-staged": {
+		"**/*": "prettier --write --ignore-unknown"
+	}
+}
