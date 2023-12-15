@@ -16,6 +16,7 @@ module.exports = {
 			},
 		},
 	],
+	plugins: ['prettier'],
 	parserOptions: {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
@@ -25,5 +26,6 @@ module.exports = {
 		'linebreak-style': ['error', 'unix'],
 		quotes: ['error', 'single'],
 		semi: ['error', 'always'],
+		'prettier/prettier': ['error'],
 	},
 };
