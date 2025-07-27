@@ -88,4 +88,15 @@ export class Auth {
 	async hashPassword(password: string): Promise<string> {
 		return await argon2.hash(password);
 	}
+
+	/*
+		This function verifies a plaintext password against a hashed password.
+		It returns true if the password matches, otherwise it returns false.
+	*/
+	async verifyPassword(
+		password: string,
+		hashedPassword: string,
+	): Promise<boolean> {
+		return await argon2.verify(hashedPassword, password);
+	}
 }

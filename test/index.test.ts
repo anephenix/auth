@@ -163,4 +163,27 @@ describe("Auth class", () => {
 			);
 		});
 	});
+
+	describe("verifyPassword", () => {
+		it("should verify a password against a hashed password", async () => {
+			const auth = new Auth({});
+			const plaintextPassword = "plaintextPassword";
+			const hashedPassword = await auth.hashPassword(plaintextPassword);
+			const isValid = await auth.verifyPassword(
+				plaintextPassword,
+				hashedPassword,
+			);
+			expect(isValid).toBe(true);
+		});
+
+		it("should return false for an incorrect password", async () => {
+			const auth = new Auth({});
+			const hashedPassword = await auth.hashPassword("correctPassword");
+			const isValid = await auth.verifyPassword(
+				"wrongPassword",
+				hashedPassword,
+			);
+			expect(isValid).toBe(false);
+		});
+	});
 });

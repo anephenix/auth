@@ -165,9 +165,9 @@ export class User extends Model {
 1 - Implement a function to validate a password (a string, and if the user is an existing one, potentially pass their name and type in order to identify if it is a re-used password)
 
 ```typescript
-import { validatePassword } from "@anephenix/auth";
+import { Auth } from "@anephenix/auth";
 
-
+const auth = new Auth({});
 
 const examplePassword = 'letmein';
 
@@ -182,8 +182,13 @@ const examplePassword = 'letmein';
     3 - 
 */
 
-const isValid = await validatePassword(examplePassword);
-
+/*
+  Q - Should this be an async/await call?
+  
+  Maybe not unless it has to do a DB call, say to check for existing 
+  passwords that match it, if say reusing past passwords is forbidden.
+*/
+const isValid = auth.validatePassword(examplePassword);
 ```
 
 ## Ask an LLM for its "opinion"
