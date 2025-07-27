@@ -7,7 +7,10 @@ describe("json utils", () => {
 		describe("when the request body is valid JSON", () => {
 			it("should parse the JSON data", async () => {
 				const data = { foo: "bar" };
-				const req = { body: JSON.stringify(data), on: null } as any;
+				const req: {
+					body: string;
+					on: (event: string, callback: (...args: unknown[]) => void) => void;
+				} = { body: JSON.stringify(data), on: () => void 0 };
 				req.on = (event, callback) => {
 					if (event === "data") return callback(req.body);
 					if (event === "end") return callback();
