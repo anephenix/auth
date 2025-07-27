@@ -1,2 +1,4 @@
 npm run lint
+git add -u
 npm test
+npm run size

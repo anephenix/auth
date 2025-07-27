@@ -1,13 +1,40 @@
 {
+	"name": "@anephenix/auth",
+	"module": "dist/auth.esm.js",
+	"version": "0.0.1",
 	"scripts": {
+		"analyze": "size-limit --why",
+		"build": "tsc --project tsconfig.json",
 		"createDatabase": "node scripts/createDatabase.js",
-		"cover": "NODE_ENV=test npx nyc --reporter=lcov npm t",
+		"cover": "cross-env NODE_ENV=test npx vitest test --run --coverage",
 		"cucumber": "NODE_ENV=test npx cucumber-js --no-strict",
 		"lint": "npx @biomejs/biome format --write",
 		"migrate": "npx knex migrate:latest",
+		"prepare": "husky",
+		"prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
+		"publish-patch-release": "npm run prepare-patch-release && git push origin main && git push --tags",
+		"size": "size-limit",
 		"start": "node server.js",
-		"test": "vitest --run --coverage",
-		"prepare": "husky"
+		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts",
+		"test": "cross-env NODE_ENV=test npx vitest test --run",
+		"watch": "tsc --project tsconfig.json --watch"
+	},
+	"keywords": [
+		"fastify",
+		"objection",
+		"authentication"
+	],
+	"author": "Paul Jensen <paul@anephenix.com>",
+	"license": "MIT",
+	"main": "dist/index.js",
+	"typings": "dist/index.d.ts",
+	"files": [
+		"dist",
+		"src"
+	],
+	"type": "module",
+	"engines": {
+		"node": ">=12"
 	},
 	"dependencies": {
 		"bcrypt": "^5.1.1",
@@ -22,12 +49,21 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
 		"@cucumber/cucumber": "^10.0.1",
+		"@size-limit/esbuild": "^11.2.0",
+		"@size-limit/esbuild-why": "^11.2.0",
+		"@size-limit/preset-small-lib": "^11.2.0",
 		"@vitest/coverage-v8": "^3.2.4",
+		"cross-env": "^10.0.0",
 		"husky": "^9.1.7",
 		"nyc": "^15.1.0",
+		"size-limit": "^11.2.0",
+		"typescript": "^5.8.3",
 		"vitest": "^3.2.4"
 	},
-	"lint-staged": {
-		"**/*": "prettier --write --ignore-unknown"
-	}
+	"size-limit": [
+		{
+			"path": "dist/*.js",
+			"limit": "10 KB"
+		}
+	]
 }
