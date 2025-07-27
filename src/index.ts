@@ -10,6 +10,7 @@
 
 	It is designed to be flexible and extensible, allowing developers to customize the authentication process as needed.
 */
+import * as argon2 from "argon2";
 import type { AuthOptions } from "./types";
 
 export class Auth {
@@ -17,14 +18,19 @@ export class Auth {
 
 	constructor(options: AuthOptions) {
 		this.options = options;
+		/*
+			If there are password validation rules specified in the options,
+			validate them to ensure they are compatible.
+		*/
 		if (this.options.passwordValidationRules) {
 			this.validatePasswordRules(this.options.passwordValidationRules);
 		}
 	}
 
 	/*
-		This method checks that the password validation rules are compatible, and
-		will throw an error if they are not (e.g. the minLength is greater than the maxLength).
+		This method checks that the password validation rules are compatible, 
+		and will throw an error if they are not (e.g. the minLength is greater 
+		than the maxLength).
 	*/
 	validatePasswordRules(rules: AuthOptions["passwordValidationRules"]): void {
 		const { minLength, maxLength } = rules || {};
@@ -73,5 +79,13 @@ export class Auth {
 			}
 		}
 		return true;
+	}
+
+	/*
+		This function hashes a plaintext password and returns the password
+		in a hashed format that can be stored in the database.
+	*/
+	async hashPassword(password: string): Promise<string> {
+		return await argon2.hash(password);
 	}
 }
