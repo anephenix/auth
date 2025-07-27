@@ -1,7 +1,7 @@
 {
 	"name": "@anephenix/auth",
 	"module": "dist/auth.esm.js",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"scripts": {
 		"analyze": "size-limit --why",
 		"build": "tsc --project tsconfig.json",
