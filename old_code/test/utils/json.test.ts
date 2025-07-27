@@ -1,6 +1,6 @@
 import assert from "node:assert";
-import { parse } from "../../utils/json";
 import { describe, it } from "vitest";
+import { parse } from "../../utils/json";
 
 describe("json utils", () => {
 	describe("#parse", () => {
