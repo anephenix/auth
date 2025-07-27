@@ -21,7 +21,7 @@ Actually, why does a password need to be stored in the Users table, if it can be
 
 Then, you can have passwords linked to all kinds of things, not just users.
 
-One possibility is that if you have it stored in a separate database/table, then every call to authenticate a user requires at least 2 database queries instead of just one.
+One possibility is that if you have it stored in a separate database/table, then every call to authenticate a user requires at least 2 database queries instead of just one, or you perform a query with a join to then fetch the user and the password field at the same time.
 
 At a small scale this isn't really an issue (plus how often do password authentications occur?), but at large scale could this become a bottleneck - particularly with a popular service?
 

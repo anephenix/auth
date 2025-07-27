@@ -1,5 +1,5 @@
 // Dependencies
-const services = require("../services");
+const services = require("../../services");
 const { parse, handle } = require("../utils/json");
 
 const notFound = (req, res) =>

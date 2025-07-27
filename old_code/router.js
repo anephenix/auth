@@ -1,5 +1,5 @@
 // Dependencies
-const routes = require("./routes");
+const routes = require("../routes");
 const { notFound } = require("./controllers");
 
 const logRequest = (req) => {
