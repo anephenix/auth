@@ -1,6 +1,6 @@
 /* Dependencies */
-const { Client } = require('pg');
-const { db } = require('../config');
+const { Client } = require("pg");
+const { db } = require("../config");
 const client = new Client();
 
 /*

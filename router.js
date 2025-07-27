@@ -1,6 +1,6 @@
 // Dependencies
-const routes = require('./routes');
-const { notFound } = require('./controllers');
+const routes = require("./routes");
+const { notFound } = require("./controllers");
 
 const logRequest = (req) => {
 	console.log(`${req.method} ${req.url}`);

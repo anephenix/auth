@@ -1,6 +1,6 @@
 const accounts = [
-	{ id: '1', username: 'paulbjensen', password: 'letmein' },
-	{ id: '2', username: 'admin', password: 'admin' },
+	{ id: "1", username: "paulbjensen", password: "letmein" },
+	{ id: "2", username: "admin", password: "admin" },
 ];
 
 const sessions = [];
@@ -28,7 +28,7 @@ const createSession = ({ id }) => {
 
 const login = ({ username, password }) => {
 	const account = authenticate({ username, password });
-	if (!account) throw new Error('Authentication Failed');
+	if (!account) throw new Error("Authentication Failed");
 	const session = createSession(account);
 	return session;
 };

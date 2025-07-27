@@ -52,4 +52,6 @@ And this is just for the simple username/password setup. It does not take into c
 
 These are details that will emerge once we get into the details of implementing this system
 
+Worth looking at [NOTES.md](/NOTES.md) for more information on how to get the plugin working as expected.
+
 </i>

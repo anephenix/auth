@@ -1,11 +1,11 @@
 // Dependencies
-const services = require('../services');
-const { parse, handle } = require('../utils/json');
+const services = require("../services");
+const { parse, handle } = require("../utils/json");
 
 const notFound = (req, res) =>
-	handle({ res, statusCode: 404, err: new Error('Not Found') });
+	handle({ res, statusCode: 404, err: new Error("Not Found") });
 
-const helloWorld = (req, res) => handle({ res, data: 'Hello World' });
+const helloWorld = (req, res) => handle({ res, data: "Hello World" });
 
 const login = async (req, res) => {
 	try {

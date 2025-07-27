@@ -1,5 +1,5 @@
-const { redis } = require('../db');
-const { v4: uuidv4 } = require('uuid');
+const { redis } = require("../db");
+const { v4: uuidv4 } = require("uuid");
 
 const model = {
 	// Create a record
@@ -30,7 +30,7 @@ const model = {
 	},
 
 	flush: async () => {
-		const sessionIds = await redis.keysAsync('session_*');
+		const sessionIds = await redis.keysAsync("session_*");
 		for await (const sessionId of sessionIds) {
 			await redis.delAsync(sessionId);
 		}

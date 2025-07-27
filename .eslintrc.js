@@ -4,28 +4,28 @@ module.exports = {
 		node: true,
 		mocha: true,
 	},
-	extends: 'eslint:recommended',
+	extends: "eslint:recommended",
 	overrides: [
 		{
 			env: {
 				node: true,
 			},
-			files: ['.eslintrc.{js,cjs}'],
+			files: [".eslintrc.{js,cjs}"],
 			parserOptions: {
-				sourceType: 'script',
+				sourceType: "script",
 			},
 		},
 	],
-	plugins: ['prettier'],
+	plugins: ["prettier"],
 	parserOptions: {
-		ecmaVersion: 'latest',
-		sourceType: 'module',
+		ecmaVersion: "latest",
+		sourceType: "module",
 	},
 	rules: {
-		indent: ['error', 'tab'],
-		'linebreak-style': ['error', 'unix'],
-		quotes: ['error', 'single'],
-		semi: ['error', 'always'],
-		'prettier/prettier': ['error'],
+		indent: ["error", "tab"],
+		"linebreak-style": ["error", "unix"],
+		quotes: ["error", "single"],
+		semi: ["error", "always"],
+		"prettier/prettier": ["error"],
 	},
 };

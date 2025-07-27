@@ -1,14 +1,14 @@
 // Function to parse JSON from a request as a Promise
 function parse(req) {
 	return new Promise((resolve, reject) => {
-		let requestBody = '';
+		let requestBody = "";
 
-		req.on('data', (chunk) => {
+		req.on("data", (chunk) => {
 			// Accumulate the incoming data
 			requestBody += chunk.toString();
 		});
 
-		req.on('end', () => {
+		req.on("end", () => {
 			try {
 				// Parse the JSON data
 				const jsonData = JSON.parse(requestBody);
@@ -22,12 +22,12 @@ function parse(req) {
 }
 
 const handleError = ({ res, statusCode = 400, err }) => {
-	res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+	res.writeHead(statusCode, { "Content-Type": "application/json" });
 	res.end(JSON.stringify({ error: err.message }));
 };
 
 const handleResponse = ({ res, statusCode = 200, data }) => {
-	res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+	res.writeHead(statusCode, { "Content-Type": "application/json" });
 	res.end(JSON.stringify(data));
 };
 
