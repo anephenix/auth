@@ -10,6 +10,7 @@
 
 ## Next
 
+- [ ] Handle setting up a new user with a password and having the password be encrypted
 
 ## Nice to haves
 
