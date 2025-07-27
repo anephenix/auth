@@ -22,6 +22,10 @@ export class Auth {
 		}
 	}
 
+	/*
+		This method checks that the password validation rules are compatible, and
+		will throw an error if they are not (e.g. the minLength is greater than the maxLength).
+	*/
 	validatePasswordRules(rules: AuthOptions["passwordValidationRules"]): void {
 		const { minLength, maxLength } = rules || {};
 		if (minLength && maxLength && minLength > maxLength) {
@@ -31,6 +35,10 @@ export class Auth {
 		}
 	}
 
+	/*
+		Validates the password according to the password rules.
+		If valid it returns true, otherwise it returns false.
+	*/
 	validatePassword(password: string): boolean {
 		if (this.options.passwordValidationRules) {
 			const {

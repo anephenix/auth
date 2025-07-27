@@ -152,8 +152,3 @@ describe("Auth class", () => {
 		});
 	});
 });
-
-/*
-    Ok, so I think that the first thing to do is to implement the 
-    validatePassword flow, especially about how to pass in password validation options (minLength, character requirements, etc.).
-*/
