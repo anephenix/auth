@@ -378,3 +378,24 @@ sophisticated requirements?)
 Though I like the idea of using an array of functions to validate a password, 
 I think that the object with configuration options would be the best one for 
 developers to understand and use, so I will opt for that.
+
+### An interesting point to note
+
+- If you're happy to store only 1 password per user, then having that password
+  stored in the users table is perfectly fine.
+- However, if you want to implement a password rotation strategy that will 
+  prevent passwords from being re-used, then you will need to store those 
+  hashed passwords in order to check and compare. Therefore you will need to 
+  store them in a separate table.
+
+  To note, if you want to get the current password for a user, you can do it 
+  in 2 ways:
+
+  1 - Use a boolean flag (is_current). Only thing is you need to manually
+  maintain this so that only one password record per user can be marked as
+  is current.
+
+  2 - The other option is to have a created_at datetime field in the passwords
+  table and to use the latest created password as the current one.
+
+  In my opinion, the 2nd one is more robust and therefore the best option.
