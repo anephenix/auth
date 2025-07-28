@@ -1,4 +1,5 @@
 import { Model, type RelationMappings } from "objection";
+import auth from "../auth";
 import db from "../db";
 import Password from "./Password";
 
@@ -35,6 +36,34 @@ export class User extends Model {
 				},
 			},
 		};
+	}
+
+	// This is an implementation of the User.authenticate method, used previously in a different project.
+	static async authenticate(payload) {
+		const { identifier, password } = payload;
+		const params = {};
+		const key = identifier.match("@") ? "email" : "username";
+		params[key] = identifier;
+		const user = await this.query().where(params).limit(1).first();
+		if (!user) throw new Error("User not found");
+		const passwordRecord = (await user
+			.$relatedQuery("passwords")
+			.orderBy("created_at", "desc")
+			.limit(1)
+			.first()) as Password;
+		if (!passwordRecord) throw new Error("Password not found for user");
+		const isAuthenticated = await auth.verifyPassword(
+			password,
+			passwordRecord.hashed_password,
+		);
+		if (isAuthenticated) {
+			return {
+				id: user.id,
+				username: user.username,
+			};
+		} else {
+			throw new Error("Password incorrect");
+		}
 	}
 }
 

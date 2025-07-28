@@ -1,7 +1,7 @@
 import { Model, type RelationMappings } from "objection";
+import auth from "../auth";
 import db from "../db";
 import User from "./User";
-import auth from "../auth";
 
 Model.knex(db);
 
