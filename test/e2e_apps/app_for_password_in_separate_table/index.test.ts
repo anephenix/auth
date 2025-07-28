@@ -13,10 +13,14 @@
 
 */
 
-import { describe, it, expect } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import User from "./models/User";
 
 describe("E2E Tests for User Creation and Password Handling with passwords stored in separate table", () => {
+	beforeEach(async () => {
+		await User.query().delete();
+	});
+
 	describe("validating the user's password", () => {
 		describe("when the password is not valid", () => {
 			it("should not allow user creation and return an error", async () => {
@@ -31,6 +35,22 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 					"Password does not meet validation rules",
 				);
 				// So, if we want to test different settings for auth, we will need separate User models for each setting
+			});
+		});
+
+		describe("when the password is valid", () => {
+			it("should create the user successfully", async () => {
+				const createValidUser = async () => {
+					return await User.query().insert({
+						username: "testuser",
+						password: "ValidPassword123!", // Valid password
+					});
+				};
+
+				await expect(createValidUser()).resolves.toBeDefined();
+				const user = await User.query().findOne({ username: "testuser" });
+				expect(user).toBeDefined();
+				expect(user?.username).toBe("testuser");
 			});
 		});
 	});

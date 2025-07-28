@@ -10,10 +10,11 @@
 
     - In a nutshell, typescript support in knex isn't smooth sailing
 */
+
 const config = {
 	client: "sqlite3",
 	connection: {
-		filename: "./database.sqlite",
+		filename: "./database.sqlite", // TODO - might need to resolve this path using process.cwd() and path.join
 	},
 	useNullAsDefault: true,
 	pool: {
