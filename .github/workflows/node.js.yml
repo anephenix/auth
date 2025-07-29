@@ -28,4 +28,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm i
+      - run: cd test/e2e_apps/app_for_password_in_separate_table && npm i
+      - run: cd test/e2e_apps/app_for_password_in_users_table && npm i
       - run: npm run cover
