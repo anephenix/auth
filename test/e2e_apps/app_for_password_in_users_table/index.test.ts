@@ -1,20 +1,31 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { join } from "node:path";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import config from "./config";
 import User from "./models/User";
-
-/*
- What do I want to test?
-
- I want to test the following scenarios:
-
- - [x] When creating a user, if the password is not valid, attempting to save results in an error.
- - [x] When creating a user, if the password is valid:
-        - [x] the user is created successfully.
-        - [x] the password is hashed and stored in the database in the users table.
-        - [x] I have a way to authenticate the user with their password
-        - [x] If their password is not valid, then the user is not authenticated.
-*/
+import {
+	removeDatabaseFileIfExists,
+	runMigrations,
+} from "../app_for_password_in_separate_table/utils/manageDatabase";
 
 describe("E2E Tests for User Creation and Password Handling with the password stored in the users table", () => {
+	beforeAll(async () => {
+		const dbPath = join(
+			import.meta.dirname,
+			"..",
+			"..",
+			"..",
+			"test",
+			"e2e_apps",
+			"app_for_password_in_users_table",
+			"database.sqlite",
+		);
+
+		// Delete the database.sqlite file (if it exists)
+		await removeDatabaseFileIfExists(dbPath);
+		// Run the knex migrations to create the database schema
+		await runMigrations(config.db);
+	});
+
 	beforeEach(async () => {
 		await User.query().delete();
 	});

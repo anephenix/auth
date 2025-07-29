@@ -23,7 +23,7 @@ const config = {
 			max: 10,
 		},
 		migrations: {
-			extension: "ts",
+			directory: join(__dirname, "migrations"),
 		},
 	},
 };
