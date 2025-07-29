@@ -14,7 +14,7 @@
 */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import type Password from "./models/Password";
+import Password from "./models/Password";
 import User from "./models/User";
 
 describe("E2E Tests for User Creation and Password Handling with passwords stored in separate table", () => {
@@ -147,6 +147,48 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 						password: "SomePassword!",
 					}),
 				).rejects.toThrowError("User not found");
+			});
+		});
+
+		describe("when the user has created multiple passwords", () => {
+			it("should authenticate with the most recent password", async () => {
+				const createUserWithAPassword = async () => {
+					return await User.transaction(async (trx) => {
+						const user = await User.query(trx).insert({
+							username: "testuser",
+						});
+
+						await user
+							.$relatedQuery("passwords", trx)
+							.insert({ password: "FirstPassword123!" });
+					});
+				};
+
+				await createUserWithAPassword();
+				const user = await User.query().findOne({ username: "testuser" });
+
+				await Password.query().insert({
+					user_id: user?.id,
+					password: "SecondPassword123!",
+				});
+
+				const authenticatedUser = await User.authenticate({
+					identifier: "testuser",
+					password: "SecondPassword123!",
+				});
+				expect(authenticatedUser).toBeDefined();
+				expect(authenticatedUser.username).toBe("testuser");
+
+				const attemptToUseFirstPassword = async () => {
+					return await User.authenticate({
+						identifier: "testuser",
+						password: "FirstPassword123!",
+					});
+				};
+
+				await expect(attemptToUseFirstPassword()).rejects.toThrowError(
+					"Password incorrect",
+				);
 			});
 		});
 	});
