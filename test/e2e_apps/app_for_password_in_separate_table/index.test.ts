@@ -192,4 +192,48 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 			});
 		});
 	});
+
+	// Good edge case to test - in case the user has no passwords at all (perhaps they rely solely on magic links)
+	describe("when the user has no passwords", () => {
+		it("should not authenticate and throw an error", async () => {
+			const createUserWithoutPassword = async () => {
+				return await User.query().insert({
+					username: "testuser",
+				});
+			};
+			await createUserWithoutPassword();
+			await expect(
+				User.authenticate({
+					identifier: "testuser",
+					password: "SomePassword!",
+				}),
+			).rejects.toThrowError("Password not found for user");
+		});
+	});
+
+	describe("authenticating a user with their email address instead of their username", () => {
+		it("should authenticate the user successfully", async () => {
+			const createValidUser = async () => {
+				return await User.transaction(async (trx) => {
+					const user = await User.query(trx).insert({
+						username: "testuser",
+						email: "testuser@example.com",
+					});
+
+					await user
+						.$relatedQuery("passwords", trx)
+						.insert({ password: "ValidPassword123!" });
+					return user;
+				});
+			};
+
+			await createValidUser();
+			const authenticatedUser = await User.authenticate({
+				identifier: "testuser@example.com",
+				password: "ValidPassword123!",
+			});
+			expect(authenticatedUser).toBeDefined();
+			expect(authenticatedUser.username).toBe("testuser");
+		});
+	});
 });

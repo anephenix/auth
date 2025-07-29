@@ -10,6 +10,7 @@ Model.knex(db);
 export class User extends Model {
 	id!: number;
 	username!: string;
+	email?: string;
 
 	static get tableName() {
 		return "users";
