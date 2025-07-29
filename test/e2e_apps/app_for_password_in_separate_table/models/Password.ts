@@ -23,21 +23,11 @@ export class Password extends Model {
 	async $beforeInsert(...args) {
 		await super.$beforeInsert(...args);
 		if (this.password) {
-			// Validate the password using the auth instance
 			if (!auth.validatePassword(this.password)) {
-				//console.log({ password: this.password });
 				throw new Error("Password does not meet validation rules");
 			}
-			// Hash the password before saving, we'd then store it in a separate table
-			// Here's the thing, how do we we create the association between the user and the password record?
-			// Perhaps I can pass it via the queryContext?
-			// Or maybe it gets called in the afterInsert hook?
 			this.hashed_password = await auth.hashPassword(this.password);
-			// Clear the plaintext password, as it is not stored in the database table
 			this.clearPlaintextPassword();
-
-			// I could be wrong, but I think that using a transaction would guarantee that the user and password records are created together, or not at all.
-			// As shown in this example: https://vincit.github.io/objection.js/guide/transactions.html#using-a-transaction
 		} else {
 			throw new Error("Password is required");
 		}

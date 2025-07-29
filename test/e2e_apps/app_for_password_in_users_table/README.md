@@ -1,12 +1,12 @@
-# App for password in separate table
+# App for password in the users table table
 
 ## Introduction
 
 This app is testing the use case of using Auth with:
 
 - password authentication enabled
-- the password is stored in a separate table, and associated with another entity (a user)
-- the idea is to check that it can be used that way, and to see if it is a good idea.
+- the password is stored in the users table
+- this is a simple setup
 
 ## How would the developer envisage using this?
 
@@ -30,15 +30,9 @@ So, in the case of the User model, creating a new User would look like this:
 import User from "./models/User";
 
 try {
-    return await User.transaction(async (trx) => {
-        const user = await User.query(trx).insert({
-            username: "testuser",
-        });
-
-        const validPassword = await user
-            .$relatedQuery("passwords", trx)
-            .insert({ password: "ValidPassword123!" });
-        return validPassword;
+    return await User.query().insert({
+        username: "testuser",
+        password: "ValidPassword123!",
     });
 } catch (err) {
     console.log("An error occurred creating the password");
@@ -46,4 +40,8 @@ try {
 }
 ```
 
-Because we create a user record and a password record (and we want either both to be created or none at all), we do this via a transaction.
+The code in the User model will do the following:
+
+- Validate the password according to the password validation rules
+- Hash the password and store it in the hashed_password field
+- Clear the plaintext password so it is no longer in memory (and there is no field to store it in anyway)
