@@ -1,7 +1,102 @@
-export const library = () => {
-	return {
-		name: "auth-library",
-		version: "1.0.0",
-		description: "A simple authentication library",
-	};
-};
+/*
+
+	This is a class that is exported from the "@anephenix/auth" package.
+
+	It is used to handle authentication-related tasks, such as:
+
+	- validating passwords.
+	- creating a password for an existing entity (e.g., a user).
+	- encrypting passwords before they are stored in the database.
+
+	It is designed to be flexible and extensible, allowing developers to customize the authentication process as needed.
+*/
+import * as argon2 from "argon2";
+import type { AuthOptions } from "./types";
+
+export class Auth {
+	private options: AuthOptions;
+
+	constructor(options: AuthOptions) {
+		this.options = options;
+		/*
+			If there are password validation rules specified in the options,
+			validate them to ensure they are compatible.
+		*/
+		if (this.options.passwordValidationRules) {
+			this.validatePasswordRules(this.options.passwordValidationRules);
+		}
+	}
+
+	/*
+		This method checks that the password validation rules are compatible, 
+		and will throw an error if they are not (e.g. the minLength is greater 
+		than the maxLength).
+	*/
+	validatePasswordRules(rules: AuthOptions["passwordValidationRules"]): void {
+		const { minLength, maxLength } = rules || {};
+		if (minLength && maxLength && minLength > maxLength) {
+			throw new Error(
+				"Password validation rules are incompatible: minLength is greater than maxLength.",
+			);
+		}
+	}
+
+	/*
+		Validates the password according to the password rules.
+		If valid it returns true, otherwise it returns false.
+	*/
+	validatePassword(password: string): boolean {
+		if (this.options.passwordValidationRules) {
+			const {
+				minLength,
+				maxLength,
+				requireUppercase,
+				requireLowercase,
+				requireNumbers,
+				requireSpecialCharacters,
+			} = this.options.passwordValidationRules;
+
+			if (minLength && password.length < minLength) {
+				return false;
+			}
+			if (maxLength && password.length > maxLength) {
+				return false;
+			}
+			if (requireUppercase && !/[A-Z]/.test(password)) {
+				return false;
+			}
+			if (requireLowercase && !/[a-z]/.test(password)) {
+				return false;
+			}
+			if (requireNumbers && !/[0-9]/.test(password)) {
+				return false;
+			}
+			if (
+				requireSpecialCharacters &&
+				!/[!@#$%^&*(),.?":{}|<>]/.test(password)
+			) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/*
+		This function hashes a plaintext password and returns the password
+		in a hashed format that can be stored in the database.
+	*/
+	async hashPassword(password: string): Promise<string> {
+		return await argon2.hash(password);
+	}
+
+	/*
+		This function verifies a plaintext password against a hashed password.
+		It returns true if the password matches, otherwise it returns false.
+	*/
+	async verifyPassword(
+		password: string,
+		hashedPassword: string,
+	): Promise<boolean> {
+		return await argon2.verify(hashedPassword, password);
+	}
+}
