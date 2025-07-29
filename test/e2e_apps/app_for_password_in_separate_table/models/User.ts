@@ -1,6 +1,7 @@
 import { Model, type RelationMappings } from "objection";
 import auth from "../auth";
 import db from "../db";
+import isEmail from "../utils/isEmail";
 import Password from "./Password";
 
 // Attach the knex connection instance to the Model
@@ -42,9 +43,9 @@ export class User extends Model {
 	static async authenticate(payload) {
 		const { identifier, password } = payload;
 		const params = {};
-		const key = identifier.match("@") ? "email" : "username";
+		const key = isEmail(identifier) ? "email" : "username";
 		params[key] = identifier;
-		const user = await this.query().where(params).limit(1).first();
+		const user = await User.query().where(params).limit(1).first();
 		if (!user) throw new Error("User not found");
 		const passwordRecord = (await user
 			.$relatedQuery("passwords")

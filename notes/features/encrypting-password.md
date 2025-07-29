@@ -399,3 +399,15 @@ developers to understand and use, so I will opt for that.
   table and to use the latest created password as the current one.
 
   In my opinion, the 2nd one is more robust and therefore the best option.
+
+
+  ---
+
+  So far, I've managed to implement a system of creating a user and password, and then authenticating the user with the password.
+
+  What I haven't covered so far is:
+
+  - Implementing the plugin with the password stored in the users table
+  - Implementing a Password Rotation Strategy
+  - Implementing Session creation, storage, retrieval and deletion.
+  
