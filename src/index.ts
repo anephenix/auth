@@ -10,8 +10,8 @@
 
 	It is designed to be flexible and extensible, allowing developers to customize the authentication process as needed.
 */
-import * as argon2 from "argon2";
 import { randomBytes } from "node:crypto";
+import * as argon2 from "argon2";
 import type { AuthOptions } from "./types";
 
 export class Auth {
