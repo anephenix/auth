@@ -1,11 +1,11 @@
 import { join } from "node:path";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import config from "./config";
-import User from "./models/User";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
 } from "../app_for_password_in_separate_table/utils/manageDatabase";
+import config from "./config";
+import User from "./models/User";
 
 describe("E2E Tests for User Creation and Password Handling with the password stored in the users table", () => {
 	beforeAll(async () => {

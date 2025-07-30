@@ -186,4 +186,18 @@ describe("Auth class", () => {
 			expect(isValid).toBe(false);
 		});
 	});
+
+	describe("#generateSession", () => {
+		it("should generate a session with an access token, refresh token, and expiration times for both tokens", async () => {
+			const auth = new Auth({});
+			const session = await auth.generateSession();
+			const oneHourFromNow = new Date(Date.now() + 3600 * 1000);
+			const oneDayFromNow = new Date(Date.now() + 86400 * 1000);
+			expect(session).toBeDefined();
+			expect(session.accessToken).toBeDefined();
+			expect(session.refreshToken).toBeDefined();
+			expect(session.accessTokenExpiresAt).toStrictEqual(oneHourFromNow);
+			expect(session.refreshTokenExpiresAt).toStrictEqual(oneDayFromNow);
+		});
+	});
 });

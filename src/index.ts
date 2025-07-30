@@ -11,6 +11,7 @@
 	It is designed to be flexible and extensible, allowing developers to customize the authentication process as needed.
 */
 import * as argon2 from "argon2";
+import { randomBytes } from "node:crypto";
 import type { AuthOptions } from "./types";
 
 export class Auth {
@@ -98,5 +99,25 @@ export class Auth {
 		hashedPassword: string,
 	): Promise<boolean> {
 		return await argon2.verify(hashedPassword, password);
+	}
+
+	generateSession() {
+		const defaults = {
+			accessTokenExpiresIn: 3600, // 1 hour
+			refreshTokenExpiresIn: 3600 * 24, // 1 day
+		};
+
+		const accessToken = randomBytes(32).toString("hex");
+		const refreshToken = randomBytes(32).toString("hex");
+		return {
+			accessToken,
+			refreshToken,
+			accessTokenExpiresAt: new Date(
+				Date.now() + defaults.accessTokenExpiresIn * 1000,
+			),
+			refreshTokenExpiresAt: new Date(
+				Date.now() + defaults.refreshTokenExpiresIn * 1000,
+			),
+		};
 	}
 }
