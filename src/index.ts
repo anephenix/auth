@@ -12,7 +12,7 @@
 */
 import { randomBytes } from "node:crypto";
 import * as argon2 from "argon2";
-import type { AuthOptions } from "./types";
+import type { AuthOptions, GenerateSessionProps, SessionObject } from "./types";
 
 const DEFAULTS = {
 	accessTokenExpiresIn: 3600, // Default to 1 hour
@@ -129,12 +129,20 @@ export class Auth {
 		return await argon2.verify(hashedPassword, password);
 	}
 
-	generateSession() {
+	/*
+		Generates a session object containing access and refresh tokens,
+		and their respective expiration times.
+	*/
+	generateSession(generateSessionProps?: GenerateSessionProps): SessionObject {
 		const { sessionOptions } = this.options;
 		const accessTokenExpiresIn =
-			sessionOptions?.accessTokenExpiresIn ?? DEFAULTS.accessTokenExpiresIn;
+			generateSessionProps?.accessTokenExpiresIn ??
+			sessionOptions?.accessTokenExpiresIn ??
+			DEFAULTS.accessTokenExpiresIn;
 		const refreshTokenExpiresIn =
-			sessionOptions?.refreshTokenExpiresIn ?? DEFAULTS.refreshTokenExpiresIn;
+			generateSessionProps?.refreshTokenExpiresIn ??
+			sessionOptions?.refreshTokenExpiresIn ??
+			DEFAULTS.refreshTokenExpiresIn;
 
 		const accessToken = randomBytes(32).toString("hex");
 		const refreshToken = randomBytes(32).toString("hex");

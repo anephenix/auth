@@ -12,3 +12,15 @@ export type AuthOptions = {
 		refreshTokenExpiresIn?: number; // in seconds
 	};
 };
+
+export interface GenerateSessionProps {
+	accessTokenExpiresIn?: number; // in seconds
+	refreshTokenExpiresIn?: number; // in seconds
+}
+
+export type SessionObject = {
+	accessToken: string;
+	refreshToken: string;
+	accessTokenExpiresAt: Date;
+	refreshTokenExpiresAt: Date;
+};

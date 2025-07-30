@@ -188,9 +188,9 @@ describe("Auth class", () => {
 	});
 
 	describe("#generateSession", () => {
-		it("should generate a session with an access token, refresh token, and expiration times for both tokens", async () => {
+		it("should generate a session with an access token, refresh token, and default expiration times for both tokens", () => {
 			const auth = new Auth({});
-			const session = await auth.generateSession();
+			const session = auth.generateSession();
 			const oneHourFromNow = new Date(Date.now() + 3600 * 1000);
 			const oneDayFromNow = new Date(Date.now() + 86400 * 1000);
 			expect(session).toBeDefined();
@@ -200,18 +200,51 @@ describe("Auth class", () => {
 			expect(session.refreshTokenExpiresAt).toStrictEqual(oneDayFromNow);
 		});
 
-		it("should generate a session with custom expiration times if provided in the auth config", async () => {
+		it("should generate a session with custom expiration times if provided in the auth config", () => {
 			const auth = new Auth({
 				sessionOptions: {
 					accessTokenExpiresIn: 7200, // 2 hours
 					refreshTokenExpiresIn: 86400 * 2, // 2 days
 				},
 			});
-			const session = await auth.generateSession();
+			const session = auth.generateSession();
 			const twoHoursFromNow = new Date(Date.now() + 3600 * 2 * 1000);
 			const twoDaysFromNow = new Date(Date.now() + 3600 * 48 * 1000);
 			expect(session.accessTokenExpiresAt).toStrictEqual(twoHoursFromNow);
 			expect(session.refreshTokenExpiresAt).toStrictEqual(twoDaysFromNow);
+		});
+
+		/*
+			NOTE - I can foresee that someone might want to generate a session 
+			with custom expiration times that differ to the defaults, as well as
+			options set in the auth config. 
+			
+			Say for example, a user wants their access token to expire after 
+			5 minutes, and the refresh token to expire after 8 hours. With this, 
+			we could provide them with that option, while still allowing everyone
+			else to use the defaults or the auth config options.
+			
+			This test is a placeholder for that functionality.
+		*/
+		it("should generate a session with custom expiration times if provided in the function", () => {
+			const auth = new Auth({
+				sessionOptions: {
+					accessTokenExpiresIn: 7200, // 2 hours
+					refreshTokenExpiresIn: 86400 * 2, // 2 days
+				},
+			});
+			const uniqueSession = auth.generateSession({
+				accessTokenExpiresIn: 3600 * 0.25, // 15 minutes
+				refreshTokenExpiresIn: 3600 * 8, // 8 hours
+			});
+			const fifteenMinutesFromNow = new Date(Date.now() + 3600 * 0.25 * 1000);
+			const eightHoursFromNow = new Date(Date.now() + 3600 * 8 * 1000);
+			expect(uniqueSession.accessTokenExpiresAt).toStrictEqual(
+				fifteenMinutesFromNow,
+			);
+			expect(uniqueSession.refreshTokenExpiresAt).toStrictEqual(
+				eightHoursFromNow,
+			);
 		});
 	});
 });
