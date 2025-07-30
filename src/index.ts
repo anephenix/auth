@@ -14,6 +14,11 @@ import { randomBytes } from "node:crypto";
 import * as argon2 from "argon2";
 import type { AuthOptions } from "./types";
 
+const DEFAULTS = {
+	accessTokenExpiresIn: 3600, // Default to 1 hour
+	refreshTokenExpiresIn: 86400, // Default to 1 day
+};
+
 export class Auth {
 	private options: AuthOptions;
 
@@ -26,6 +31,29 @@ export class Auth {
 		if (this.options.passwordValidationRules) {
 			this.validatePasswordRules(this.options.passwordValidationRules);
 		}
+		this.validateSessionOptions();
+
+		if (!this.options.sessionOptions) {
+			this.options.sessionOptions = {
+				accessTokenExpiresIn: 3600, // Default to 1 hour
+				refreshTokenExpiresIn: 86400, // Default to 1 day
+			};
+		} else {
+			// Ensure session options have default values if not provided
+			this.options.sessionOptions.accessTokenExpiresIn ??= 3600; // Default to 1 hour
+			this.options.sessionOptions.refreshTokenExpiresIn ??= 86400; // Default to 1 day
+		}
+	}
+
+	/*
+		This function validates the session options to ensure that they are set correctly.
+		If the session options are not set, it will set them to default values.
+	*/
+	validateSessionOptions(): void {
+		if (!this.options.sessionOptions) this.options.sessionOptions = {};
+		const { sessionOptions } = this.options;
+		sessionOptions.accessTokenExpiresIn ??= DEFAULTS.accessTokenExpiresIn;
+		sessionOptions.refreshTokenExpiresIn ??= DEFAULTS.refreshTokenExpiresIn;
 	}
 
 	/*
@@ -102,22 +130,25 @@ export class Auth {
 	}
 
 	generateSession() {
-		const defaults = {
-			accessTokenExpiresIn: 3600, // 1 hour
-			refreshTokenExpiresIn: 3600 * 24, // 1 day
-		};
+		const { sessionOptions } = this.options;
+		const accessTokenExpiresIn =
+			sessionOptions?.accessTokenExpiresIn ?? DEFAULTS.accessTokenExpiresIn;
+		const refreshTokenExpiresIn =
+			sessionOptions?.refreshTokenExpiresIn ?? DEFAULTS.refreshTokenExpiresIn;
 
 		const accessToken = randomBytes(32).toString("hex");
 		const refreshToken = randomBytes(32).toString("hex");
+		const accessTokenExpiresAt = new Date(
+			Date.now() + accessTokenExpiresIn * 1000,
+		);
+		const refreshTokenExpiresAt = new Date(
+			Date.now() + refreshTokenExpiresIn * 1000,
+		);
 		return {
 			accessToken,
 			refreshToken,
-			accessTokenExpiresAt: new Date(
-				Date.now() + defaults.accessTokenExpiresIn * 1000,
-			),
-			refreshTokenExpiresAt: new Date(
-				Date.now() + defaults.refreshTokenExpiresIn * 1000,
-			),
+			accessTokenExpiresAt,
+			refreshTokenExpiresAt,
 		};
 	}
 }

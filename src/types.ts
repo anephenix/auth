@@ -7,4 +7,8 @@ export type AuthOptions = {
 		requireNumbers?: boolean;
 		requireSpecialCharacters?: boolean;
 	};
+	sessionOptions?: {
+		accessTokenExpiresIn?: number; // in seconds
+		refreshTokenExpiresIn?: number; // in seconds
+	};
 };

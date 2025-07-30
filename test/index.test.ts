@@ -199,5 +199,19 @@ describe("Auth class", () => {
 			expect(session.accessTokenExpiresAt).toStrictEqual(oneHourFromNow);
 			expect(session.refreshTokenExpiresAt).toStrictEqual(oneDayFromNow);
 		});
+
+		it("should generate a session with custom expiration times if provided in the auth config", async () => {
+			const auth = new Auth({
+				sessionOptions: {
+					accessTokenExpiresIn: 7200, // 2 hours
+					refreshTokenExpiresIn: 86400 * 2, // 2 days
+				},
+			});
+			const session = await auth.generateSession();
+			const twoHoursFromNow = new Date(Date.now() + 3600 * 2 * 1000);
+			const twoDaysFromNow = new Date(Date.now() + 3600 * 48 * 1000);
+			expect(session.accessTokenExpiresAt).toStrictEqual(twoHoursFromNow);
+			expect(session.refreshTokenExpiresAt).toStrictEqual(twoDaysFromNow);
+		});
 	});
 });
