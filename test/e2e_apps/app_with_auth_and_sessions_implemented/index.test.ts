@@ -1,22 +1,45 @@
 // Dependencies
+import { join } from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+	removeDatabaseFileIfExists,
+	runMigrations,
+} from "../app_for_password_in_separate_table/utils/manageDatabase";
+import config from "./config";
+import appDB from "./db"; // Assuming you have a db module to handle database connections
 import app from "./index";
 import { Session } from "./models/Session";
 import { User } from "./models/User";
-import appDB from "./db"; // Assuming you have a db module to handle database connections
 
 const port = 3000; // Port for the Fastify server
 const baseUrl = `http://localhost:${port}`;
 const signupUrl = `${baseUrl}/signup`;
+const loginUrl = `${baseUrl}/login`;
 
 describe("App with Auth and Sessions Implemented", () => {
+	// I think this hook might need to happen somewhere else before all other tests run
+	beforeAll(async () => {
+		const dbPath = join(
+			import.meta.dirname,
+			"..",
+			"..",
+			"..",
+			"test",
+			"e2e_apps",
+			"app_with_auth_and_sessions_implemented",
+			"database.sqlite",
+		);
+
+		// Delete the database.sqlite file (if it exists)
+		await removeDatabaseFileIfExists(dbPath);
+		// Run the knex migrations to create the database schema
+		await runMigrations(config.db);
+		await app.listen({ port });
+	});
+
 	beforeEach(async () => {
 		await Session.query().delete();
 		await User.query().delete();
-	});
-
-	beforeAll(async () => {
-		await app.listen({ port });
 	});
 
 	afterAll(async () => {
@@ -253,6 +276,131 @@ describe("App with Auth and Sessions Implemented", () => {
 				const data = await response.json();
 				expect(data).toHaveProperty("error");
 				expect(data.error).toBe("Password does not meet validation rules");
+			});
+		});
+	});
+
+	describe("POST /login", () => {
+		describe("when the login details are valid", () => {
+			describe("and the client is authenticating via API method", () => {
+				it("should authenticate the user successfully", async () => {
+					const user = await User.query().insert({
+						username: "testuser4",
+						email: "testuser4@example.com",
+						password: "Password123!",
+					});
+
+					const requestData = {
+						identifier: "testuser4",
+						password: "Password123!",
+					};
+
+					const response = await fetch(loginUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(requestData),
+					});
+
+					expect(response.status).toBe(200);
+					const data = await response.json();
+					expect(data).toHaveProperty("access_token");
+					expect(data).toHaveProperty("refresh_token");
+					expect(data).toHaveProperty("access_token_expires_at");
+					expect(data).toHaveProperty("refresh_token_expires_at");
+
+					const session = await Session.query().findOne({
+						user_id: user.id,
+						access_token: data.access_token,
+					});
+					expect(session).toBeDefined();
+					expect(session?.user_id).toBe(user.id);
+					expect(session?.access_token).toBe(data.access_token);
+				});
+			});
+
+			describe("when the client is authenticated via a website", () => {
+				it.todo("should set tokens in the cookie instead");
+			});
+		});
+
+		describe("when the login details are invalid", () => {
+			it("should return an error if the username is not provided", async () => {
+				const requestData = {
+					password: "Password123!",
+				};
+
+				const response = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(requestData),
+				});
+
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe(
+					"Please provide your username or email address",
+				);
+			});
+			it("should return an error if the password is not provided", async () => {
+				const requestData = {
+					identifier: "testuser",
+				};
+				const response = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(requestData),
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Password is required");
+			});
+			it("should return an error if the user does not exist", async () => {
+				const requestData = {
+					identifier: "nonexistentuser",
+					password: "Password123!",
+				};
+				const response = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(requestData),
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("User not found");
+			});
+			it("should return an error if the password is incorrect", async () => {
+				await User.query().insert({
+					username: "testuser5",
+					email: "testuser4@example.com",
+					password: "Password123!",
+				});
+
+				const requestData = {
+					identifier: "testuser5",
+					password: "WrongPassword!",
+				};
+				const response = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(requestData),
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Password incorrect");
 			});
 		});
 	});

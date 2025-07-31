@@ -1,19 +1,8 @@
-/*
-    I think that this is where the fastify instance is created and the routes 
-    are defined.
-
-    As for a running server, we could load that in a server.js file for it to 
-    run and listen on a port.
-
-    Whereas in the unit tests we can manually get it to listen and to close 
-    the server as part of the setup and teardown of the tests.
-*/
-
 // Dependencies
 import fastify from "fastify";
+import detectClientType from "./helpers/detectClientType";
 import handleError from "./helpers/handleError";
-
-// import { Session } from "./models/Session";
+import { Session } from "./models/Session";
 import { User } from "./models/User";
 
 const app = fastify({ logger: false });
@@ -49,6 +38,56 @@ app.post("/signup", async (request, reply) => {
 	} catch (error) {
 		const errorMessage = handleError(error);
 		reply.status(400).send({ error: errorMessage });
+	}
+});
+
+app.post("/login", async (request, reply) => {
+	const { identifier, password } = request.body as {
+		identifier: string;
+		password: string;
+	};
+	try {
+		if (!identifier)
+			throw new Error("Please provide your username or email address");
+		if (!password) throw new Error("Password is required");
+
+		const user = await User.authenticate({ identifier, password });
+		if (!user) {
+			return reply.status(401).send({ error: "Invalid credentials" });
+		}
+		// Create the session
+		const session = await Session.query().insert({
+			user_id: user.id,
+			...Session.generateTokens(),
+		});
+
+		const {
+			access_token,
+			refresh_token,
+			access_token_expires_at,
+			refresh_token_expires_at,
+		} = session;
+
+		const clientType = detectClientType(request);
+		if (clientType === "web") {
+			// TODO - Implement setting cookies for web clients instead of returning tokens in the response body
+			reply.status(200).send({
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			});
+		} else {
+			reply.status(200).send({
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			});
+		}
+	} catch (error) {
+		const errorMessage = handleError(error);
+		reply.status(401).send({ error: errorMessage });
 	}
 });
 

@@ -12,7 +12,7 @@
 		"publish-patch-release": "npm run prepare-patch-release && git push origin main && git push --tags",
 		"size": "size-limit",
 		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts",
-		"test": "cross-env NODE_ENV=test npx vitest test --run",
+		"test": "cross-env NODE_ENV=test npx vitest test --run --no-file-parallelism",
 		"watch": "tsc --project tsconfig.json --watch"
 	},
 	"keywords": [
