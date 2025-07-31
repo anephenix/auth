@@ -24,6 +24,14 @@ const controller = {
 			reply.status(400).send({ error: errorMessage });
 		}
 	},
+
+	profile: async (request, reply) => {
+		const user = request.user;
+		if (!user) {
+			return reply.status(401).send({ error: "Unauthorized" });
+		}
+		reply.send({ id: user.id, username: user.username, email: user.email });
+	},
 };
 
 export default controller;

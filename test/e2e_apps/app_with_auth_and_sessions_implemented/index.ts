@@ -4,6 +4,7 @@ import fastify from "fastify";
 import config from "./config";
 import sessions from "./controllers/sessions";
 import users from "./controllers/users";
+import { Session } from "./models/Session";
 
 const app = fastify({ logger: false });
 app.register(fastifyCookie, {
@@ -20,7 +21,38 @@ app.register(fastifyCookie, {
     const routes = [];
 */
 
+/*
+    This is a preHandler function for Fastify that will authenticate the session
+    by checking the access token in the request headers and verifying it against the database.
+    If the session is valid, it will attach the user to the request object for downstream handlers
+    If the session is invalid, it will return a 401 Unauthorized response.
+*/
+const authenticateSession = async (request, reply) => {
+	const access_token = request.headers.authorization?.replace("Bearer ", "");
+
+	if (!access_token) {
+		reply.code(401).send({ error: "Unauthorized" });
+		return;
+	}
+
+	const session = await Session.query().findOne({ access_token });
+	if (!session) {
+		reply.code(401).send({ error: "Invalid session" });
+		return;
+	}
+	const user = await session.$relatedQuery("user");
+
+	if (!user) {
+		reply.code(401).send({ error: "Invalid session" });
+		return;
+	}
+
+	// Attach user to request for downstream handlers
+	request.user = user;
+};
+
 app.post("/signup", users.create);
 app.post("/login", sessions.create);
+app.get("/profile", { preHandler: [authenticateSession] }, users.profile);
 
 export default app;

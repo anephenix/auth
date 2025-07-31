@@ -450,4 +450,59 @@ describe("App with Auth and Sessions Implemented", () => {
 			});
 		});
 	});
+
+	describe("GET /profile", () => {
+		describe("when the user is authenticated", () => {
+			describe("and the client is authenticated via API method", () => {
+				it("should return the user's profile information", async () => {
+					const user = await User.query().insert({
+						username: "testuser8",
+						email: "testuser8@example.com",
+						password: "Password123!",
+					});
+
+					const requestData = {
+						identifier: "testuser8",
+						password: "Password123!",
+					};
+
+					// Perform the login to get the access token
+					const response = await fetch(loginUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(requestData),
+					});
+					const data = await response.json();
+					expect(response.status).toBe(201);
+					const { access_token } = data;
+
+					const profileRequest = await fetch(`${baseUrl}/profile`, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${access_token}`,
+						},
+					});
+
+					expect(profileRequest.status).toBe(200);
+					const profileData = await profileRequest.json();
+					expect(profileData.id).toBe(user.id);
+					expect(profileData.username).toBe(user.username);
+					expect(profileData.email).toBe(user.email);
+				});
+			});
+
+			describe("when the client is authenticated via a website", () => {
+				it.todo("should return the user's profile information");
+			});
+		});
+
+		describe("when the user is not authenticated", () => {
+			it.todo(
+				"should return an error indicating the user is not authenticated",
+			);
+		});
+	});
 });

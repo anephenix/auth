@@ -1,6 +1,7 @@
 import { Model } from "objection";
 import auth from "../auth";
 import db from "../db";
+import { User } from "./User";
 
 // Attach the knex connection instance to the Model
 Model.knex(db);
@@ -71,6 +72,19 @@ export class Session extends Model {
 				ip_address: { type: "string" },
 				created_at: { type: "string", format: "date-time" },
 				updated_at: { type: "string", format: "date-time" },
+			},
+		};
+	}
+
+	static get relationMappings() {
+		return {
+			user: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: User,
+				join: {
+					from: "sessions.user_id",
+					to: "users.id",
+				},
 			},
 		};
 	}
