@@ -144,6 +144,7 @@ export class Auth {
 			sessionOptions?.refreshTokenExpiresIn ??
 			DEFAULTS.refreshTokenExpiresIn;
 
+		// Question - should the token generation be configurable? - Maybe.
 		const accessToken = randomBytes(32).toString("hex");
 		const refreshToken = randomBytes(32).toString("hex");
 		const accessTokenExpiresAt = new Date(

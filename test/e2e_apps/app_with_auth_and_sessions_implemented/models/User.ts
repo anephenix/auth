@@ -10,8 +10,11 @@ Model.knex(db);
 export class User extends Model {
 	id!: number;
 	username!: string;
+	email!: string;
 	password?: string;
 	hashed_password!: string;
+	created_at!: string;
+	updated_at!: string;
 
 	static get tableName() {
 		return "users";
@@ -29,18 +32,54 @@ export class User extends Model {
 			}
 			this.hashed_password = await auth.hashPassword(this.password);
 			this.clearPlaintextPassword();
+
+			/* This runs sets timestamps before a record is inserted into the database */
+			const date = new Date().toISOString();
+			this.created_at = date;
+			this.updated_at = date;
 		} else {
 			throw new Error("Password is required");
 		}
 	}
 
+	/* This runs updates a timestamp before a record is updated in the database */
+	async $beforeUpdate(opt, queryContext) {
+		await super.$beforeUpdate(opt, queryContext);
+		this.updated_at = new Date().toISOString();
+	}
+
 	static get jsonSchema() {
 		return {
 			type: "object",
-			required: ["username"],
+			required: ["username", "email"],
 			properties: {
 				id: { type: "integer" },
-				username: { type: "string", minLength: 1, maxLength: 255 },
+				username: {
+					type: "string",
+					minLength: 2,
+					maxLength: 64,
+					pattern: String.raw`^([\w\d]){1,255}$`,
+				},
+				email: {
+					type: "string",
+					format: "email",
+					pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`,
+					minLength: 1,
+					maxLength: 255,
+				},
+				// NOTE - I'm wondering if this will work fine or will causes issues - I guess we'lll have to try it and find out.
+				hashed_password: {
+					type: "string",
+					minLength: 10,
+					maxLength: 255,
+					writeOnly: true,
+				},
+				created_at: {
+					type: "string",
+					format: "date-time",
+					readOnly: true,
+				},
+				updated_at: { type: "string", format: "date-time" },
 			},
 		};
 	}
@@ -67,5 +106,3 @@ export class User extends Model {
 		}
 	}
 }
-
-export default User;

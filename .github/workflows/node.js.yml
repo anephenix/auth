@@ -30,4 +30,5 @@ jobs:
       - run: npm i
       - run: cd test/e2e_apps/app_for_password_in_separate_table && npm i
       - run: cd test/e2e_apps/app_for_password_in_users_table && npm i
+      - run: cd test/e2e_apps/app_with_auth_and_sessions_implemented && npm i
       - run: npm run cover

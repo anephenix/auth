@@ -35,18 +35,13 @@ describe("E2E Tests for User Creation and Password Handling with the password st
 			describe("when the password is not valid", () => {
 				it("should not allow user creation and return an error", async () => {
 					const createInvalidUser = async () => {
-						try {
-							return await User.query().insert({
-								username: "testuser",
-								password: "short",
-							});
-						} catch (err) {
-							console.log("An error occurred creating the password");
-							throw err;
-						}
+						return await User.query().insert({
+							username: "testuser",
+							password: "short",
+						});
 					};
 
-					expect(() => createInvalidUser()).rejects.toThrowError(
+					await expect(createInvalidUser()).rejects.toThrowError(
 						"Password does not meet validation rules",
 					);
 				});

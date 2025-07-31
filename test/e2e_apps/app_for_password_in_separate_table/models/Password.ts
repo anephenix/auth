@@ -20,8 +20,8 @@ export class Password extends Model {
 		this.password = undefined;
 	}
 
-	async $beforeInsert(...args) {
-		await super.$beforeInsert(...args);
+	async $beforeInsert(queryContext) {
+		await super.$beforeInsert(queryContext);
 		if (this.password) {
 			if (!auth.validatePassword(this.password)) {
 				throw new Error("Password does not meet validation rules");
