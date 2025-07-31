@@ -25,12 +25,13 @@ handling the sessions as well).
 - [x] Setup Auth with options for password validation and session configuration
 - [x] Setup a User model with the password stored in the users table
 - [x] Setup a Sessions model which will store the session tokens and expiry times in them
-- [ ] Setup a Fastify API endpoint for POST /signup
+- [x] Setup a Fastify API endpoint for POST /signup
 - [ ] Setup a Fastify API endpoint for POST /login
 - [ ] Setup a Fastify API endpoint for GET /profile
 - [ ] Setup a Fastify API endpoint for POST /logout
 - [ ] Setup a Fastify API endpoint for GET /sessions
 - [ ] Setup a Fastify API endpoint for DELETE /sessions/:id (used to log out a session)
 - [ ] Setup a Fastify API endpoint for DELETE /sessions (used to log out of all sessions)
+- [ ] Write some unit tests for the User model (when you get a moment)
 
 So, let's deal with the 1st item - Setting up Auth
