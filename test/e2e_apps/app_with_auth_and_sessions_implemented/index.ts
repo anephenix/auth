@@ -40,6 +40,11 @@ const authenticateSession = async (request, reply) => {
 		reply.code(401).send({ error: "Invalid session" });
 		return;
 	}
+	if (session.accessTokenHasExpired()) {
+		reply.code(401).send({ error: "Access token has expired" });
+		return;
+	}
+
 	const user = await session.$relatedQuery("user");
 
 	if (!user) {

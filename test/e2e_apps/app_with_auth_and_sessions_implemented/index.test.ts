@@ -1,13 +1,21 @@
 // Dependencies
 import { join } from "node:path";
 import fastifyCookie from "@fastify/cookie";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+	afterAll,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
 } from "../app_for_password_in_separate_table/utils/manageDatabase";
-import config from "./config";
 import auth from "./auth";
+import config from "./config";
 import appDB from "./db"; // Assuming you have a db module to handle database connections
 import app from "./index";
 import { Session } from "./models/Session";
@@ -499,10 +507,67 @@ describe("App with Auth and Sessions Implemented", () => {
 			});
 		});
 
-		describe("when the user is not authenticated", () => {
-			it.todo(
-				"should return an error indicating the user is not authenticated",
-			);
+		describe("when there is no access token in the headers or cookies", () => {
+			it("should return an error indicating the user is not authenticated", async () => {
+				const profileRequest = await fetch(`${baseUrl}/profile`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				expect(profileRequest.status).toBe(401);
+				const data = await profileRequest.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Unauthorized");
+			});
+		});
+
+		describe("when the access token is invalid", () => {
+			it("should return an error indicating the session is invalid", async () => {
+				const profileRequest = await fetch(`${baseUrl}/profile`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer invalid_token`,
+					},
+				});
+				expect(profileRequest.status).toBe(401);
+				const data = await profileRequest.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Invalid session");
+			});
+		});
+
+		describe("when the access token has expired", () => {
+			it("should return an error indicating the session is invalid", async () => {
+				const user = await User.query().insert({
+					username: "testuser9",
+					email: "testuser9@example.com",
+					password: "Password123!",
+				});
+
+				const session = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				vi.useFakeTimers(); // Enables fake timers
+				vi.advanceTimersByTime(1000 * 60 * 60); // Simulate 1 hour passing
+
+				const profileRequest = await fetch(`${baseUrl}/profile`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${session.access_token}`,
+					},
+				});
+				expect(profileRequest.status).toBe(401);
+				const data = await profileRequest.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Access token has expired");
+
+				vi.useRealTimers();
+			});
 		});
 	});
 });

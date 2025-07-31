@@ -50,6 +50,11 @@ export class Session extends Model {
 		await super.$beforeUpdate(opt, queryContext);
 		this.updated_at = new Date().toISOString();
 	}
+	/* Checks if the session is expired based on the access token expiration dates */
+	accessTokenHasExpired() {
+		const now = new Date();
+		return new Date(this.access_token_expires_at) < now;
+	}
 
 	static get jsonSchema() {
 		return {
