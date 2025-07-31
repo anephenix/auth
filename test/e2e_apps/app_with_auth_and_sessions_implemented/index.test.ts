@@ -532,7 +532,6 @@ describe("App with Auth and Sessions Implemented", () => {
 					expect(data).toBe("Authenticated successfully");
 					expect(response.status).toBe(201);
 
-					// TODO - how do we do the cookie stuff? - I think we need to use the cookie-jar library mentioned by ChatGPT
 					const profileRequest = await fetch(profileUrl, {
 						method: "GET",
 						headers: {
@@ -647,19 +646,104 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(nonExistentSession).toBeUndefined(); // Session should be deleted
 			});
 
-			it.todo(
-				"should delete only the session with the matching access token, and not all sessions for the user that might be active",
-			);
+			it("should delete only the session with the matching access token, and not all sessions for the user that might be active", async () => {
+				const user = await User.query().insert({
+					username: "testuser12",
+					email: "testuser12@example.com",
+					password: "Password123!",
+				});
+
+				const firstSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const secondSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetch(logoutUrl, {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${firstSession.access_token}`,
+					},
+				});
+				expect(response.status).toBe(200);
+				const data = await response.json();
+				expect(data).toHaveProperty("message");
+				expect(data.message).toBe("Logged out successfully");
+				const nonExistentSession = await Session.query().findById(
+					firstSession.id,
+				);
+				expect(nonExistentSession).toBeUndefined(); // Session should be deleted
+				const existingSession = await Session.query().findById(
+					secondSession.id,
+				);
+				expect(existingSession).toBeDefined(); // Second session should still exist
+			});
 		});
 
 		describe("when the user is authenticated via Web client type", () => {
-			it.todo(
-				"should log out the user, delete the session, and clear the cookies",
-			);
+			it("should log out the user, delete the session, and clear the cookies", async () => {
+				const user = await User.query().insert({
+					username: "testuser13",
+					email: "testuser13@example.com",
+					password: "Password123!",
+				});
+
+				const requestData = {
+					identifier: "testuser13",
+					password: "Password123!",
+				};
+
+				const loginResponse = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Client-Type": "web", // Simulating a web client
+					},
+					body: JSON.stringify(requestData),
+				});
+				const cookie = loginResponse.headers.get("Set-Cookie") || "";
+				expect(loginResponse.status).toBe(201);
+
+				const session = await Session.query().findOne({
+					user_id: user.id,
+				});
+				if (!session) {
+					throw new Error("Session not found");
+				}
+
+				const response = await fetch(logoutUrl, {
+					method: "POST",
+					headers: {
+						// "X-Client-Type": "web", // Simulating a web client
+						Cookie: cookie,
+					},
+				});
+				expect(response.status).toBe(200);
+				const data = await response.json();
+				expect(data).toHaveProperty("message");
+				expect(data.message).toBe("Logged out successfully");
+				const nonExistentSession = await Session.query().findById(session?.id);
+				expect(nonExistentSession).toBeUndefined(); // Session should be deleted
+			});
 		});
 
 		describe("when the user is not authenticated", () => {
-			it("should return a 200");
+			it("should return a 401", async () => {
+				const response = await fetch(logoutUrl, {
+					method: "POST",
+					headers: {
+						Authorization: "Bearer invalid_token",
+					},
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Invalid session");
+			});
 		});
 	});
 });

@@ -28,7 +28,7 @@ handling the sessions as well).
 - [x] Setup a Fastify API endpoint for POST /signup
 - [x] Setup a Fastify API endpoint for POST /login
 - [x] Setup a Fastify API endpoint for GET /profile
-- [ ] Setup a Fastify API endpoint for POST /logout
+- [x] Setup a Fastify API endpoint for POST /logout
 - [ ] Setup a Fastify API endpoint for GET /sessions
 - [ ] Setup a Fastify API endpoint for DELETE /sessions/:id (used to log out a session)
 - [ ] Setup a Fastify API endpoint for DELETE /sessions (used to log out of all sessions)
