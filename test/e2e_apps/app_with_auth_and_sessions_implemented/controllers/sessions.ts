@@ -64,6 +64,27 @@ const controller = {
 			reply.status(401).send({ error: errorMessage });
 		}
 	},
+
+	logout: async (request, reply) => {
+		const user = request.user;
+		const access_token = request.access_token;
+		if (!user) {
+			return reply.status(401).send({ error: "Unauthorized" });
+		}
+
+		try {
+			await Session.query()
+				.delete()
+				.where({ user_id: user.id, access_token: access_token });
+			reply
+				.clearCookie("access_token")
+				.clearCookie("refresh_token")
+				.send({ message: "Logged out successfully" });
+		} catch (error) {
+			const errorMessage = handleError(error);
+			reply.status(500).send({ error: errorMessage });
+		}
+	},
 };
 
 export default controller;

@@ -20,11 +20,14 @@ import appDB from "./db"; // Assuming you have a db module to handle database co
 import app from "./index";
 import { Session } from "./models/Session";
 import { User } from "./models/User";
+import { afterEach } from "node:test";
 
 const port = 3000; // Port for the Fastify server
 const baseUrl = `http://localhost:${port}`;
 const signupUrl = `${baseUrl}/signup`;
 const loginUrl = `${baseUrl}/login`;
+const profileUrl = `${baseUrl}/profile`;
+const logoutUrl = `${baseUrl}/logout`;
 
 describe("App with Auth and Sessions Implemented", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -486,7 +489,7 @@ describe("App with Auth and Sessions Implemented", () => {
 					expect(response.status).toBe(201);
 					const { access_token } = data;
 
-					const profileRequest = await fetch(`${baseUrl}/profile`, {
+					const profileRequest = await fetch(profileUrl, {
 						method: "GET",
 						headers: {
 							"Content-Type": "application/json",
@@ -530,7 +533,7 @@ describe("App with Auth and Sessions Implemented", () => {
 					expect(response.status).toBe(201);
 
 					// TODO - how do we do the cookie stuff? - I think we need to use the cookie-jar library mentioned by ChatGPT
-					const profileRequest = await fetch(`${baseUrl}/profile`, {
+					const profileRequest = await fetch(profileUrl, {
 						method: "GET",
 						headers: {
 							"Content-Type": "application/json",
@@ -549,7 +552,7 @@ describe("App with Auth and Sessions Implemented", () => {
 
 		describe("when there is no access token in the headers or cookies", () => {
 			it("should return an error indicating the user is not authenticated", async () => {
-				const profileRequest = await fetch(`${baseUrl}/profile`, {
+				const profileRequest = await fetch(profileUrl, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -564,7 +567,7 @@ describe("App with Auth and Sessions Implemented", () => {
 
 		describe("when the access token is invalid", () => {
 			it("should return an error indicating the session is invalid", async () => {
-				const profileRequest = await fetch(`${baseUrl}/profile`, {
+				const profileRequest = await fetch(profileUrl, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -594,7 +597,7 @@ describe("App with Auth and Sessions Implemented", () => {
 				vi.useFakeTimers(); // Enables fake timers
 				vi.advanceTimersByTime(1000 * 60 * 60); // Simulate 1 hour passing
 
-				const profileRequest = await fetch(`${baseUrl}/profile`, {
+				const profileRequest = await fetch(profileUrl, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -608,6 +611,55 @@ describe("App with Auth and Sessions Implemented", () => {
 
 				vi.useRealTimers();
 			});
+		});
+	});
+
+	describe("POST /logout", () => {
+		afterEach(async () => {
+			await Session.query().delete();
+			await User.query().delete();
+		});
+
+		describe("when the user is authenticated via API client type", () => {
+			it("should log out the user and delete the session", async () => {
+				const user = await User.query().insert({
+					username: "testuser11",
+					email: "testuser11@example.com",
+					password: "Password123!",
+				});
+
+				const session = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetch(logoutUrl, {
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${session.access_token}`,
+					},
+				});
+				expect(response.status).toBe(200);
+				const data = await response.json();
+				expect(data).toHaveProperty("message");
+				expect(data.message).toBe("Logged out successfully");
+				const nonExistentSession = await Session.query().findById(session.id);
+				expect(nonExistentSession).toBeUndefined(); // Session should be deleted
+			});
+
+			it.todo(
+				"should delete only the session with the matching access token, and not all sessions for the user that might be active",
+			);
+		});
+
+		describe("when the user is authenticated via Web client type", () => {
+			it.todo(
+				"should log out the user, delete the session, and clear the cookies",
+			);
+		});
+
+		describe("when the user is not authenticated", () => {
+			it("should return a 200");
 		});
 	});
 });

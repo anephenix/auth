@@ -55,11 +55,13 @@ const authenticateSession = async (request, reply) => {
 	}
 
 	// Attach user to request for downstream handlers
+	request.access_token = session.access_token;
 	request.user = user;
 };
 
 app.post("/signup", users.create);
 app.post("/login", sessions.create);
 app.get("/profile", { preHandler: [authenticateSession] }, users.profile);
+app.post("/logout", { preHandler: [authenticateSession] }, sessions.logout);
 
 export default app;
