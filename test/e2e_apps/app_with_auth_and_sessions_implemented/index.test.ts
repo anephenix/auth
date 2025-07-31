@@ -503,7 +503,47 @@ describe("App with Auth and Sessions Implemented", () => {
 			});
 
 			describe("when the client is authenticated via a website", () => {
-				it.todo("should return the user's profile information");
+				it("should return the user's profile information", async () => {
+					const user = await User.query().insert({
+						username: "testuser10",
+						email: "testuser10@example.com",
+						password: "Password123!",
+					});
+
+					const requestData = {
+						identifier: "testuser10",
+						password: "Password123!",
+					};
+
+					// Perform the login to get the access token
+					const response = await fetch(loginUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-Client-Type": "web", // Simulating a web client
+						},
+						body: JSON.stringify(requestData),
+					});
+					const cookie = response.headers.get("Set-Cookie") || "";
+					const data = await response.text();
+					expect(data).toBe("Authenticated successfully");
+					expect(response.status).toBe(201);
+
+					// TODO - how do we do the cookie stuff? - I think we need to use the cookie-jar library mentioned by ChatGPT
+					const profileRequest = await fetch(`${baseUrl}/profile`, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							Cookie: cookie,
+						},
+					});
+
+					const profileData = await profileRequest.json();
+					expect(profileRequest.status).toBe(200);
+					expect(profileData.id).toBe(user.id);
+					expect(profileData.username).toBe(user.username);
+					expect(profileData.email).toBe(user.email);
+				});
 			});
 		});
 

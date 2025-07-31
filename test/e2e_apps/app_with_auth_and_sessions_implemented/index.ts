@@ -28,7 +28,9 @@ app.register(fastifyCookie, {
     If the session is invalid, it will return a 401 Unauthorized response.
 */
 const authenticateSession = async (request, reply) => {
-	const access_token = request.headers.authorization?.replace("Bearer ", "");
+	const access_token =
+		request.headers.authorization?.replace("Bearer ", "") ||
+		request.cookies?.access_token;
 
 	if (!access_token) {
 		reply.code(401).send({ error: "Unauthorized" });

@@ -27,11 +27,13 @@ handling the sessions as well).
 - [x] Setup a Sessions model which will store the session tokens and expiry times in them
 - [x] Setup a Fastify API endpoint for POST /signup
 - [x] Setup a Fastify API endpoint for POST /login
-- [ ] Setup a Fastify API endpoint for GET /profile
+- [x] Setup a Fastify API endpoint for GET /profile
 - [ ] Setup a Fastify API endpoint for POST /logout
 - [ ] Setup a Fastify API endpoint for GET /sessions
 - [ ] Setup a Fastify API endpoint for DELETE /sessions/:id (used to log out a session)
 - [ ] Setup a Fastify API endpoint for DELETE /sessions (used to log out of all sessions)
 - [ ] Write some unit tests for the User model (when you get a moment)
+- [ ] Do a sweep of the codebase to re-organise code that is used across apps
+- [ ] Identify code that could do with some unit tests (if not covered already)
 
 So, let's deal with the 1st item - Setting up Auth
