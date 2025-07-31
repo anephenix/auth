@@ -14,7 +14,7 @@
 const config = {
 	client: "sqlite3",
 	connection: {
-		filename: "./database.sqlite", // TODO - might need to resolve this path using process.cwd() and path.join
+		filename: "./database.sqlite",
 	},
 	useNullAsDefault: true,
 	pool: {

@@ -1,11 +1,13 @@
 // Dependencies
 import { join } from "node:path";
+import fastifyCookie from "@fastify/cookie";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
 } from "../app_for_password_in_separate_table/utils/manageDatabase";
 import config from "./config";
+import auth from "./auth";
 import appDB from "./db"; // Assuming you have a db module to handle database connections
 import app from "./index";
 import { Session } from "./models/Session";
@@ -303,7 +305,7 @@ describe("App with Auth and Sessions Implemented", () => {
 						body: JSON.stringify(requestData),
 					});
 
-					expect(response.status).toBe(200);
+					expect(response.status).toBe(201);
 					const data = await response.json();
 					expect(data).toHaveProperty("access_token");
 					expect(data).toHaveProperty("refresh_token");
@@ -321,7 +323,51 @@ describe("App with Auth and Sessions Implemented", () => {
 			});
 
 			describe("when the client is authenticated via a website", () => {
-				it.todo("should set tokens in the cookie instead");
+				it("should set tokens in the cookie instead", async () => {
+					const user = await User.query().insert({
+						username: "testuser6",
+						email: "testuser6@example.com",
+						password: "Password123!",
+					});
+
+					const requestData = {
+						identifier: "testuser6",
+						password: "Password123!",
+					};
+
+					const response = await fetch(loginUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-Client-Type": "web", // Simulating a web client
+						},
+						body: JSON.stringify(requestData),
+					});
+
+					expect(response.status).toBe(201);
+					const data = await response.text();
+					expect(data).toBe("Authenticated successfully");
+
+					const session = await Session.query().findOne({
+						user_id: user.id,
+					});
+					expect(session).toBeDefined();
+					expect(session?.access_token).toBeDefined();
+					expect(session?.refresh_token).toBeDefined();
+
+					const setCookieHeader = response.headers.get("set-cookie");
+					expect(setCookieHeader).toBeDefined();
+					expect(setCookieHeader).toContain("access_token");
+					expect(setCookieHeader).toContain("refresh_token");
+
+					const cookies = fastifyCookie.parse(setCookieHeader || "");
+					expect(cookies.access_token).toStrictEqual(session?.access_token);
+					expect(cookies["Max-Age"]).toStrictEqual(
+						auth.accessTokenExpiresIn.toString(),
+					);
+					// We don't see the refresh token in the cookies because it's only accessible for the refresh endpoint
+					expect(cookies).not.toHaveProperty("refresh_token");
+				});
 			});
 		});
 

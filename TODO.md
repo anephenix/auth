@@ -7,10 +7,10 @@
 - [x] Setup size-limit to evaluate the build
 - [x] Setup GitHub workflows in case any are missing
 - [x] Setup Husky so that it will fail if a pre-commit step fails
+- [x] Handle setting up a new user with a password and having the password be encrypted
 
 ## Next
 
-- [ ] Handle setting up a new user with a password and having the password be encrypted
 
 ## Nice to haves
 

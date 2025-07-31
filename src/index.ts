@@ -134,15 +134,10 @@ export class Auth {
 		and their respective expiration times.
 	*/
 	generateSession(generateSessionProps?: GenerateSessionProps): SessionObject {
-		const { sessionOptions } = this.options;
 		const accessTokenExpiresIn =
-			generateSessionProps?.accessTokenExpiresIn ??
-			sessionOptions?.accessTokenExpiresIn ??
-			DEFAULTS.accessTokenExpiresIn;
+			generateSessionProps?.accessTokenExpiresIn ?? this.accessTokenExpiresIn;
 		const refreshTokenExpiresIn =
-			generateSessionProps?.refreshTokenExpiresIn ??
-			sessionOptions?.refreshTokenExpiresIn ??
-			DEFAULTS.refreshTokenExpiresIn;
+			generateSessionProps?.refreshTokenExpiresIn ?? this.refreshTokenExpiresIn;
 
 		// Question - should the token generation be configurable? - Maybe.
 		const accessToken = randomBytes(32).toString("hex");
@@ -159,5 +154,19 @@ export class Auth {
 			accessTokenExpiresAt,
 			refreshTokenExpiresAt,
 		};
+	}
+
+	get accessTokenExpiresIn(): number {
+		const { sessionOptions } = this.options;
+		return (
+			sessionOptions?.accessTokenExpiresIn ?? DEFAULTS.accessTokenExpiresIn
+		);
+	}
+
+	get refreshTokenExpiresIn(): number {
+		const { sessionOptions } = this.options;
+		return (
+			sessionOptions?.refreshTokenExpiresIn ?? DEFAULTS.refreshTokenExpiresIn
+		);
 	}
 }

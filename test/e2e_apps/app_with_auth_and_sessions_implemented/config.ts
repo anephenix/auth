@@ -26,6 +26,8 @@ const config = {
 			directory: join(__dirname, "migrations"),
 		},
 	},
+	// Secret for signing cookies, can be a simple string on development, but would be a secure key in production
+	cookieSecret: "my-secret",
 };
 
 export default config;

@@ -26,7 +26,7 @@ handling the sessions as well).
 - [x] Setup a User model with the password stored in the users table
 - [x] Setup a Sessions model which will store the session tokens and expiry times in them
 - [x] Setup a Fastify API endpoint for POST /signup
-- [ ] Setup a Fastify API endpoint for POST /login
+- [x] Setup a Fastify API endpoint for POST /login
 - [ ] Setup a Fastify API endpoint for GET /profile
 - [ ] Setup a Fastify API endpoint for POST /logout
 - [ ] Setup a Fastify API endpoint for GET /sessions
