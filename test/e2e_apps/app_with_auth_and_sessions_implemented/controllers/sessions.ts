@@ -158,6 +158,24 @@ const controller = {
 			});
 		}
 	},
+
+	delete: async (request, reply) => {
+		const sessionId = request.params.id;
+		const user = request.user;
+		const session = await Session.query()
+			.where({ id: sessionId, user_id: user.id })
+			.first();
+		if (!session) {
+			return reply.status(404).send({ error: "Session not found" });
+		}
+
+		if (session.user_id !== request.user.id) {
+			return reply.status(403).send({ error: "Forbidden" });
+		}
+
+		await session.$query().delete();
+		reply.status(200).send({ message: "Session deleted successfully" });
+	},
 };
 
 export default controller;

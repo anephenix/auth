@@ -31,6 +31,7 @@ const profileUrl = `${baseUrl}/profile`;
 const logoutUrl = `${baseUrl}/logout`;
 const refreshTokenUrl = `${baseUrl}/auth/refresh`;
 const sessionsUrl = `${baseUrl}/sessions`;
+const deleteSessionUrl = (id: number) => `${baseUrl}/sessions/${id}`;
 
 describe("App with Auth and Sessions Implemented", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -902,7 +903,7 @@ describe("App with Auth and Sessions Implemented", () => {
 
 	describe("GET /sessions", () => {
 		describe("when the user is logged in", () => {
-			it("should return a list of active sessions for the user", async () => {
+			it("should return a list of active sessions for the user via api client type", async () => {
 				const user = await User.query().insert({
 					username: "testuser16",
 					email: "testuser16@example.com",
@@ -958,10 +959,14 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(sessions[0]).toHaveProperty("ip_address");
 				expect(sessions[0]).toHaveProperty("created_at");
 			});
+
+			it.todo(
+				"should return a list of active sessions for the user via web client type",
+			);
 		});
 
 		describe("when the user is not authenticated", () => {
-			it("should return a 401", async () => {
+			it("should return a 401 when the user attempts to make a request via the api client type", async () => {
 				const response = await fetch(sessionsUrl, {
 					method: "GET",
 					headers: {
@@ -974,6 +979,60 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(data).toHaveProperty("error");
 				expect(data.error).toBe("Unauthorized");
 			});
+		});
+	});
+
+	describe("DELETE /sessions/:id", () => {
+		describe("when the user is authenticated", () => {
+			it("should delete the session via the api client type", async () => {
+				const user = await User.query().insert({
+					username: "testuser18",
+					email: "testuser18@example.com",
+					password: "Password123!",
+				});
+
+				const firstSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const secondSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetch(deleteSessionUrl(firstSession.id), {
+					method: "DELETE",
+					headers: {
+						"X-Client-Type": "api", // Simulating a API client
+						Authorization: `Bearer ${secondSession.access_token}`,
+					},
+				});
+				expect(response.status).toBe(200);
+				const data = await response.json();
+				expect(data).toHaveProperty("message");
+				expect(data.message).toBe("Session deleted successfully");
+
+				const deletedSession = await Session.query().findById(firstSession.id);
+				expect(deletedSession).toBeUndefined(); // First session should be deleted
+				const existingSession = await Session.query().findById(
+					secondSession.id,
+				);
+				expect(existingSession).toBeDefined(); // Second session should still exist
+			});
+			it.todo("should delete the session via the web client type");
+			it.todo(
+				"should return an error if the session id passed does not belong to the user",
+			);
+			it.todo(
+				"should return an error if the user attempts to delete the session that is the same as the session linked to their access_token",
+			);
+		});
+
+		describe("when the user is not authenticated", () => {
+			it.todo(
+				"should return an error indicating that the user is unauthorized",
+			);
 		});
 	});
 });
