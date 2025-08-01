@@ -18,6 +18,7 @@ import {
 import auth from "./auth";
 import config from "./config";
 import appDB from "./db"; // Assuming you have a db module to handle database connections
+import { cookieJar, fetchWithCookies } from "./helpers/fetchWithCookies";
 import app from "./index";
 import { Session } from "./models/Session";
 import { User } from "./models/User";
@@ -791,7 +792,74 @@ describe("App with Auth and Sessions Implemented", () => {
 			});
 
 			describe("and the client is making the request via web method", () => {
-				it.todo("should refresh the access token and return new tokens");
+				it("should refresh the access token and return new tokens", async () => {
+					const user = await User.query().insert({
+						username: "testuser15",
+						email: "testuser15@example.com",
+						password: "Password123!",
+					});
+
+					const requestData = {
+						identifier: "testuser15",
+						password: "Password123!",
+					};
+
+					// Perform the login to get the access token
+					const response = await fetchWithCookies(loginUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-Client-Type": "web", // Simulating a web client
+						},
+						body: JSON.stringify(requestData),
+					});
+					const data = await response.text();
+					expect(data).toBe("Authenticated successfully");
+					expect(response.status).toBe(201);
+
+					const originalCookies = await cookieJar.getCookies(refreshTokenUrl);
+					const parsedOriginalCookies = originalCookies.map((cookie) =>
+						fastifyCookie.parse(cookie.toString()),
+					);
+					const originalRefreshToken = parsedOriginalCookies.find(
+						(cookie) => cookie.refresh_token,
+					)?.refresh_token;
+					const originalAccessToken = parsedOriginalCookies.find(
+						(cookie) => cookie.access_token,
+					)?.access_token;
+
+					const refreshTokenRequest = await fetchWithCookies(refreshTokenUrl, {
+						method: "POST",
+						headers: {
+							"X-Client-Type": "web", // Simulating a web client
+						},
+					});
+
+					const updatedCookies = await cookieJar.getCookies(refreshTokenUrl);
+					const parsedUpdatedCookies = updatedCookies.map((cookie) =>
+						fastifyCookie.parse(cookie.toString()),
+					);
+					const updatedRefreshToken = parsedUpdatedCookies.find(
+						(cookie) => cookie.refresh_token,
+					)?.refresh_token;
+					const updatedAccessToken = parsedUpdatedCookies.find(
+						(cookie) => cookie.access_token,
+					)?.access_token;
+
+					expect(originalRefreshToken).toBe(updatedRefreshToken); // Refresh token should remain the same
+					expect(originalAccessToken).not.toBe(updatedAccessToken); // New access token should be generated
+
+					expect(refreshTokenRequest.status).toBe(201);
+					const refreshResponse = await refreshTokenRequest.text();
+					expect(refreshResponse).toBe("Token refreshed successfully");
+					const updatedSession = await Session.query().findOne({
+						user_id: user.id,
+					});
+					expect(updatedSession).toBeDefined();
+					expect(updatedSession?.access_token).not.toBe(originalAccessToken);
+					expect(updatedSession?.access_token).toBe(updatedAccessToken);
+					expect(updatedSession?.refresh_token).toBe(updatedRefreshToken);
+				});
 			});
 		});
 

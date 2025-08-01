@@ -10,6 +10,8 @@
 		"sqlite3": "^5.1.7"
 	},
 	"devDependencies": {
+		"fetch-cookie": "^3.1.0",
+		"tough-cookie": "^5.1.2",
 		"vitest": "^3.2.4"
 	}
 }

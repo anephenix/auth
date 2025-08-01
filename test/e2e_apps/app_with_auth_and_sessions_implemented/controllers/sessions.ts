@@ -4,6 +4,12 @@ import handleError from "../helpers/handleError";
 import { Session } from "../models/Session";
 import { User } from "../models/User";
 
+/*
+	This is used to toggle cookie security when running 
+	on development/test environments versus production.
+*/
+const secureCookieEnabled = process.env.NODE_ENV === "production";
+
 const controller = {
 	create: async (request, reply) => {
 		const { identifier, password } = request.body as {
@@ -38,14 +44,14 @@ const controller = {
 					.status(201)
 					.setCookie("access_token", access_token, {
 						httpOnly: true,
-						secure: true,
+						secure: secureCookieEnabled,
 						sameSite: "strict",
 						path: "/",
 						maxAge: auth.accessTokenExpiresIn,
 					})
 					.setCookie("refresh_token", refresh_token, {
 						httpOnly: true,
-						secure: true,
+						secure: secureCookieEnabled,
 						sameSite: "strict",
 						path: "/auth/refresh", // We send the cookie only to the refresh token endpoint
 						maxAge: auth.refreshTokenExpiresIn,
@@ -125,7 +131,7 @@ const controller = {
 			reply
 				.setCookie("access_token", newSession.access_token, {
 					httpOnly: true,
-					secure: true,
+					secure: secureCookieEnabled,
 					sameSite: "strict",
 					path: "/",
 					maxAge: auth.accessTokenExpiresIn,
