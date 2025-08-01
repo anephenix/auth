@@ -966,7 +966,8 @@ describe("App with Auth and Sessions Implemented", () => {
 					password: "Password123!",
 				});
 
-				const firstSession = await Session.query().insert({
+				// Create a session for the user that simulates logging in on another device
+				await Session.query().insert({
 					user_id: user.id,
 					...Session.generateTokens(),
 				});
