@@ -6,7 +6,7 @@
 		"analyze": "size-limit --why",
 		"build": "tsc --project tsconfig.json",
 		"cover": "cross-env NODE_ENV=test npx vitest test --run --coverage",
-		"lint": "npx @biomejs/biome format --write",
+		"lint": "npx @biomejs/biome check --write src scripts test .github",
 		"prepare": "husky",
 		"prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
 		"publish-patch-release": "npm run prepare-patch-release && git push origin main && git push --tags",

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import fastifyCookie from "@fastify/cookie";
 import {
 	afterAll,
+	afterEach,
 	beforeAll,
 	beforeEach,
 	describe,
@@ -20,7 +21,6 @@ import appDB from "./db"; // Assuming you have a db module to handle database co
 import app from "./index";
 import { Session } from "./models/Session";
 import { User } from "./models/User";
-import { afterEach } from "node:test";
 
 const port = 3000; // Port for the Fastify server
 const baseUrl = `http://localhost:${port}`;
