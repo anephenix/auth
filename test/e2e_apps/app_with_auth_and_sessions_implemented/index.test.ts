@@ -28,6 +28,7 @@ const signupUrl = `${baseUrl}/signup`;
 const loginUrl = `${baseUrl}/login`;
 const profileUrl = `${baseUrl}/profile`;
 const logoutUrl = `${baseUrl}/logout`;
+const refreshTokenUrl = `${baseUrl}/auth/refresh`;
 
 describe("App with Auth and Sessions Implemented", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -743,6 +744,68 @@ describe("App with Auth and Sessions Implemented", () => {
 				const data = await response.json();
 				expect(data).toHaveProperty("error");
 				expect(data.error).toBe("Invalid session");
+			});
+		});
+	});
+
+	describe("POST /auth/refresh", () => {
+		describe("when the refresh token is valid", () => {
+			describe("and the client is making the request via API method", () => {
+				it("should refresh the access token and return new tokens", async () => {
+					const user = await User.query().insert({
+						username: "testuser14",
+						email: "testuser14@example.com",
+						password: "Password123!",
+					});
+
+					const session = await Session.query().insert({
+						user_id: user.id,
+						...Session.generateTokens(),
+					});
+
+					const response = await fetch(refreshTokenUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							refresh_token: session.refresh_token,
+						}),
+					});
+
+					expect(response.status).toBe(201);
+					const data = await response.json();
+					expect(data).toHaveProperty("access_token");
+					expect(data).toHaveProperty("refresh_token");
+					expect(data).toHaveProperty("access_token_expires_at");
+					expect(data).toHaveProperty("refresh_token_expires_at");
+					expect(data.access_token).not.toBe(session.access_token); // New access token should be generated
+					expect(data.refresh_token).toBe(session.refresh_token); // Refresh token should remain the same
+
+					// Check that the session in the database has been updated with the new access token
+					const updatedSession = await Session.query().findById(session.id);
+					expect(updatedSession).toBeDefined();
+					expect(updatedSession?.access_token).toBe(data.access_token);
+					expect(updatedSession?.refresh_token).toBe(data.refresh_token);
+				});
+			});
+
+			describe("and the client is making the request via web method", () => {
+				it.todo("should refresh the access token and return new tokens");
+			});
+		});
+
+		describe("when the refresh token is invalid", () => {
+			describe("and the client is making the request via API method", () => {
+				it.todo(
+					"should return an error indicating the refresh token is invalid",
+				);
+			});
+
+			describe("and the client is making the request via web method", () => {
+				it.todo(
+					"should return an error indicating the refresh token is invalid",
+				);
 			});
 		});
 	});

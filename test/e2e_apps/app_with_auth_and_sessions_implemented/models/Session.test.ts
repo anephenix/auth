@@ -137,4 +137,42 @@ describe("Session Model", () => {
 			});
 		});
 	});
+
+	describe("instance methods", () => {
+		describe("accessTokenHasExpired", () => {
+			it("should return true if the access token has expired", () => {
+				const session = new Session();
+				session.access_token_expires_at = new Date(
+					Date.now() - 1000,
+				).toISOString();
+				expect(session.accessTokenHasExpired()).toBe(true);
+			});
+
+			it("should return false if the access token has not expired", () => {
+				const session = new Session();
+				session.access_token_expires_at = new Date(
+					Date.now() + 1000,
+				).toISOString();
+				expect(session.accessTokenHasExpired()).toBe(false);
+			});
+		});
+
+		describe("refreshTokenHasExpired", () => {
+			it("should return true if the refresh token has expired", () => {
+				const session = new Session();
+				session.refresh_token_expires_at = new Date(
+					Date.now() - 1000,
+				).toISOString();
+				expect(session.refreshTokenHasExpired()).toBe(true);
+			});
+
+			it("should return false if the refresh token has not expired", () => {
+				const session = new Session();
+				session.refresh_token_expires_at = new Date(
+					Date.now() + 1000,
+				).toISOString();
+				expect(session.refreshTokenHasExpired()).toBe(false);
+			});
+		});
+	});
 });

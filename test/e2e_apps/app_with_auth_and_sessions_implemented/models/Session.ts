@@ -56,6 +56,11 @@ export class Session extends Model {
 		return new Date(this.access_token_expires_at) < now;
 	}
 
+	refreshTokenHasExpired() {
+		const now = new Date();
+		return new Date(this.refresh_token_expires_at) < now;
+	}
+
 	static get jsonSchema() {
 		return {
 			type: "object",

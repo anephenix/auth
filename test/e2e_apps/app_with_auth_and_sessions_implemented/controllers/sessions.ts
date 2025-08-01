@@ -85,6 +85,62 @@ const controller = {
 			reply.status(500).send({ error: errorMessage });
 		}
 	},
+
+	// TODO - implement based on client being web or api
+	refresh: async (request, reply) => {
+		// TODO - get the X-Client-Type header and check if it is web or api
+		// If it is web, we will get the refresh token from the cookie
+		// If it is api, we will get the refresh token from the JSON body
+		// For now, we will just get it from the cookie or JSON body
+		const clientType = detectClientType(request);
+		// If it is defined in the cookie, get it there
+		let refresh_token = request.cookies?.refresh_token;
+
+		// Otherwsie, get it from the JSON body
+		if (!refresh_token) {
+			refresh_token = request.body?.refresh_token;
+		}
+
+		// If it is not defined in either place, return unauthorized
+		if (!refresh_token) {
+			return reply.status(401).send({ error: "No refresh token provided" });
+		}
+
+		const session = await Session.query().findOne({ refresh_token });
+		if (!session || session.refreshTokenHasExpired()) {
+			return reply
+				.status(401)
+				.send({ error: "Invalid or expired refresh token" });
+		}
+
+		// Generate a new access token for the session, and update the session
+		const updatedSessionTokens = Session.generateTokens();
+
+		const newSession = await session.$query().patchAndFetch({
+			access_token: updatedSessionTokens.access_token,
+			access_token_expires_at: updatedSessionTokens.access_token_expires_at,
+		});
+
+		if (clientType === "web") {
+			reply
+				.setCookie("access_token", newSession.access_token, {
+					httpOnly: true,
+					secure: true,
+					sameSite: "strict",
+					path: "/",
+					maxAge: auth.accessTokenExpiresIn,
+				})
+				.status(201)
+				.send("Token refreshed successfully");
+		} else if (clientType === "api") {
+			reply.status(201).send({
+				access_token: newSession.access_token,
+				access_token_expires_at: newSession.access_token_expires_at,
+				refresh_token: newSession.refresh_token,
+				refresh_token_expires_at: newSession.refresh_token_expires_at,
+			});
+		}
+	},
 };
 
 export default controller;
