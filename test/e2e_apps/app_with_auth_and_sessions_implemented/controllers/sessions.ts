@@ -101,10 +101,6 @@ const controller = {
 
 	// TODO - implement based on client being web or api
 	refresh: async (request, reply) => {
-		// TODO - get the X-Client-Type header and check if it is web or api
-		// If it is web, we will get the refresh token from the cookie
-		// If it is api, we will get the refresh token from the JSON body
-		// For now, we will just get it from the cookie or JSON body
 		const clientType = detectClientType(request);
 		// If it is defined in the cookie, get it there
 		let refresh_token = request.cookies?.refresh_token;
@@ -174,7 +170,9 @@ const controller = {
 		}
 
 		await session.$query().delete();
-		reply.status(200).send({ message: "Session deleted successfully" });
+		const clientType = detectClientType(request);
+		const message = "Session deleted successfully";
+		reply.status(200).send(clientType === "web" ? message : { message });
 	},
 };
 

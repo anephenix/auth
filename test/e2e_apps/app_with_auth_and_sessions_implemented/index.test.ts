@@ -722,7 +722,6 @@ describe("App with Auth and Sessions Implemented", () => {
 				const response = await fetch(logoutUrl, {
 					method: "POST",
 					headers: {
-						// "X-Client-Type": "web", // Simulating a web client
 						Cookie: cookie,
 					},
 				});
@@ -1020,7 +1019,66 @@ describe("App with Auth and Sessions Implemented", () => {
 				);
 				expect(existingSession).toBeDefined(); // Second session should still exist
 			});
-			it.todo("should delete the session via the web client type");
+
+			it("should delete the session via the web client type", async () => {
+				const user = await User.query().insert({
+					username: "testuser19",
+					email: "testuser19@example.com",
+					password: "Password123!",
+				});
+
+				const firstSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const requestData = {
+					identifier: "testuser19",
+					password: "Password123!",
+				};
+
+				// Perform the login to get the access token
+				const loginResponse = await fetchWithCookies(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Client-Type": "web", // Simulating a web client
+					},
+					body: JSON.stringify(requestData),
+				});
+				const loginData = await loginResponse.text();
+				expect(loginData).toBe("Authenticated successfully");
+				expect(loginResponse.status).toBe(201);
+
+				const originalCookies = await cookieJar.getCookies(refreshTokenUrl);
+				const parsedOriginalCookies = originalCookies.map((cookie) =>
+					fastifyCookie.parse(cookie.toString()),
+				);
+				const latestAccessToken = parsedOriginalCookies.find(
+					(cookie) => cookie.access_token,
+				)?.access_token;
+
+				const response = await fetchWithCookies(
+					deleteSessionUrl(firstSession.id),
+					{
+						method: "DELETE",
+						headers: {
+							"X-Client-Type": "web", // Simulating a web client
+						},
+					},
+				);
+				expect(response.status).toBe(200);
+				const text = await response.text();
+				expect(text).toBe("Session deleted successfully");
+
+				const deletedSession = await Session.query().findById(firstSession.id);
+				expect(deletedSession).toBeUndefined(); // First session should be deleted
+				const existingSession = await Session.query()
+					.where({ access_token: latestAccessToken })
+					.first();
+				expect(existingSession).toBeDefined(); // Second session should still exist
+			});
+
 			it.todo(
 				"should return an error if the session id passed does not belong to the user",
 			);
