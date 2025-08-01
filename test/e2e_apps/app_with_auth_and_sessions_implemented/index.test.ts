@@ -943,6 +943,9 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(response.status).toBe(200);
 				const sessions = await response.json();
 				expect(Array.isArray(sessions)).toBe(true);
+				expect(sessions.map((s) => s.id).includes(otherUserSession.id)).toBe(
+					false,
+				);
 				expect(sessions.length).toBe(2);
 				expect(sessions[0].id).toBe(session.id);
 				expect(sessions[1].id).toBe(anotherSession.id);
