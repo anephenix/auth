@@ -1,4 +1,3 @@
-import { access } from "node:fs";
 import auth from "../auth";
 import detectClientType from "../helpers/detectClientType";
 import handleError from "../helpers/handleError";

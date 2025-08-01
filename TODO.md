@@ -11,6 +11,14 @@
 
 ## Next
 
+- [ ] Look at supporting Magic Link (email)
+- [ ] Look at supporting MFA (SMS)
+- [ ] Look at supporting MFA (QR Code & app)
+- [ ] Look at supporting forgot password flow
+- [ ] Look at supporting reset password flow
+- [ ] Look at updating username flow
+- [ ] Look at updating email flow
 
 ## Nice to haves
 
+- [ ] Have an optional plugin to provide all of this code (models, controllers, routes) out of the box - Auth as a plugin into your app (either loading dynamically or generating the code itself)
