@@ -32,6 +32,7 @@ const logoutUrl = `${baseUrl}/logout`;
 const refreshTokenUrl = `${baseUrl}/auth/refresh`;
 const sessionsUrl = `${baseUrl}/sessions`;
 const deleteSessionUrl = (id: number) => `${baseUrl}/sessions/${id}`;
+const deleteSessionsUrl = `${baseUrl}/sessions`;
 
 describe("App with Auth and Sessions Implemented", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -1205,6 +1206,74 @@ describe("App with Auth and Sessions Implemented", () => {
 				});
 
 				const response = await fetch(deleteSessionUrl(session.id), {
+					method: "DELETE",
+					headers: {
+						"X-Client-Type": "api", // Simulating a API client
+					},
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Unauthorized");
+			});
+		});
+	});
+
+	describe("DELETE /sessions", () => {
+		it("should delete a session for the authenticated user", async () => {
+			const user = await User.query().insert({
+				username: "testuser24",
+				email: "testuser24@example.com",
+				password: "Password123!",
+			});
+
+			const secondUser = await User.query().insert({
+				username: "testuser25",
+				email: "testuser25@example.com",
+				password: "Password123!",
+			});
+
+			const session = await Session.query().insert({
+				user_id: user.id,
+				...Session.generateTokens(),
+			});
+
+			await Session.query().insert({
+				user_id: user.id,
+				...Session.generateTokens(),
+			});
+
+			await Session.query().insert({
+				user_id: user.id,
+				...Session.generateTokens(),
+			});
+
+			const fourthSession = await Session.query().insert({
+				user_id: secondUser.id,
+				...Session.generateTokens(),
+			});
+
+			const response = await fetch(deleteSessionsUrl, {
+				method: "DELETE",
+				headers: {
+					"X-Client-Type": "api", // Simulating a API client
+					Authorization: `Bearer ${session.access_token}`,
+				},
+			});
+			expect(response.status).toBe(200);
+			const data = await response.json();
+			expect(data).toHaveProperty("message");
+			expect(data.message).toBe("Sessions deleted successfully");
+
+			const sessions = await Session.query();
+			expect(sessions.length).toBe(2); // Only the session for the second user should remain
+			expect(sessions[0].id).toBe(session.id);
+			expect(sessions[1].id).toBe(fourthSession.id);
+		});
+
+		describe("when the user is not authenticated", () => {
+			it("should return a 401 Unauthorized error", async () => {
+				const response = await fetch(deleteSessionsUrl, {
 					method: "DELETE",
 					headers: {
 						"X-Client-Type": "api", // Simulating a API client

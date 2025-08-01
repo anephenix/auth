@@ -1,3 +1,4 @@
+import { access } from "node:fs";
 import auth from "../auth";
 import detectClientType from "../helpers/detectClientType";
 import handleError from "../helpers/handleError";
@@ -182,6 +183,25 @@ const controller = {
 		const clientType = detectClientType(request);
 		const message = "Session deleted successfully";
 		reply.status(200).send(clientType === "web" ? message : { message });
+	},
+
+	deleteAll: async (request, reply) => {
+		const user = request.user;
+		if (!user) {
+			return reply.status(401).send({ error: "Unauthorized" });
+		}
+
+		try {
+			// Delete all sessions for the user except the current session that they are using
+			await Session.query()
+				.delete()
+				.where({ user_id: user.id })
+				.whereNot({ access_token: request.access_token });
+			reply.status(200).send({ message: "Sessions deleted successfully" });
+		} catch (error) {
+			const errorMessage = handleError(error);
+			reply.status(500).send({ error: errorMessage });
+		}
 	},
 };
 
