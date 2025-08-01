@@ -11,6 +11,13 @@ import { User } from "../models/User";
 const secureCookieEnabled = process.env.NODE_ENV === "production";
 
 const controller = {
+	index: async (request, reply) => {
+		const sessions = await Session.query()
+			.select("id", "user_agent", "ip_address", "created_at", "updated_at")
+			.where("user_id", request.user.id);
+		reply.status(200).send(sessions);
+	},
+
 	create: async (request, reply) => {
 		const { identifier, password } = request.body as {
 			identifier: string;

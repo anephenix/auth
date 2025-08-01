@@ -64,5 +64,6 @@ app.post("/login", sessions.create);
 app.get("/profile", { preHandler: [authenticateSession] }, users.profile);
 app.post("/logout", { preHandler: [authenticateSession] }, sessions.logout);
 app.post("/auth/refresh", sessions.refresh);
+app.get("/sessions", { preHandler: [authenticateSession] }, sessions.index);
 
 export default app;

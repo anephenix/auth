@@ -30,6 +30,7 @@ const loginUrl = `${baseUrl}/login`;
 const profileUrl = `${baseUrl}/profile`;
 const logoutUrl = `${baseUrl}/logout`;
 const refreshTokenUrl = `${baseUrl}/auth/refresh`;
+const sessionsUrl = `${baseUrl}/sessions`;
 
 describe("App with Auth and Sessions Implemented", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -895,6 +896,80 @@ describe("App with Auth and Sessions Implemented", () => {
 					const errorResponse = await response.text();
 					expect(errorResponse).toBe("Invalid or expired refresh token");
 				});
+			});
+		});
+	});
+
+	describe("GET /sessions", () => {
+		describe("when the user is logged in", () => {
+			it("should return a list of active sessions for the user", async () => {
+				const user = await User.query().insert({
+					username: "testuser16",
+					email: "testuser16@example.com",
+					password: "Password123!",
+				});
+
+				const anotherUser = await User.query().insert({
+					username: "testuser17",
+					email: "testuser17@example.com",
+					password: "Password123!",
+				});
+
+				// Create a session for the user
+				const session = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const anotherSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const otherUserSession = await Session.query().insert({
+					user_id: anotherUser.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetchWithCookies(sessionsUrl, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Client-Type": "api", // Simulating a API client
+						Authorization: `Bearer ${session.access_token}`,
+					},
+				});
+
+				expect(response.status).toBe(200);
+				const sessions = await response.json();
+				expect(Array.isArray(sessions)).toBe(true);
+				expect(sessions.length).toBe(2);
+				expect(sessions[0].id).toBe(session.id);
+				expect(sessions[1].id).toBe(anotherSession.id);
+				expect(sessions[0]).not.toHaveProperty("access_token");
+				expect(sessions[0]).not.toHaveProperty("access_token_expires_at");
+				expect(sessions[0]).not.toHaveProperty("refresh_token");
+				expect(sessions[0]).not.toHaveProperty("refresh_token_expires_at");
+				expect(sessions[0]).not.toHaveProperty("user_id");
+				expect(sessions[0]).toHaveProperty("user_agent");
+				expect(sessions[0]).toHaveProperty("ip_address");
+				expect(sessions[0]).toHaveProperty("created_at");
+			});
+		});
+
+		describe("when the user is not authenticated", () => {
+			it("should return a 401", async () => {
+				const response = await fetch(sessionsUrl, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Client-Type": "api", // Simulating a API client
+					},
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Unauthorized");
 			});
 		});
 	});
