@@ -31,7 +31,7 @@ handling the sessions as well).
 - [x] Setup a Fastify API endpoint for POST /logout
 - [x] Setup a Fastify API endpoint for POST /auth/refresh
 - [x] Setup a Fastify API endpoint for GET /sessions
-- [ ] Setup a Fastify API endpoint for DELETE /sessions/:id (used to log out a session)
+- [x] Setup a Fastify API endpoint for DELETE /sessions/:id (used to log out a session)
 - [ ] Setup a Fastify API endpoint for DELETE /sessions (used to log out of all sessions)
 - [ ] Write some unit tests for the User model (when you get a moment)
 - [ ] Do a sweep of the codebase to re-organise code that is used across apps

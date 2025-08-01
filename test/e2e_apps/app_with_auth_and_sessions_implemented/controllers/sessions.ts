@@ -169,6 +169,15 @@ const controller = {
 			return reply.status(403).send({ error: "Forbidden" });
 		}
 
+		// Prevents a user from deleting their active session
+		if (session.access_token === request.access_token) {
+			return reply.status(409).send({
+				error: "conflict",
+				message:
+					"Cannot delete the active session. Use the /logout endpoint instead.",
+			});
+		}
+
 		await session.$query().delete();
 		const clientType = detectClientType(request);
 		const message = "Session deleted successfully";

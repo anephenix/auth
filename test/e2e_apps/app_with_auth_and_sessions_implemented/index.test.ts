@@ -959,9 +959,56 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(sessions[0]).toHaveProperty("created_at");
 			});
 
-			it.todo(
-				"should return a list of active sessions for the user via web client type",
-			);
+			it("should return a list of active sessions for the user via web client type", async () => {
+				const user = await User.query().insert({
+					username: "testusera24",
+					email: "testusera24@example.com",
+					password: "Password123!",
+				});
+
+				const firstSession = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const requestData = {
+					identifier: "testusera24",
+					password: "Password123!",
+				};
+
+				// Perform the login to get the access token
+				const loginResponse = await fetchWithCookies(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Client-Type": "web", // Simulating a web client
+					},
+					body: JSON.stringify(requestData),
+				});
+
+				const loginData = await loginResponse.text();
+				expect(loginData).toBe("Authenticated successfully");
+				expect(loginResponse.status).toBe(201);
+
+				const sessionsInDb = await Session.query().where({
+					user_id: user.id,
+				});
+				expect(sessionsInDb.length).toBe(2);
+
+				const sessionsRequest = await fetchWithCookies(sessionsUrl, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Client-Type": "web", // Simulating a web client
+					},
+				});
+				expect(sessionsRequest.status).toBe(200);
+				const sessions = await sessionsRequest.json();
+				expect(Array.isArray(sessions)).toBe(true);
+				expect(sessions.length).toBe(2);
+				expect(sessions[0].id).toBe(sessionsInDb[0].id);
+				expect(sessions[1].id).toBe(sessionsInDb[1].id);
+			});
 		});
 
 		describe("when the user is not authenticated", () => {
@@ -1079,18 +1126,94 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(existingSession).toBeDefined(); // Second session should still exist
 			});
 
-			it.todo(
-				"should return an error if the session id passed does not belong to the user",
-			);
-			it.todo(
-				"should return an error if the user attempts to delete the session that is the same as the session linked to their access_token",
-			);
+			it("should return an error if the session id passed does not belong to the user", async () => {
+				const firstUser = await User.query().insert({
+					username: "testuser20",
+					email: "testuser20@example.com",
+					password: "Password123!",
+				});
+
+				const secondUser = await User.query().insert({
+					username: "testuser21",
+					email: "testuser21@example.com",
+					password: "Password123!",
+				});
+
+				const firstUserSession = await Session.query().insert({
+					user_id: firstUser.id,
+					...Session.generateTokens(),
+				});
+
+				const secondUserSession = await Session.query().insert({
+					user_id: secondUser.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetch(deleteSessionUrl(secondUserSession.id), {
+					method: "DELETE",
+					headers: {
+						"X-Client-Type": "api", // Simulating a API client
+						Authorization: `Bearer ${firstUserSession.access_token}`,
+					},
+				});
+				expect(response.status).toBe(404);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Session not found");
+			});
+			it("should return an error if the user attempts to delete the session that is the same as the session linked to their access_token", async () => {
+				const user = await User.query().insert({
+					username: "testuser22",
+					email: "testuser22@example.com",
+					password: "Password123!",
+				});
+
+				const session = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetch(deleteSessionUrl(session.id), {
+					method: "DELETE",
+					headers: {
+						"X-Client-Type": "api", // Simulating a API client
+						Authorization: `Bearer ${session.access_token}`,
+					},
+				});
+				expect(response.status).toBe(409);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("conflict");
+				expect(data.message).toBe(
+					"Cannot delete the active session. Use the /logout endpoint instead.",
+				);
+			});
 		});
 
 		describe("when the user is not authenticated", () => {
-			it.todo(
-				"should return an error indicating that the user is unauthorized",
-			);
+			it("should return an error indicating that the user is unauthorized", async () => {
+				const user = await User.query().insert({
+					username: "testuser23",
+					email: "testuser23@example.com",
+					password: "Password123!",
+				});
+
+				const session = await Session.query().insert({
+					user_id: user.id,
+					...Session.generateTokens(),
+				});
+
+				const response = await fetch(deleteSessionUrl(session.id), {
+					method: "DELETE",
+					headers: {
+						"X-Client-Type": "api", // Simulating a API client
+					},
+				});
+				expect(response.status).toBe(401);
+				const data = await response.json();
+				expect(data).toHaveProperty("error");
+				expect(data.error).toBe("Unauthorized");
+			});
 		});
 	});
 });
