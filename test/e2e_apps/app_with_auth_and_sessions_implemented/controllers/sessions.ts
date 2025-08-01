@@ -116,7 +116,11 @@ const controller = {
 		if (!session || session.refreshTokenHasExpired()) {
 			return reply
 				.status(401)
-				.send({ error: "Invalid or expired refresh token" });
+				.send(
+					clientType === "web"
+						? "Invalid or expired refresh token"
+						: { error: "Invalid or expired refresh token" },
+				);
 		}
 
 		// Generate a new access token for the session, and update the session

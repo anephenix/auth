@@ -865,15 +865,36 @@ describe("App with Auth and Sessions Implemented", () => {
 
 		describe("when the refresh token is invalid", () => {
 			describe("and the client is making the request via API method", () => {
-				it.todo(
-					"should return an error indicating the refresh token is invalid",
-				);
+				it("should return an error indicating the refresh token is invalid", async () => {
+					const response = await fetch(refreshTokenUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							refresh_token: "incorrect_refresh_token",
+						}),
+					});
+					expect(response.status).toBe(401);
+					const errorResponse = await response.json();
+					expect(errorResponse).toEqual({
+						error: "Invalid or expired refresh token",
+					});
+				});
 			});
 
 			describe("and the client is making the request via web method", () => {
-				it.todo(
-					"should return an error indicating the refresh token is invalid",
-				);
+				it("should return an error indicating the refresh token is invalid", async () => {
+					const response = await fetchWithCookies(refreshTokenUrl, {
+						method: "POST",
+						headers: {
+							"X-Client-Type": "web", // Simulating a web client
+						},
+					});
+					expect(response.status).toBe(401);
+					const errorResponse = await response.text();
+					expect(errorResponse).toBe("Invalid or expired refresh token");
+				});
 			});
 		});
 	});

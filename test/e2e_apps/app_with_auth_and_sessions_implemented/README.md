@@ -29,11 +29,13 @@ handling the sessions as well).
 - [x] Setup a Fastify API endpoint for POST /login
 - [x] Setup a Fastify API endpoint for GET /profile
 - [x] Setup a Fastify API endpoint for POST /logout
+- [x] Setup a Fastify API endpoint for POST /auth/refresh
 - [ ] Setup a Fastify API endpoint for GET /sessions
 - [ ] Setup a Fastify API endpoint for DELETE /sessions/:id (used to log out a session)
 - [ ] Setup a Fastify API endpoint for DELETE /sessions (used to log out of all sessions)
 - [ ] Write some unit tests for the User model (when you get a moment)
 - [ ] Do a sweep of the codebase to re-organise code that is used across apps
 - [ ] Identify code that could do with some unit tests (if not covered already)
+- [ ] Update the unit tests that check cookie-based authorization to use the fetchWithCookie option
 
 So, let's deal with the 1st item - Setting up Auth
