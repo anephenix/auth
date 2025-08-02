@@ -524,7 +524,7 @@ describe("App with Auth and Sessions Implemented", () => {
 					};
 
 					// Perform the login to get the access token
-					const response = await fetch(loginUrl, {
+					const response = await fetchWithCookies(loginUrl, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
@@ -532,16 +532,15 @@ describe("App with Auth and Sessions Implemented", () => {
 						},
 						body: JSON.stringify(requestData),
 					});
-					const cookie = response.headers.get("Set-Cookie") || "";
 					const data = await response.text();
 					expect(data).toBe("Authenticated successfully");
 					expect(response.status).toBe(201);
 
-					const profileRequest = await fetch(profileUrl, {
+					const profileRequest = await fetchWithCookies(profileUrl, {
 						method: "GET",
 						headers: {
+							"X-Client-Type": "web", // Simulating a web client
 							"Content-Type": "application/json",
-							Cookie: cookie,
 						},
 					});
 
@@ -702,7 +701,7 @@ describe("App with Auth and Sessions Implemented", () => {
 					password: "Password123!",
 				};
 
-				const loginResponse = await fetch(loginUrl, {
+				const loginResponse = await fetchWithCookies(loginUrl, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -710,7 +709,6 @@ describe("App with Auth and Sessions Implemented", () => {
 					},
 					body: JSON.stringify(requestData),
 				});
-				const cookie = loginResponse.headers.get("Set-Cookie") || "";
 				expect(loginResponse.status).toBe(201);
 
 				const session = await Session.query().findOne({
@@ -720,10 +718,10 @@ describe("App with Auth and Sessions Implemented", () => {
 					throw new Error("Session not found");
 				}
 
-				const response = await fetch(logoutUrl, {
+				const response = await fetchWithCookies(logoutUrl, {
 					method: "POST",
 					headers: {
-						Cookie: cookie,
+						"X-Client-Type": "web", // Simulating a web client
 					},
 				});
 				expect(response.status).toBe(200);
