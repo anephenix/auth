@@ -1,15 +1,11 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import isIsoString from "../helpers/isIsoString";
 import { Session } from "./Session";
 import { User } from "./User";
 
 const makeInvalidSession = async () => {
 	const session = new Session();
 	session.$validate();
-};
-
-const isIsoString = (date: string) => {
-	const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
-	return isoRegex.test(date);
 };
 
 describe("Session Model", () => {

@@ -18,6 +18,7 @@
 - [ ] Look at supporting reset password flow
 - [ ] Look at updating username flow
 - [ ] Look at updating email flow
+- [ ] Look at building the web frontend flows to these flows so that you can write E2E tests with them
 
 ## Nice to haves
 
