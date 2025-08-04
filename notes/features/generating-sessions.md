@@ -12,10 +12,10 @@ So, we need to do the following:
 
 - [x] Have a way to generate a session with those values
 - Have a way to associate the session with the user (so we know who the session is for)
-- [ ] Store those values somewhere along with relevant metadata
-- [ ] Have a way to look up and retrieve that data
-- [ ] Have a way to expire a given session
-- [ ] Have a way to generate a new session using the refresh token
+- [x] Store those values somewhere along with relevant metadata
+- [x] Have a way to look up and retrieve that data
+- [x] Have a way to expire a given session
+- [x] Have a way to generate a new session using the refresh token
 
 ## Have a way to generate a session with those values
 

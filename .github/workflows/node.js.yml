@@ -15,6 +15,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+        redis:
+            image: redis:latest
+            ports:
+                - 6379:6379
+            options: >-
+                --health-cmd "redis-cli ping || exit 1"
+                --health-interval 5s
+                --health-timeout 5s
+                --health-retries 5
+
     strategy:
       matrix:
         node-version: [22.x]
@@ -31,4 +42,5 @@ jobs:
       - run: cd test/e2e_apps/app_for_password_in_separate_table && npm i
       - run: cd test/e2e_apps/app_for_password_in_users_table && npm i
       - run: cd test/e2e_apps/app_with_auth_and_sessions_implemented && npm i
+      - run: cd test/e2e_apps/app_for_magic_links && npm i
       - run: npm run cover

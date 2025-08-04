@@ -11,6 +11,9 @@ export type AuthOptions = {
 		accessTokenExpiresIn?: number; // in seconds
 		refreshTokenExpiresIn?: number; // in seconds
 	};
+	tokenOptions?: {
+		tokenExpiresIn?: number; // in seconds
+	};
 };
 
 export interface GenerateSessionProps {

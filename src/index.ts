@@ -17,6 +17,7 @@ import type { AuthOptions, GenerateSessionProps, SessionObject } from "./types";
 const DEFAULTS = {
 	accessTokenExpiresIn: 3600, // Default to 1 hour
 	refreshTokenExpiresIn: 86400, // Default to 1 day
+	tokenExpiresIn: 300, // Default to 5 minutes
 };
 
 export class Auth {
@@ -154,6 +155,37 @@ export class Auth {
 			accessTokenExpiresAt,
 			refreshTokenExpiresAt,
 		};
+	}
+
+	/*
+		Generates a token, a token expiry time and a code.
+		Useful for magic link authentication.
+	*/
+	async generateTokenAndCode(generateTokenAndCodeProps?: {
+		tokenExpiresIn?: number;
+	}): Promise<{
+		token: string;
+		tokenExpiresAt: Date;
+		code: string;
+		hashedCode: string;
+	}> {
+		const token = randomBytes(32).toString("hex");
+		const code = randomBytes(16).toString("hex"); // The code should probably be 6-8 characters long, and easy to insert - also configurable in terms of character type and length
+		const hashedCode = await argon2.hash(code);
+		const tokenExpiresIn =
+			generateTokenAndCodeProps?.tokenExpiresIn ?? this.tokenExpiresIn;
+		const tokenExpiresAt = new Date(Date.now() + tokenExpiresIn * 1000);
+		return {
+			token,
+			tokenExpiresAt,
+			code,
+			hashedCode,
+		};
+	}
+
+	get tokenExpiresIn(): number {
+		const { tokenOptions } = this.options;
+		return tokenOptions?.tokenExpiresIn ?? DEFAULTS.tokenExpiresIn;
 	}
 
 	get accessTokenExpiresIn(): number {

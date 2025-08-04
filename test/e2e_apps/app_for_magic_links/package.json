@@ -1,0 +1,19 @@
+{
+	"scripts": {
+		"test": "vitest run --no-file-parallelism"
+	},
+	"dependencies": {
+		"@anephenix/job-queue": "^1.3.21",
+		"@fastify/cookie": "^11.0.2",
+		"fastify": "^5.4.0",
+		"knex": "^3.1.0",
+		"objection": "^3.1.5",
+		"redis": "^5.7.0",
+		"sqlite3": "^5.1.7"
+	},
+	"devDependencies": {
+		"fetch-cookie": "^3.1.0",
+		"tough-cookie": "^5.1.2",
+		"vitest": "^3.2.4"
+	}
+}

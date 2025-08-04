@@ -247,4 +247,32 @@ describe("Auth class", () => {
 			);
 		});
 	});
+
+	describe("#generateTokenAndCode", () => {
+		describe("when using default options", () => {
+			it("should generate a token, code, and token expiration time of 5 minutes", async () => {
+				const auth = new Auth({});
+				const { token, tokenExpiresAt, code, hashedCode } =
+					await auth.generateTokenAndCode();
+				const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+				expect(token).toBeDefined(); // This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
+				expect(tokenExpiresAt).toBeInstanceOf(Date);
+				expect(code).toBeDefined();
+				expect(hashedCode).toBeDefined();
+				expect(tokenExpiresAt).toStrictEqual(fiveMinutesFromNow);
+			});
+		});
+
+		describe("when using custom options passed during initialization of auth", () => {
+			it.todo(
+				"should generate a token, code, and token expiration time as defined in the auth config",
+			);
+		});
+
+		describe("when using custom options passed to the function", () => {
+			it.todo(
+				"should generate a token, code, and token expiration time as defined in the function",
+			);
+		});
+	});
 });
