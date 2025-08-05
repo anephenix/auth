@@ -61,6 +61,8 @@ export class MagicLink extends Model {
 
 	async $beforeInsert(queryContext) {
 		await super.$beforeInsert(queryContext);
+		this.created_at = new Date().toISOString();
+		this.updated_at = new Date().toISOString();
 	}
 
 	/* This runs updates a timestamp before a record is updated in the database */
