@@ -10,6 +10,8 @@ export type AuthOptions = {
 	sessionOptions?: {
 		accessTokenExpiresIn?: number; // in seconds
 		refreshTokenExpiresIn?: number; // in seconds
+		accessTokenGenerator?: () => string; // Function to generate an access token
+		refreshTokenGenerator?: () => string; // Function to generate a refresh token
 	};
 	tokenOptions?: {
 		tokenExpiresIn?: number; // in seconds

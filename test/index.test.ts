@@ -246,6 +246,24 @@ describe("Auth class", () => {
 				eightHoursFromNow,
 			);
 		});
+
+		it("should generate a session with custom token generators if provided in the auth config", () => {
+			const auth = new Auth({
+				sessionOptions: {
+					/*
+						NOTE - These static strings are just for testing 
+						purposes. In real-world usage, we would be 
+						passing in a function that generates 
+						cryptographically secure random strings
+					*/
+					accessTokenGenerator: () => "customAccessToken",
+					refreshTokenGenerator: () => "customRefreshToken",
+				},
+			});
+			const session = auth.generateSession();
+			expect(session.accessToken).toBe("customAccessToken");
+			expect(session.refreshToken).toBe("customRefreshToken");
+		});
 	});
 
 	describe("#generateTokenAndCode", () => {

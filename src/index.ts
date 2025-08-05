@@ -14,12 +14,16 @@ import { randomBytes } from "node:crypto";
 import * as argon2 from "argon2";
 import type { AuthOptions, GenerateSessionProps, SessionObject } from "./types";
 
+const defaultTokenGenerator = () => randomBytes(32).toString("hex");
+
 const DEFAULTS = {
 	accessTokenExpiresIn: 3600, // Default to 1 hour
 	refreshTokenExpiresIn: 86400, // Default to 1 day
 	tokenExpiresIn: 300, // Default to 5 minutes
-	tokenGenerator: () => randomBytes(32).toString("hex"),
-	codeGenerator: () => randomBytes(32).toString("hex"),
+	accessTokenGenerator: defaultTokenGenerator,
+	refreshTokenGenerator: defaultTokenGenerator,
+	tokenGenerator: defaultTokenGenerator,
+	codeGenerator: defaultTokenGenerator,
 };
 
 export class Auth {
@@ -143,8 +147,8 @@ export class Auth {
 			generateSessionProps?.refreshTokenExpiresIn ?? this.refreshTokenExpiresIn;
 
 		// Question - should the token generation be configurable? - Maybe.
-		const accessToken = randomBytes(32).toString("hex");
-		const refreshToken = randomBytes(32).toString("hex");
+		const accessToken = this.accessTokenGenerator();
+		const refreshToken = this.refreshTokenGenerator();
 		const accessTokenExpiresAt = new Date(
 			Date.now() + accessTokenExpiresIn * 1000,
 		);
@@ -157,6 +161,18 @@ export class Auth {
 			accessTokenExpiresAt,
 			refreshTokenExpiresAt,
 		};
+	}
+
+	accessTokenGenerator(): string {
+		return this.options?.sessionOptions?.accessTokenGenerator
+			? this.options?.sessionOptions?.accessTokenGenerator()
+			: DEFAULTS.accessTokenGenerator();
+	}
+
+	refreshTokenGenerator(): string {
+		return this.options?.sessionOptions?.refreshTokenGenerator
+			? this.options?.sessionOptions?.refreshTokenGenerator()
+			: DEFAULTS.refreshTokenGenerator();
 	}
 
 	tokenGenerator(): string {
