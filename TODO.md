@@ -6,13 +6,15 @@
 - [x] Setup GitHub workflows in case any are missing
 - [x] Setup Husky so that it will fail if a pre-commit step fails
 - [x] Handle setting up a new user with a password and having the password be encrypted
+- [x] Look at supporting Magic Link (email)
 
 ## Now
 
-- [ ] Look at supporting Magic Link (email)
+- [ ] Add options to configure the token and code used for magic link (length, characters, etc) 
 
 ## Next
 
+- [ ] Do a review and cleanup any TODO/NOTE/QUESTION items, plus refine ant `.toBeDefined` calls in the unit tests
 - [ ] Look at supporting MFA (SMS)
 - [ ] Look at supporting MFA (QR Code & app)
 - [ ] Look at supporting forgot password flow

@@ -264,15 +264,39 @@ describe("Auth class", () => {
 		});
 
 		describe("when using custom options passed during initialization of auth", () => {
-			it.todo(
-				"should generate a token, code, and token expiration time as defined in the auth config",
-			);
+			it("should generate a token, code, and token expiration time as defined in the auth config", async () => {
+				const auth = new Auth({
+					tokenOptions: {
+						tokenExpiresIn: 60 * 10, // 10 minutes
+					},
+				});
+				const { token, tokenExpiresAt, code, hashedCode } =
+					await auth.generateTokenAndCode();
+				const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+				expect(token).toBeDefined(); // This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
+				expect(tokenExpiresAt).toBeInstanceOf(Date);
+				expect(code).toBeDefined();
+				expect(hashedCode).toBeDefined();
+				expect(tokenExpiresAt).toStrictEqual(tenMinutesFromNow);
+			});
 		});
 
 		describe("when using custom options passed to the function", () => {
-			it.todo(
-				"should generate a token, code, and token expiration time as defined in the function",
-			);
+			it("should generate a token, code, and token expiration time as defined in the function", async () => {
+				const auth = new Auth({
+					tokenOptions: {
+						tokenExpiresIn: 60 * 10, // 10 minutes
+					},
+				});
+				const { token, tokenExpiresAt, code, hashedCode } =
+					await auth.generateTokenAndCode({ tokenExpiresIn: 60 * 15 });
+				const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000);
+				expect(token).toBeDefined(); // This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
+				expect(tokenExpiresAt).toBeInstanceOf(Date);
+				expect(code).toBeDefined();
+				expect(hashedCode).toBeDefined();
+				expect(tokenExpiresAt).toStrictEqual(fifteenMinutesFromNow);
+			});
 		});
 	});
 });
