@@ -11,6 +11,7 @@ import {
 	it,
 	vi,
 } from "vitest";
+import { isHashed, isRandomString } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -92,10 +93,9 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(data.username).toBe(requestData.username);
 				expect(data.email).toBe(requestData.email); // Check that the user was created in the database
 				const user = await User.query().findById(data.id);
-				expect(user).toBeDefined();
 				expect(user?.username).toBe(requestData.username);
 				expect(user?.email).toBe(requestData.email);
-				expect(user?.hashed_password).toBeDefined();
+				expect(isHashed(user?.hashed_password || "")).toBe(true);
 				expect(user?.hashed_password).not.toBe(requestData.password);
 			});
 		});
@@ -332,7 +332,6 @@ describe("App with Auth and Sessions Implemented", () => {
 						user_id: user.id,
 						access_token: data.access_token,
 					});
-					expect(session).toBeDefined();
 					expect(session?.user_id).toBe(user.id);
 					expect(session?.access_token).toBe(data.access_token);
 				});
@@ -367,12 +366,10 @@ describe("App with Auth and Sessions Implemented", () => {
 					const session = await Session.query().findOne({
 						user_id: user.id,
 					});
-					expect(session).toBeDefined();
-					expect(session?.access_token).toBeDefined();
-					expect(session?.refresh_token).toBeDefined();
+					expect(isRandomString(session?.access_token || "")).toBe(true);
+					expect(isRandomString(session?.refresh_token || "")).toBe(true);
 
 					const setCookieHeader = response.headers.get("set-cookie");
-					expect(setCookieHeader).toBeDefined();
 					expect(setCookieHeader).toContain("access_token");
 					expect(setCookieHeader).toContain("refresh_token");
 
@@ -785,7 +782,6 @@ describe("App with Auth and Sessions Implemented", () => {
 
 					// Check that the session in the database has been updated with the new access token
 					const updatedSession = await Session.query().findById(session.id);
-					expect(updatedSession).toBeDefined();
 					expect(updatedSession?.access_token).toBe(data.access_token);
 					expect(updatedSession?.refresh_token).toBe(data.refresh_token);
 				});
@@ -855,7 +851,6 @@ describe("App with Auth and Sessions Implemented", () => {
 					const updatedSession = await Session.query().findOne({
 						user_id: user.id,
 					});
-					expect(updatedSession).toBeDefined();
 					expect(updatedSession?.access_token).not.toBe(originalAccessToken);
 					expect(updatedSession?.access_token).toBe(updatedAccessToken);
 					expect(updatedSession?.refresh_token).toBe(updatedRefreshToken);

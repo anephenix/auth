@@ -1,11 +1,5 @@
 exports.up = async (knex) => {
 	await knex.schema.createTable("sessions", (table) => {
-		// NOTE - check if UUIDs are supported in the sqlitedatabase
-		// table
-		// 	.uuid('id')
-		// 	.defaultTo(knex.raw('uuid_generate_v4()'))
-		// 	.primary();
-
 		// Fields
 		table.increments("id").primary();
 		table.integer("user_id").unsigned().notNullable();

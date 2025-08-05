@@ -1,6 +1,7 @@
 // Dependencies
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { isIsoString, isRandomString } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -69,7 +70,6 @@ describe("Magic Links", () => {
 				const data = await response.json();
 				expect(data.message).toBe("Magic link created");
 				const magicLinks = await MagicLink.query().where({ user_id: user.id });
-				expect(magicLinks).toBeDefined();
 				expect(magicLinks.length).toBe(1);
 				expect(magicLinks[0].user_id).toBe(user.id);
 
@@ -80,7 +80,7 @@ describe("Magic Links", () => {
 				}
 				expect(emailJob.data.to).toBe(user.email);
 				expect(emailJob.data.token).toBe(magicLinks[0].token);
-				expect(emailJob.data.code).toBeDefined();
+				expect(isRandomString(emailJob.data.code)).toBe(true);
 				const isValidCode = await auth.verifyPassword(
 					emailJob.data.code,
 					magicLinks[0].hashed_code,
@@ -178,10 +178,10 @@ describe("Magic Links", () => {
 
 				expect(verifyResponse.status).toBe(201);
 				const data = await verifyResponse.json();
-				expect(data.access_token).toBeDefined();
-				expect(data.refresh_token).toBeDefined();
-				expect(data.access_token_expires_at).toBeDefined();
-				expect(data.refresh_token_expires_at).toBeDefined();
+				expect(isRandomString(data.access_token)).toBe(true);
+				expect(isRandomString(data.refresh_token)).toBe(true);
+				expect(isIsoString(data.access_token_expires_at)).toBe(true);
+				expect(isIsoString(data.refresh_token_expires_at)).toBe(true);
 
 				const session = await Session.query()
 					.where({

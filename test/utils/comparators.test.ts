@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import isEmail from "./isEmail";
+import { isEmail } from "./comparators";
 
 describe("isEmail", () => {
 	it("should return true for valid email addresses", () => {

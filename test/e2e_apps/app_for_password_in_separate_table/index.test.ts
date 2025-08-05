@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { isHashed } from "../../utils/comparators";
 import config from "./config";
 import Password from "./models/Password";
 import User from "./models/User";
@@ -76,15 +77,14 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 						}
 					};
 
-					await expect(createValidUser()).resolves.toBeDefined();
+					await expect(createValidUser()).resolves.toBeTruthy();
 					const user = await User.query().findOne({ username: "testuser" });
-					expect(user).toBeDefined();
 					expect(user?.username).toBe("testuser");
 					const passwords = await user?.$relatedQuery("passwords");
 					expect(passwords).toHaveLength(1);
 					const password = passwords?.[0] as Password;
 					expect(password.password).not.toBeDefined();
-					expect(password.hashed_password).toBeDefined();
+					expect(isHashed(password.hashed_password)).toBe(true);
 					expect(password.hashed_password).not.toBe("ValidPassword123!");
 				});
 			});
@@ -112,7 +112,6 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 					identifier: "testuser",
 					password: "ValidPassword123!",
 				});
-				expect(authenticatedUser).toBeDefined();
 				expect(authenticatedUser.username).toBe("testuser");
 			});
 		});
@@ -180,7 +179,6 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 					identifier: "testuser",
 					password: "SecondPassword123!",
 				});
-				expect(authenticatedUser).toBeDefined();
 				expect(authenticatedUser.username).toBe("testuser");
 
 				const attemptToUseFirstPassword = async () => {
@@ -236,7 +234,6 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 				identifier: "testuser@example.com",
 				password: "ValidPassword123!",
 			});
-			expect(authenticatedUser).toBeDefined();
 			expect(authenticatedUser.username).toBe("testuser");
 		});
 	});

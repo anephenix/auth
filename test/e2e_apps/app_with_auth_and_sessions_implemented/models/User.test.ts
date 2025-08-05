@@ -1,7 +1,7 @@
 // Dependencies
 import { UniqueViolationError } from "objection";
 import { beforeEach, describe, expect, it } from "vitest";
-import isIsoString from "../helpers/isIsoString";
+import { isHashed, isIsoString } from "../../../utils/comparators";
 import { User } from "./User";
 
 describe("User model", () => {
@@ -120,7 +120,6 @@ describe("User model", () => {
 				password: "ValidPassword123!",
 			});
 
-			expect(user.created_at).toBeDefined();
 			expect(isIsoString(user.created_at)).toBe(true);
 		});
 		it("should have an updated_at timestamp", async () => {
@@ -130,7 +129,6 @@ describe("User model", () => {
 				password: "ValidPassword123!",
 			});
 
-			expect(user.updated_at).toBeDefined();
 			expect(isIsoString(user.updated_at)).toBe(true);
 		});
 	});
@@ -143,9 +141,7 @@ describe("User model", () => {
 					email: "testuser@example.com",
 					password: "ValidPassword123!",
 				});
-				expect(user.created_at).toBeDefined();
 				expect(isIsoString(user.created_at)).toBe(true);
-				expect(user.updated_at).toBeDefined();
 				expect(isIsoString(user.updated_at)).toBe(true);
 			});
 
@@ -155,7 +151,7 @@ describe("User model", () => {
 					email: "testuser@example.com",
 					password: "ValidPassword123!",
 				});
-				expect(user.hashed_password).toBeDefined();
+				expect(isHashed(user.hashed_password)).toBe(true);
 				expect(user.hashed_password).not.toBe("ValidPassword123!");
 			});
 		});
@@ -169,7 +165,6 @@ describe("User model", () => {
 				});
 				const originalUpdatedAt = user.updated_at;
 				await user.$query().patch({ username: "updateduser" });
-				expect(user.updated_at).toBeDefined();
 				expect(isIsoString(user.updated_at)).toBe(true);
 				expect(user.updated_at).not.toBe(originalUpdatedAt);
 			});

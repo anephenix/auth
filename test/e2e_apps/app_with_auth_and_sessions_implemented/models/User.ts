@@ -1,6 +1,6 @@
 import { Model } from "objection";
 // We will piggyback off of the util in the other app rather than duplicating it here.
-import isEmail from "../../../utils/isEmail";
+import { isEmail } from "../../../utils/comparators";
 import auth from "../auth";
 import db from "../db";
 
@@ -67,7 +67,6 @@ export class User extends Model {
 					minLength: 1,
 					maxLength: 255,
 				},
-				// NOTE - I'm wondering if this will work fine or will causes issues - I guess we'lll have to try it and find out.
 				hashed_password: {
 					type: "string",
 					minLength: 10,

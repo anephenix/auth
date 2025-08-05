@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { isHashed } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -61,12 +62,11 @@ describe("E2E Tests for User Creation and Password Handling with the password st
 						}
 					};
 
-					await expect(createValidUser()).resolves.toBeDefined();
+					await expect(createValidUser()).resolves.toBeTruthy();
 					const user = await User.query().findOne({ username: "testuser" });
-					expect(user).toBeDefined();
 					expect(user?.username).toBe("testuser");
 					expect(user?.password).not.toBeDefined();
-					expect(user?.hashed_password).toBeDefined();
+					expect(isHashed(user?.hashed_password || "")).toBe(true);
 					expect(user?.hashed_password).not.toBe("ValidPassword123!");
 				});
 			});
@@ -88,7 +88,6 @@ describe("E2E Tests for User Creation and Password Handling with the password st
 					identifier: "testuser",
 					password: "ValidPassword123!",
 				});
-				expect(authenticatedUser).toBeDefined();
 				expect(authenticatedUser.username).toBe("testuser");
 			});
 		});

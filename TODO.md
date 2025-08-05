@@ -8,14 +8,14 @@
 - [x] Handle setting up a new user with a password and having the password be encrypted
 - [x] Look at supporting Magic Link (email)
 - [x] Add options to configure the token and code used for magic link (length, characters, etc) 
+- [x] Do a review and cleanup any TODO/NOTE/QUESTION items, plus refine any `.toBeDefined` calls in the unit tests
 
 ## Now
 
-- [ ] Do a review and cleanup any TODO/NOTE/QUESTION items, plus refine any `.toBeDefined` calls in the unit tests
+- [ ] Look at supporting MFA (SMS)
 
 ## Next
 
-- [ ] Look at supporting MFA (SMS)
 - [ ] Look at supporting MFA (QR Code & app)
 - [ ] Look at supporting forgot password flow
 - [ ] Look at supporting reset password flow

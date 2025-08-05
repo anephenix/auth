@@ -1,4 +1,4 @@
-import isEmail from "../../../utils/isEmail";
+import { isEmail } from "../../../utils/comparators";
 import handleError from "../helpers/handleError";
 import { MagicLink } from "../models/MagicLink";
 import { Session } from "../models/Session";

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Auth } from "../src/index";
+import { isHashed, isRandomString } from "./utils/comparators";
 
 describe("Auth class", () => {
 	it("should validate passwords correctly", () => {
@@ -156,7 +157,6 @@ describe("Auth class", () => {
 		it("should hash a password", async () => {
 			const auth = new Auth({});
 			const hashedPassword = await auth.hashPassword("plaintextPassword");
-			expect(hashedPassword).toBeDefined();
 			expect(hashedPassword.includes("plaintextPassword")).toBe(false);
 			expect(hashedPassword).toMatch(
 				/^\$argon2id\$v=(?:16|19)\$m=\d{1,10},t=\d{1,10},p=\d{1,3}(?:,keyid=[A-Za-z0-9+/]{0,11}(?:,data=[A-Za-z0-9+/]{0,43})?)?\$[A-Za-z0-9+/]{11,64}\$[A-Za-z0-9+/]{16,86}$/i,
@@ -193,9 +193,8 @@ describe("Auth class", () => {
 			const session = auth.generateSession();
 			const oneHourFromNow = new Date(Date.now() + 3600 * 1000);
 			const oneDayFromNow = new Date(Date.now() + 86400 * 1000);
-			expect(session).toBeDefined();
-			expect(session.accessToken).toBeDefined();
-			expect(session.refreshToken).toBeDefined();
+			expect(isRandomString(session.accessToken)).toBe(true);
+			expect(isRandomString(session.refreshToken)).toBe(true);
 			expect(session.accessTokenExpiresAt).toStrictEqual(oneHourFromNow);
 			expect(session.refreshTokenExpiresAt).toStrictEqual(oneDayFromNow);
 		});
@@ -214,18 +213,6 @@ describe("Auth class", () => {
 			expect(session.refreshTokenExpiresAt).toStrictEqual(twoDaysFromNow);
 		});
 
-		/*
-			NOTE - I can foresee that someone might want to generate a session 
-			with custom expiration times that differ to the defaults, as well as
-			options set in the auth config. 
-			
-			Say for example, a user wants their access token to expire after 
-			5 minutes, and the refresh token to expire after 8 hours. With this, 
-			we could provide them with that option, while still allowing everyone
-			else to use the defaults or the auth config options.
-			
-			This test is a placeholder for that functionality.
-		*/
 		it("should generate a session with custom expiration times if provided in the function", () => {
 			const auth = new Auth({
 				sessionOptions: {
@@ -251,7 +238,7 @@ describe("Auth class", () => {
 			const auth = new Auth({
 				sessionOptions: {
 					/*
-						NOTE - These static strings are just for testing 
+						These static strings are just for testing 
 						purposes. In real-world usage, we would be 
 						passing in a function that generates 
 						cryptographically secure random strings
@@ -273,10 +260,10 @@ describe("Auth class", () => {
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await auth.generateTokenAndCode();
 				const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
-				expect(token).toBeDefined(); // This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
+				expect(isRandomString(token)).toBe(true);
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
-				expect(code).toBeDefined();
-				expect(hashedCode).toBeDefined();
+				expect(isRandomString(code)).toBe(true);
+				expect(isHashed(hashedCode)).toBe(true);
 				expect(tokenExpiresAt).toStrictEqual(fiveMinutesFromNow);
 			});
 		});
@@ -287,7 +274,7 @@ describe("Auth class", () => {
 					tokenOptions: {
 						tokenExpiresIn: 60 * 10, // 10 minutes
 						/*
-							NOTE - These static strings are just for testing 
+							These static strings are just for testing 
 							purposes. In real-world usage, we would be 
 							passing in a function that generates 
 							cryptographically secure random strings
@@ -302,7 +289,7 @@ describe("Auth class", () => {
 				expect(token).toBe("customToken");
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
 				expect(code).toBe("customCode");
-				expect(hashedCode).toBeDefined();
+				expect(isHashed(hashedCode)).toBe(true);
 				expect(tokenExpiresAt).toStrictEqual(tenMinutesFromNow);
 			});
 		});
@@ -317,10 +304,10 @@ describe("Auth class", () => {
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await auth.generateTokenAndCode({ tokenExpiresIn: 60 * 15 });
 				const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000);
-				expect(token).toBeDefined(); // This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
+				expect(isRandomString(token)).toBe(true);
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
-				expect(code).toBeDefined();
-				expect(hashedCode).toBeDefined();
+				expect(isRandomString(code)).toBe(true);
+				expect(isHashed(hashedCode)).toBe(true);
 				expect(tokenExpiresAt).toStrictEqual(fifteenMinutesFromNow);
 			});
 		});

@@ -1,5 +1,5 @@
 import { Model, type RelationMappings } from "objection";
-import isEmail from "../../../utils/isEmail";
+import { isEmail } from "../../../utils/comparators";
 import auth from "../auth";
 import db from "../db";
 import Password from "./Password";

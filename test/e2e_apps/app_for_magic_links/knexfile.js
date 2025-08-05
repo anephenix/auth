@@ -1,10 +1,3 @@
-/*
-    Notes
-
-    Copied from the other app to save time.
-
-*/
-
 const config = {
 	client: "sqlite3",
 	connection: {

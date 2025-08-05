@@ -1,6 +1,6 @@
 import { Model } from "objection";
 // We will piggyback off of the util in the other app rather than duplicating it here.
-import isEmail from "../../../utils/isEmail";
+import { isEmail } from "../../../utils/comparators";
 import auth from "../auth";
 import db from "../db";
 

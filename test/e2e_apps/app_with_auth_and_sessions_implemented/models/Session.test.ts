@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import isIsoString from "../helpers/isIsoString";
+import { isIsoString } from "../../../utils/comparators";
 import { Session } from "./Session";
 import { User } from "./User";
 
@@ -59,7 +59,6 @@ describe("Session Model", () => {
 				user_id: user.id,
 				...Session.generateTokens(),
 			});
-			expect(session.created_at).toBeDefined();
 			expect(isIsoString(session.updated_at)).toBe(true);
 		});
 		it("should have an updated_at timestamp", async () => {
@@ -67,7 +66,6 @@ describe("Session Model", () => {
 				user_id: user.id,
 				...Session.generateTokens(),
 			});
-			expect(session.updated_at).toBeDefined();
 			expect(isIsoString(session.updated_at)).toBe(true);
 		});
 
@@ -99,9 +97,7 @@ describe("Session Model", () => {
 					user_id: user.id,
 					...Session.generateTokens(),
 				});
-				expect(session.created_at).toBeDefined();
 				expect(isIsoString(session.created_at)).toBe(true);
-				expect(session.updated_at).toBeDefined();
 				expect(isIsoString(session.updated_at)).toBe(true);
 			});
 		});
@@ -115,7 +111,6 @@ describe("Session Model", () => {
 				session.user_agent =
 					"WebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3";
 				await session.$query().update();
-				expect(session.updated_at).toBeDefined();
 				expect(isIsoString(session.updated_at)).toBe(true);
 				expect(session.updated_at).not.toBe(session.created_at);
 			});

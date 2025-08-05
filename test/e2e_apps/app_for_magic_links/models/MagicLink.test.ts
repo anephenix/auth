@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	isHashed,
+	isIsoString,
+	isRandomString,
+} from "../../../utils/comparators";
 import auth from "../auth";
-import isIsoString from "../helpers/isIsoString";
 import { MagicLink } from "./MagicLink";
 import { User } from "./User";
 
@@ -58,9 +62,7 @@ describe("MagicLinks model", () => {
 					expires_at: tokenExpiresAt.toISOString(),
 				});
 
-				expect(magicLink.created_at).toBeDefined();
 				expect(isIsoString(magicLink.created_at)).toBe(true);
-				expect(magicLink.updated_at).toBeDefined();
 				expect(isIsoString(magicLink.updated_at)).toBe(true);
 			});
 		});
@@ -82,7 +84,6 @@ describe("MagicLinks model", () => {
 					expires_at: tokenExpiresAt.toISOString(),
 				});
 
-				expect(magicLink.created_at).toBeDefined();
 				expect(isIsoString(magicLink.created_at)).toBe(true);
 
 				await magicLink.$query().patch({
@@ -100,11 +101,10 @@ describe("MagicLinks model", () => {
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await MagicLink.generateTokens();
 				const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
-				// NOTE - This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
-				expect(token).toBeDefined();
+				expect(isRandomString(token)).toBe(true);
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
-				expect(code).toBeDefined();
-				expect(hashedCode).toBeDefined();
+				expect(isRandomString(code)).toBe(true);
+				expect(isHashed(hashedCode)).toBe(true);
 
 				const isHashedCodeVerified = await auth.verifyPassword(
 					code,
