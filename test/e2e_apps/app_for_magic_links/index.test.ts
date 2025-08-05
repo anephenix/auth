@@ -106,11 +106,37 @@ describe("Magic Links", () => {
 		});
 
 		describe("when the email is not a valid email address", () => {
-			it.todo("should return an error response");
+			it("should return an error response", async () => {
+				const payload = { email: "invalid-email" };
+
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(400);
+				const data = await response.json();
+				expect(data.error).toBe("Invalid email address");
+			});
 		});
 
 		describe("when there is no user with that email address", () => {
-			it.todo("should return an error response");
+			it("should return an error response", async () => {
+				const payload = { email: "nonexistent@example.com" };
+
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(400);
+				const data = await response.json();
+				expect(data.error).toBe("User not found for email");
+			});
 		});
 	});
 
