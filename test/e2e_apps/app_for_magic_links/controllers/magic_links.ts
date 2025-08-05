@@ -1,6 +1,7 @@
 import handleError from "../helpers/handleError";
 import isEmail from "../helpers/isEmail";
 import { MagicLink } from "../models/MagicLink";
+import { Session } from "../models/Session";
 import { User } from "../models/User";
 import emailService from "../services/email";
 
@@ -62,6 +63,43 @@ const controller = {
 			const message = "Magic link created";
 			// Response with a success message in the API JSON response
 			reply.code(201).send({ message });
+		} catch (err) {
+			const error = handleError(err);
+			reply.status(400).send({ error });
+		}
+	},
+
+	verify: async (request, reply) => {
+		try {
+			const { token, code } = request.body;
+
+			if (!token || !code) {
+				throw new Error("Token and code are required");
+			}
+
+			const { userId } = await MagicLink.verifyTokenAndCode(token, code);
+
+			// Create a session for the user
+			const session = await Session.query().insert({
+				user_id: userId,
+				...Session.generateTokens(),
+			});
+
+			const {
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			} = session;
+
+			reply
+				.code(201)
+				.send({
+					access_token,
+					refresh_token,
+					access_token_expires_at,
+					refresh_token_expires_at,
+				});
 		} catch (err) {
 			const error = handleError(err);
 			reply.status(400).send({ error });

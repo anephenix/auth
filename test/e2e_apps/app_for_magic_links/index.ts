@@ -62,6 +62,7 @@ app.register(fastifyCookie, {
 // };
 
 app.post("/magic-links", magicLinks.create);
+app.post("/magic-links/verify", magicLinks.verify);
 
 // app.post("/login", sessions.create);
 // app.get("/profile", { preHandler: [authenticateSession] }, users.profile);

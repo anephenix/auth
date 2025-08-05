@@ -10,6 +10,7 @@ import config from "./config";
 import appDB from "./db";
 import app from "./index";
 import { MagicLink } from "./models/MagicLink";
+import { Session } from "./models/Session";
 import { User } from "./models/User";
 import emailQueue from "./queues/EmailQueue";
 import type { SendMagicLinkEmailJob } from "./types";
@@ -18,6 +19,7 @@ import type { SendMagicLinkEmailJob } from "./types";
 const port = 3000; // Port for the Fastify server
 const baseUrl = `http://localhost:${port}`;
 const magicLinksUrl = `${baseUrl}/magic-links`;
+const verifyMagicLinkUrl = `${baseUrl}/magic-links/verify`;
 
 describe("Magic Links", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -142,8 +144,82 @@ describe("Magic Links", () => {
 
 	describe("Using a magic link for a user", () => {
 		describe("when the magic link is valid and not yet used", () => {
-			it.todo("should authenticate the user and create a session");
-			it.todo("should mark the magic link as used");
+			it("should authenticate the user and create a session", async () => {
+				const user = await User.query().insert({
+					username: "testuser2",
+					email: "testuser2@example.com",
+				});
+
+				const payload = { email: user.email };
+
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(201);
+
+				// Fetches the latest email job from the queue
+				const emailJob =
+					(await emailQueue.inspect()) as SendMagicLinkEmailJob | null;
+				if (!emailJob) {
+					throw new Error("No email job found in the queue");
+				}
+				const { token, code } = emailJob.data;
+
+				const verifyResponse = await fetch(verifyMagicLinkUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(verifyResponse.status).toBe(201);
+				const data = await verifyResponse.json();
+				expect(data.access_token).toBeDefined();
+				expect(data.refresh_token).toBeDefined();
+				expect(data.access_token_expires_at).toBeDefined();
+				expect(data.refresh_token_expires_at).toBeDefined();
+
+				const session = await Session.query()
+					.where({
+						access_token: data.access_token,
+						refresh_token: data.refresh_token,
+					})
+					.first();
+				if (!session) {
+					throw new Error("No session found for the user");
+				}
+				expect(session.user_id).toBe(user.id);
+
+				const magicLink = await MagicLink.query().where({ token }).first();
+				if (!magicLink) {
+					throw new Error("No magic link found");
+				}
+				if (magicLink.used_at) {
+					expect(new Date(magicLink.used_at).getTime() <= Date.now()).toBe(
+						true,
+					);
+				} else {
+					throw new Error("magicLink.used_at is undefined");
+				}
+			});
+		});
+
+		describe("when the magic link is valid but has already been used", () => {
+			it.todo("should throw an error indicating the link has been used");
+		});
+		describe("when the magic link is valid but has expired", () => {
+			it.todo("should throw an error indicating the link has expired");
+		});
+		describe("when the magic link is valid but the code is incorrect", () => {
+			it.todo("should throw an error indicating the code is incorrect");
+		});
+		describe("when the magic link is not found", () => {
+			it.todo("should throw an error indicating the link is not found");
 		});
 	});
 });

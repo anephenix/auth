@@ -34,17 +34,24 @@ export class MagicLink extends Model {
 	// TODO - write unit tests for this
 	// TODO - add code to check if the token is expired
 	// TODO - add code to check if the token has been used
-	// TODO - if all is good, insert the date of use into the used_at field
 	static async verifyTokenAndCode(token: string, code: string) {
 		const magicLink = await MagicLink.query().where({ token }).first();
 		if (!magicLink) {
 			throw new Error("Invalid magic link token");
 		}
 
+		// TODO - check it has not expired
+		// TODO - check it has not been used
+
 		const isValidCode = await auth.verifyPassword(code, magicLink.hashed_code);
 		if (!isValidCode) {
 			throw new Error("Invalid magic link code");
 		}
+
+		// If we validate the token and code, then we will set the used_at timestamp
+		await magicLink.$query().patch({
+			used_at: new Date().toISOString(),
+		});
 
 		return { userId: magicLink.user_id };
 	}
