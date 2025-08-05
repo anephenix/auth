@@ -80,19 +80,19 @@ e.g. POST /magic_links
 - [x] Create a database migration for creating the magic_links table
 - [x] Create a Session model
 - [x] Create a database migration for creating the sessions table
-- [ ] Create unit tests for creating a magic_link
-- [ ] Both the success case (user with email)
-- [ ] And the fail cases: email not provided, email invalid, no user found for email
-- [ ] Create a REST API endpoint for creating a magic link
-- [ ] Create the controller code and link it to the model
-- [ ] Once that flow is done, then work on the API endpoint for validating the token
+- [x] Create unit tests for creating a magic_link
+- [x] Both the success case (user with email)
+- [x] And the fail cases: email not provided, email invalid, no user found for email
+- [x] Create a REST API endpoint for creating a magic link
+- [x] Create the controller code and link it to the model
+- [x] Once that flow is done, then work on the API endpoint for validating the token
 
 ## Stage 2 - using a magic link
 
-- [ ] Write the unit tests for consuming a magic link
-- [ ] The success case of a user consuming a valid magic link
-- [ ] The fail cases of: token invalid, token already used, token expired
-- [ ] Create the REST API endpoint for consuming a magic link
-- [ ] Create the controller action for it
-- [ ] Link it the model
-- [ ] Make sure that when the token is used, the used_at datetime is filled in, so that it can't be used again.
+- [x] Write the unit tests for consuming a magic link
+- [x] The success case of a user consuming a valid magic link
+- [x] The fail cases of: token invalid, token already used, token expired
+- [x] Create the REST API endpoint for consuming a magic link
+- [x] Create the controller action for it
+- [x] Link it the model
+- [x] Make sure that when the token is used, the used_at datetime is filled in, so that it can't be used again.

@@ -13,6 +13,8 @@ export type AuthOptions = {
 	};
 	tokenOptions?: {
 		tokenExpiresIn?: number; // in seconds
+		tokenGenerator?: () => string; // Function to generate a token
+		codeGenerator?: () => string; // Function to generate a code
 	};
 };
 

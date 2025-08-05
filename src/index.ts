@@ -18,6 +18,8 @@ const DEFAULTS = {
 	accessTokenExpiresIn: 3600, // Default to 1 hour
 	refreshTokenExpiresIn: 86400, // Default to 1 day
 	tokenExpiresIn: 300, // Default to 5 minutes
+	tokenGenerator: () => randomBytes(32).toString("hex"),
+	codeGenerator: () => randomBytes(32).toString("hex"),
 };
 
 export class Auth {
@@ -157,6 +159,18 @@ export class Auth {
 		};
 	}
 
+	tokenGenerator(): string {
+		return this.options?.tokenOptions?.tokenGenerator
+			? this.options?.tokenOptions?.tokenGenerator()
+			: DEFAULTS.tokenGenerator();
+	}
+
+	codeGenerator(): string {
+		return this.options?.tokenOptions?.codeGenerator
+			? this.options?.tokenOptions?.codeGenerator()
+			: DEFAULTS.codeGenerator();
+	}
+
 	/*
 		Generates a token, a token expiry time and a code.
 		Useful for magic link authentication.
@@ -169,8 +183,8 @@ export class Auth {
 		code: string;
 		hashedCode: string;
 	}> {
-		const token = randomBytes(32).toString("hex");
-		const code = randomBytes(16).toString("hex"); // The code should probably be 6-8 characters long, and easy to insert - also configurable in terms of character type and length
+		const token = this.tokenGenerator();
+		const code = this.codeGenerator();
 		const hashedCode = await argon2.hash(code);
 		const tokenExpiresIn =
 			generateTokenAndCodeProps?.tokenExpiresIn ?? this.tokenExpiresIn;

@@ -268,14 +268,22 @@ describe("Auth class", () => {
 				const auth = new Auth({
 					tokenOptions: {
 						tokenExpiresIn: 60 * 10, // 10 minutes
+						/*
+							NOTE - These static strings are just for testing 
+							purposes. In real-world usage, we would be 
+							passing in a function that generates 
+							cryptographically secure random strings
+						*/
+						tokenGenerator: () => "customToken",
+						codeGenerator: () => "customCode",
 					},
 				});
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await auth.generateTokenAndCode();
 				const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
-				expect(token).toBeDefined(); // This is not checking the token's format, just that it exists - need to improve on this, as for other checks in this file
+				expect(token).toBe("customToken");
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
-				expect(code).toBeDefined();
+				expect(code).toBe("customCode");
 				expect(hashedCode).toBeDefined();
 				expect(tokenExpiresAt).toStrictEqual(tenMinutesFromNow);
 			});
