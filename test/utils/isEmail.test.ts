@@ -7,6 +7,12 @@ describe("isEmail", () => {
 	});
 
 	it("should return false for invalid email addresses", () => {
-		expect(isEmail("invalid-email")).toBe(false);
+		const invalidEmails = [
+			"plainaddress",
+			"@missingusername.com",
+			"username@com",
+		];
+
+		expect(invalidEmails.every((email) => !isEmail(email))).toBe(true);
 	});
 });

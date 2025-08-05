@@ -1,7 +1,7 @@
 import { Model, type RelationMappings } from "objection";
+import isEmail from "../../../utils/isEmail";
 import auth from "../auth";
 import db from "../db";
-import isEmail from "../utils/isEmail";
 import Password from "./Password";
 
 // Attach the knex connection instance to the Model

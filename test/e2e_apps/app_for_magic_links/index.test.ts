@@ -81,7 +81,6 @@ describe("Magic Links", () => {
 				expect(emailJob.data.to).toBe(user.email);
 				expect(emailJob.data.token).toBe(magicLinks[0].token);
 				expect(emailJob.data.code).toBeDefined();
-				// TODO - At some point, have a function in MagicLink to authenticate a token and code
 				const isValidCode = await auth.verifyPassword(
 					emailJob.data.code,
 					magicLinks[0].hashed_code,

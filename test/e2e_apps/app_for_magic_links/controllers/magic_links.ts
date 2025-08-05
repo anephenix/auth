@@ -1,5 +1,5 @@
+import isEmail from "../../../utils/isEmail";
 import handleError from "../helpers/handleError";
-import isEmail from "../helpers/isEmail";
 import { MagicLink } from "../models/MagicLink";
 import { Session } from "../models/Session";
 import { User } from "../models/User";
