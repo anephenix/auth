@@ -49,7 +49,7 @@ describe("Magic Links", () => {
 
 	describe("Creating a magic link for a user", () => {
 		describe("when the user email is valid", () => {
-			it("should create  a magic link for the user", async () => {
+			it("should create a magic link for the user", async () => {
 				const user = await User.query().insert({
 					username: "testuser",
 					email: "testuser@example.com",
@@ -210,8 +210,43 @@ describe("Magic Links", () => {
 		});
 
 		describe("when the magic link is valid but has already been used", () => {
-			it.todo("should throw an error indicating the link has been used");
+			it("should throw an error indicating the link has been used", async () => {
+				const user = await User.query().insert({
+					username: "testuser3",
+					email: "testuser3@example.com",
+				});
+				const payload = { email: user.email };
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(201);
+				const emailJob =
+					(await emailQueue.inspect()) as SendMagicLinkEmailJob | null;
+				if (!emailJob) {
+					throw new Error("No email job found in the queue");
+				}
+				const { token, code } = emailJob.data;
+
+				// We will verify the magic link, so effectively use it
+				await MagicLink.verifyTokenAndCode(token, code);
+
+				const verifyResponse = await fetch(verifyMagicLinkUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+				expect(verifyResponse.status).toBe(400);
+				const data = await verifyResponse.json();
+				expect(data.error).toBe("Magic link has already been used");
+			});
 		});
+
 		describe("when the magic link is valid but has expired", () => {
 			it.todo("should throw an error indicating the link has expired");
 		});

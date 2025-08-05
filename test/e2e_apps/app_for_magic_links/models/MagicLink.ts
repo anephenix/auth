@@ -41,7 +41,13 @@ export class MagicLink extends Model {
 		}
 
 		// TODO - check it has not expired
-		// TODO - check it has not been used
+		// if (magicLink.expires_at < new Date().toISOString()) {
+		// 	throw new Error("Magic link has expired");
+		// }
+
+		if (magicLink.used_at) {
+			throw new Error("Magic link has already been used");
+		}
 
 		const isValidCode = await auth.verifyPassword(code, magicLink.hashed_code);
 		if (!isValidCode) {

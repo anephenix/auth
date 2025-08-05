@@ -92,14 +92,12 @@ const controller = {
 				refresh_token_expires_at,
 			} = session;
 
-			reply
-				.code(201)
-				.send({
-					access_token,
-					refresh_token,
-					access_token_expires_at,
-					refresh_token_expires_at,
-				});
+			reply.code(201).send({
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			});
 		} catch (err) {
 			const error = handleError(err);
 			reply.status(400).send({ error });
