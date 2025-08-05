@@ -89,7 +89,20 @@ describe("Magic Links", () => {
 		});
 
 		describe("when the email is not present", () => {
-			it.todo("should return an error response");
+			it("should return an error response", async () => {
+				const payload = {};
+
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(400);
+				const data = await response.json();
+				expect(data.error).toBe("No email provided - please provide an email");
+			});
 		});
 
 		describe("when the email is not a valid email address", () => {
