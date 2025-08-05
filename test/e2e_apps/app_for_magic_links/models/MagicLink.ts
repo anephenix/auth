@@ -32,18 +32,15 @@ export class MagicLink extends Model {
 	}
 
 	// TODO - write unit tests for this
-	// TODO - add code to check if the token is expired
-	// TODO - add code to check if the token has been used
 	static async verifyTokenAndCode(token: string, code: string) {
 		const magicLink = await MagicLink.query().where({ token }).first();
 		if (!magicLink) {
 			throw new Error("Invalid magic link token");
 		}
 
-		// TODO - check it has not expired
-		// if (magicLink.expires_at < new Date().toISOString()) {
-		// 	throw new Error("Magic link has expired");
-		// }
+		if (magicLink.expires_at < new Date().toISOString()) {
+			throw new Error("Magic link has expired");
+		}
 
 		if (magicLink.used_at) {
 			throw new Error("Magic link has already been used");

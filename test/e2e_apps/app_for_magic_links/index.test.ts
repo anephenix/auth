@@ -1,6 +1,6 @@
 // Dependencies
 import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -248,7 +248,43 @@ describe("Magic Links", () => {
 		});
 
 		describe("when the magic link is valid but has expired", () => {
-			it.todo("should throw an error indicating the link has expired");
+			it("should throw an error indicating the link has expired", async () => {
+				const user = await User.query().insert({
+					username: "testuser4",
+					email: "testuser4@example.com",
+				});
+				const payload = { email: user.email };
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(201);
+				const emailJob =
+					(await emailQueue.inspect()) as SendMagicLinkEmailJob | null;
+				if (!emailJob) {
+					throw new Error("No email job found in the queue");
+				}
+				const { token, code } = emailJob.data;
+
+				vi.useFakeTimers(); // Enables fake timers
+				vi.advanceTimersByTime(1000 * 60 * 10); // Simulate 10 minutes passing
+
+				const verifyResponse = await fetch(verifyMagicLinkUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+				expect(verifyResponse.status).toBe(400);
+				const data = await verifyResponse.json();
+				expect(data.error).toBe("Magic link has expired");
+
+				vi.useRealTimers();
+			});
 		});
 		describe("when the magic link is valid but the code is incorrect", () => {
 			it.todo("should throw an error indicating the code is incorrect");
