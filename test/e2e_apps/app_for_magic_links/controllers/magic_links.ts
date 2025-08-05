@@ -14,6 +14,11 @@ const controller = {
             - If the user does not exist, return an error.        
         */
 
+		/*
+			Perhaps at some point, you could move this into the services 
+			architecture that you did in other repos.
+		*/
+
 		const { email } = request.body;
 
 		const checkIsEmail = isEmail(email);
