@@ -31,7 +31,6 @@ export class MagicLink extends Model {
 		};
 	}
 
-	// TODO - write unit tests for this
 	static async verifyTokenAndCode(token: string, code: string) {
 		const magicLink = await MagicLink.query().where({ token }).first();
 		if (!magicLink) {

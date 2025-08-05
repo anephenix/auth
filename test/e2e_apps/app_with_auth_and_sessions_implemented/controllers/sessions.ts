@@ -99,7 +99,6 @@ const controller = {
 		}
 	},
 
-	// TODO - implement based on client being web or api
 	refresh: async (request, reply) => {
 		const clientType = detectClientType(request);
 		// If it is defined in the cookie, get it there
