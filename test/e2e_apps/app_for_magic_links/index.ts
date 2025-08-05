@@ -4,10 +4,6 @@ import fastify from "fastify";
 import config from "./config";
 import magicLinks from "./controllers/magic_links";
 
-// import sessions from "./controllers/sessions";
-// import users from "./controllers/users";
-// import { Session } from "./models/Session";
-
 const app = fastify({ logger: false });
 app.register(fastifyCookie, {
 	secret: config.cookieSecret, // for cookies signature
@@ -15,7 +11,11 @@ app.register(fastifyCookie, {
 	parseOptions: {}, // options for parsing cookies
 });
 
-app.post("/magic-links", magicLinks.create);
-app.post("/magic-links/verify", magicLinks.verify);
+const routes = [
+	{ method: "POST", url: "/magic-links", handler: magicLinks.create },
+	{ method: "POST", url: "/magic-links/verify", handler: magicLinks.verify },
+];
+
+routes.forEach((route) => app.route(route));
 
 export default app;
