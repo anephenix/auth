@@ -287,10 +287,56 @@ describe("Magic Links", () => {
 			});
 		});
 		describe("when the magic link is valid but the code is incorrect", () => {
-			it.todo("should throw an error indicating the code is incorrect");
+			it("should throw an error indicating the code is incorrect", async () => {
+				const user = await User.query().insert({
+					username: "testuser5",
+					email: "testuser5@example.com",
+				});
+				const payload = { email: user.email };
+				const response = await fetch(magicLinksUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+				expect(response.status).toBe(201);
+				const emailJob =
+					(await emailQueue.inspect()) as SendMagicLinkEmailJob | null;
+				if (!emailJob) {
+					throw new Error("No email job found in the queue");
+				}
+				const { token } = emailJob.data;
+				const incorrectCode = "incorrect-code";
+				const verifyResponse = await fetch(verifyMagicLinkUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code: incorrectCode }),
+				});
+				expect(verifyResponse.status).toBe(400);
+				const data = await verifyResponse.json();
+				expect(data.error).toBe("Invalid magic link code");
+			});
 		});
 		describe("when the magic link is not found", () => {
-			it.todo("should throw an error indicating the link is not found");
+			it("should throw an error indicating the magic link is not found", async () => {
+				const token = "nonexistent-token";
+				const code = "some-code";
+
+				// Now try to verify the magic link again
+				const verifyResponse = await fetch(verifyMagicLinkUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+				expect(verifyResponse.status).toBe(400);
+				const data = await verifyResponse.json();
+				expect(data.error).toBe("Magic link not found");
+			});
 		});
 	});
 });

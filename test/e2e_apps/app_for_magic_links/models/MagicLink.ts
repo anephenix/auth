@@ -35,7 +35,7 @@ export class MagicLink extends Model {
 	static async verifyTokenAndCode(token: string, code: string) {
 		const magicLink = await MagicLink.query().where({ token }).first();
 		if (!magicLink) {
-			throw new Error("Invalid magic link token");
+			throw new Error("Magic link not found");
 		}
 
 		if (magicLink.expires_at < new Date().toISOString()) {
