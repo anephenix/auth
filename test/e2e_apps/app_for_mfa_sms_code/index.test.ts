@@ -89,13 +89,59 @@ describe("app for mfa sms code", () => {
 		});
 
 		describe("when the username is correct but the password is invalid", () => {
-			it.todo("should return a 400 reponse with the error message");
-			it.todo("should not create an SmsCode record in the database");
+			it("should return a 400 reponse with the error message", async () => {
+				const user = await User.query().insert({
+					username: "testuser",
+					email: "testuser@example.com",
+					password: "ValidPassword!123",
+					mobile_number: "07711 123456", // Doesn't have to be a real mobile phone - we're not sending the sms code out to a phone number, just putting it in a message queue.
+				});
+
+				const payload = {
+					identifier: "testuser",
+					password: "InvalidPassword!123",
+				};
+				const response = await fetch(sessionsUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+
+				expect(response.status).toBe(401);
+				const responseBody = await response.json();
+				expect(responseBody).toEqual({
+					error: "Password incorrect",
+				});
+				const smsCode = await SmsCode.query().findOne({ user_id: user.id });
+				expect(smsCode).toBeUndefined();
+			});
 		});
 
 		describe("when the username is not found", () => {
-			it.todo("should return a 400 reponse with the error message");
-			it.todo("should not create an SmsCode record in the database");
+			it("should return a 401 reponse with the error message", async () => {
+				const payload = {
+					identifier: "nonexistentuser",
+					password: "ValidPassword!123",
+				};
+
+				const response = await fetch(sessionsUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+
+				expect(response.status).toBe(401);
+				const responseBody = await response.json();
+				expect(responseBody).toEqual({
+					error: "User not found",
+				});
+				const smsCode = await SmsCode.query();
+				expect(smsCode.length).toBe(0);
+			});
 		});
 	});
 
