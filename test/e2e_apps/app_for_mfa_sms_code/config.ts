@@ -1,0 +1,36 @@
+import { join } from "node:path";
+
+const __dirname = join(
+	import.meta.dirname,
+	"..",
+	"..",
+	"..",
+	"test",
+	"e2e_apps",
+	"app_for_mfa_sms_code",
+);
+const dbFilePath = join(__dirname, "database.sqlite");
+
+const config = {
+	db: {
+		client: "sqlite3",
+		connection: {
+			filename: dbFilePath,
+		},
+		useNullAsDefault: true,
+		pool: {
+			min: 0,
+			max: 10,
+		},
+		migrations: {
+			directory: join(__dirname, "migrations"),
+		},
+	},
+	redis: {
+		url: "redis://localhost:6379",
+	},
+	// Secret for signing cookies, can be a simple string on development, but would be a secure key in production
+	cookieSecret: "my-secret",
+};
+
+export default config;

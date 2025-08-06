@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Auth } from "../src/index";
-import { isHashed, isRandomString } from "./utils/comparators";
+import { isHashed, isRandomString, isSmsCode } from "./utils/comparators";
 
 describe("Auth class", () => {
 	it("should validate passwords correctly", () => {
@@ -310,6 +310,33 @@ describe("Auth class", () => {
 				expect(isHashed(hashedCode)).toBe(true);
 				expect(tokenExpiresAt).toStrictEqual(fifteenMinutesFromNow);
 			});
+		});
+	});
+
+	describe("#generateSmsCode", () => {
+		it("should generate a code, hashed code, and expiration time of 5 minutes", async () => {
+			const auth = new Auth({});
+			const { code, hashedCode, expiresAt } = await auth.generateSmsCode();
+			const fiveMinutesFromNow = new Date(
+				Date.now() + 5 * 60 * 1000,
+			).toISOString();
+			expect(isSmsCode(code)).toBe(true);
+			expect(isHashed(hashedCode)).toBe(true);
+			expect(expiresAt).toStrictEqual(fiveMinutesFromNow);
+		});
+
+		it("should use custom smsCodeGenerator if provided in the auth config", async () => {
+			const auth = new Auth({
+				smsCodeOptions: {
+					smsCodeGenerator: () => "customSmsCode",
+				},
+			});
+			const { code, expiresAt } = await auth.generateSmsCode();
+			const fiveMinutesFromNow = new Date(
+				Date.now() + 5 * 60 * 1000,
+			).toISOString();
+			expect(code).toBe("customSmsCode");
+			expect(expiresAt).toStrictEqual(fiveMinutesFromNow);
 		});
 	});
 });

@@ -1,14 +1,51 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { join } from "node:path";
+import {
+	afterAll,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 import {
 	isHashed,
 	isIsoString,
 	isRandomString,
 } from "../../../utils/comparators";
+import {
+	removeDatabaseFileIfExists,
+	runMigrations,
+} from "../../app_for_password_in_separate_table/utils/manageDatabase";
 import auth from "../auth";
+import config from "../config";
+import appDB from "../db";
 import { MagicLink } from "./MagicLink";
 import { User } from "./User";
 
 describe("MagicLinks model", () => {
+	beforeAll(async () => {
+		const dbPath = join(
+			import.meta.dirname,
+			"..",
+			"..",
+			"..",
+			"test",
+			"e2e_apps",
+			"app_for_magic_links",
+			"database.sqlite",
+		);
+
+		// Delete the database.sqlite file (if it exists)
+		await removeDatabaseFileIfExists(dbPath);
+		// Run the knex migrations to create the database schema
+		await runMigrations(config.db);
+	});
+
+	afterAll(async () => {
+		await appDB.destroy();
+	});
+
 	describe("validations", () => {
 		const makeInvalidMagicLink = async () => {
 			const magicLink = new MagicLink();

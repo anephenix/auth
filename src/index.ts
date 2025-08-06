@@ -24,6 +24,7 @@ const DEFAULTS = {
 	refreshTokenGenerator: defaultTokenGenerator,
 	tokenGenerator: defaultTokenGenerator,
 	codeGenerator: defaultTokenGenerator,
+	smsCodeGenerator: () => randomBytes(3).toString("hex"),
 };
 
 export class Auth {
@@ -187,6 +188,12 @@ export class Auth {
 			: DEFAULTS.codeGenerator();
 	}
 
+	smsCodeGenerator(): string {
+		return this.options?.smsCodeOptions?.smsCodeGenerator
+			? this.options?.smsCodeOptions?.smsCodeGenerator()
+			: DEFAULTS.smsCodeGenerator();
+	}
+
 	/*
 		Generates a token, a token expiry time and a code.
 		Useful for magic link authentication.
@@ -210,6 +217,20 @@ export class Auth {
 			tokenExpiresAt,
 			code,
 			hashedCode,
+		};
+	}
+
+	async generateSmsCode(): Promise<{
+		code: string;
+		hashedCode: string;
+		expiresAt: string;
+	}> {
+		const code = this.smsCodeGenerator();
+		const hashedCode = await this.hashPassword(code);
+		return {
+			code,
+			hashedCode,
+			expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes from now - TODO - make this configurable
 		};
 	}
 

@@ -17,4 +17,8 @@ const isIsoString = (date: string) => {
 	return isoRegex.test(date);
 };
 
-export { isEmail, isRandomString, isHashed, isIsoString };
+const isSmsCode = (code: string) => {
+	return /^[A-Za-z0-9]{6}$/.test(code); // 6-character alphanumeric code (letters or numbers)
+};
+
+export { isEmail, isRandomString, isHashed, isIsoString, isSmsCode };

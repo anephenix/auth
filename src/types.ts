@@ -18,6 +18,10 @@ export type AuthOptions = {
 		tokenGenerator?: () => string; // Function to generate a token
 		codeGenerator?: () => string; // Function to generate a code
 	};
+	smsCodeOptions?: {
+		smsCodeExpiresIn?: number; // in seconds
+		smsCodeGenerator?: () => string; // Function to generate a code for SMS
+	};
 };
 
 export interface GenerateSessionProps {
