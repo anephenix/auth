@@ -8,6 +8,9 @@ const makeInvalidSession = async () => {
 	session.$validate();
 };
 
+// A little
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 describe("Session Model", () => {
 	let user: User;
 
@@ -108,6 +111,7 @@ describe("Session Model", () => {
 					user_id: user.id,
 					...Session.generateTokens(),
 				});
+				await delay(1);
 				session.user_agent =
 					"WebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3";
 				await session.$query().update();

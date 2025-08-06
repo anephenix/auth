@@ -25,6 +25,7 @@ const DEFAULTS = {
 	tokenGenerator: defaultTokenGenerator,
 	codeGenerator: defaultTokenGenerator,
 	smsCodeGenerator: () => randomBytes(3).toString("hex"),
+	smsCodeExpiresIn: 300, // Default to 5 minutes
 };
 
 export class Auth {
@@ -223,14 +224,16 @@ export class Auth {
 	async generateSmsCode(): Promise<{
 		code: string;
 		hashedCode: string;
-		expiresAt: string;
+		expiresAt: Date;
 	}> {
 		const code = this.smsCodeGenerator();
 		const hashedCode = await this.hashPassword(code);
+		const codeExpiresAt = new Date(Date.now() + this.smsCodeExpiresIn * 1000);
+
 		return {
 			code,
 			hashedCode,
-			expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes from now - TODO - make this configurable
+			expiresAt: codeExpiresAt,
 		};
 	}
 
@@ -251,5 +254,10 @@ export class Auth {
 		return (
 			sessionOptions?.refreshTokenExpiresIn ?? DEFAULTS.refreshTokenExpiresIn
 		);
+	}
+
+	get smsCodeExpiresIn(): number {
+		const { smsCodeOptions } = this.options;
+		return smsCodeOptions?.smsCodeExpiresIn ?? DEFAULTS.smsCodeExpiresIn; // Default to 5 minutes
 	}
 }

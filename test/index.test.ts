@@ -2,6 +2,18 @@ import { describe, expect, it } from "vitest";
 import { Auth } from "../src/index";
 import { isHashed, isRandomString, isSmsCode } from "./utils/comparators";
 
+/*
+	Utility function to check if two date times are similar within a range in milliseconds.
+	This is useful for comparing expiration times that may not be exact due to processing delays.
+*/
+const areSimilarDateTimesWithinRange = (
+	date1: Date,
+	date2: Date,
+	ms: number,
+) => {
+	return Math.abs(date1.getTime() - date2.getTime()) <= ms;
+};
+
 describe("Auth class", () => {
 	it("should validate passwords correctly", () => {
 		const auth = new Auth({
@@ -195,8 +207,20 @@ describe("Auth class", () => {
 			const oneDayFromNow = new Date(Date.now() + 86400 * 1000);
 			expect(isRandomString(session.accessToken)).toBe(true);
 			expect(isRandomString(session.refreshToken)).toBe(true);
-			expect(session.accessTokenExpiresAt).toStrictEqual(oneHourFromNow);
-			expect(session.refreshTokenExpiresAt).toStrictEqual(oneDayFromNow);
+			expect(
+				areSimilarDateTimesWithinRange(
+					session.accessTokenExpiresAt,
+					oneHourFromNow,
+					1,
+				),
+			).toBe(true);
+			expect(
+				areSimilarDateTimesWithinRange(
+					session.refreshTokenExpiresAt,
+					oneDayFromNow,
+					1,
+				),
+			).toBe(true);
 		});
 
 		it("should generate a session with custom expiration times if provided in the auth config", () => {
@@ -317,9 +341,7 @@ describe("Auth class", () => {
 		it("should generate a code, hashed code, and expiration time of 5 minutes", async () => {
 			const auth = new Auth({});
 			const { code, hashedCode, expiresAt } = await auth.generateSmsCode();
-			const fiveMinutesFromNow = new Date(
-				Date.now() + 5 * 60 * 1000,
-			).toISOString();
+			const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
 			expect(isSmsCode(code)).toBe(true);
 			expect(isHashed(hashedCode)).toBe(true);
 			expect(expiresAt).toStrictEqual(fiveMinutesFromNow);
@@ -329,14 +351,13 @@ describe("Auth class", () => {
 			const auth = new Auth({
 				smsCodeOptions: {
 					smsCodeGenerator: () => "customSmsCode",
+					smsCodeExpiresIn: 10 * 60, // 10 minutes
 				},
 			});
 			const { code, expiresAt } = await auth.generateSmsCode();
-			const fiveMinutesFromNow = new Date(
-				Date.now() + 5 * 60 * 1000,
-			).toISOString();
+			const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
 			expect(code).toBe("customSmsCode");
-			expect(expiresAt).toStrictEqual(fiveMinutesFromNow);
+			expect(expiresAt).toStrictEqual(tenMinutesFromNow);
 		});
 	});
 });

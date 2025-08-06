@@ -31,7 +31,7 @@ const controller = {
 			await SmsCode.query().insert({
 				user_id: user.id,
 				hashed_code: hashedCode,
-				expires_at: expiresAt,
+				expires_at: expiresAt.toISOString(),
 			});
 
 			const job = {
