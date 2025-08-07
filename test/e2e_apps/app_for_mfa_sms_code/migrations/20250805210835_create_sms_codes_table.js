@@ -3,7 +3,9 @@ exports.up = async (knex) => {
 		// Fields
 		table.increments("id").primary();
 		table.integer("user_id").unsigned().notNullable();
+		table.string("token").notNullable().unique();
 		table.string("hashed_code").notNullable().unique();
+		table.datetime("used_at");
 		table.datetime("expires_at").notNullable();
 		table.timestamps(true, true);
 		// Constraints

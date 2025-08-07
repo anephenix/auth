@@ -338,10 +338,12 @@ describe("Auth class", () => {
 	});
 
 	describe("#generateSmsCode", () => {
-		it("should generate a code, hashed code, and expiration time of 5 minutes", async () => {
+		it("should generate a token, a code, a hashed code, and an expiration time of 5 minutes", async () => {
 			const auth = new Auth({});
-			const { code, hashedCode, expiresAt } = await auth.generateSmsCode();
+			const { token, code, hashedCode, expiresAt } =
+				await auth.generateSmsCode();
 			const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+			expect(isRandomString(token)).toBe(true);
 			expect(isSmsCode(code)).toBe(true);
 			expect(isHashed(hashedCode)).toBe(true);
 			expect(expiresAt).toStrictEqual(fiveMinutesFromNow);
@@ -354,8 +356,9 @@ describe("Auth class", () => {
 					smsCodeExpiresIn: 10 * 60, // 10 minutes
 				},
 			});
-			const { code, expiresAt } = await auth.generateSmsCode();
+			const { token, code, expiresAt } = await auth.generateSmsCode();
 			const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+			expect(isRandomString(token)).toBe(true);
 			expect(code).toBe("customSmsCode");
 			expect(expiresAt).toStrictEqual(tenMinutesFromNow);
 		});

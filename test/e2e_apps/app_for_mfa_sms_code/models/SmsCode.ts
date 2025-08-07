@@ -1,4 +1,5 @@
 import { Model } from "objection";
+import auth from "../auth";
 import db from "../db";
 import { User } from "./User";
 
@@ -8,6 +9,7 @@ Model.knex(db);
 export class SmsCode extends Model {
 	id!: number;
 	user_id!: number;
+	token!: string; // Token for secure verification
 	hashed_code!: string;
 	used_at?: string; // Timestamp when the code was used
 	expires_at!: string;
@@ -34,6 +36,12 @@ export class SmsCode extends Model {
 		return new Date(this.expires_at) < now;
 	}
 
+	// TODO - write unit tests to cover this method
+	verifyCode = async (code: string): Promise<boolean> => {
+		const isValid = await auth.verifyPassword(code, this.hashed_code);
+		return isValid;
+	};
+
 	static get jsonSchema() {
 		return {
 			type: "object",
@@ -41,6 +49,7 @@ export class SmsCode extends Model {
 			properties: {
 				id: { type: "integer" },
 				user_id: { type: "integer" },
+				token: { type: "string" },
 				hashed_code: { type: "string" },
 				used_at: { type: "string", format: "date-time" },
 				expires_at: { type: "string", format: "date-time" },

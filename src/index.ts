@@ -222,15 +222,18 @@ export class Auth {
 	}
 
 	async generateSmsCode(): Promise<{
+		token: string;
 		code: string;
 		hashedCode: string;
 		expiresAt: Date;
 	}> {
+		const token = this.tokenGenerator();
 		const code = this.smsCodeGenerator();
 		const hashedCode = await this.hashPassword(code);
 		const codeExpiresAt = new Date(Date.now() + this.smsCodeExpiresIn * 1000);
 
 		return {
+			token,
 			code,
 			hashedCode,
 			expiresAt: codeExpiresAt,
