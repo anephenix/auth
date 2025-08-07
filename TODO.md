@@ -13,12 +13,12 @@
 
 ## Now
 
-- [ ] Look at supporting MFA (QR Code & app)
+- [ ] Implement a rule that usernames be lowercased so that attackers can't just pass uppercase characters to bypass lock out rules
+- [ ] Implement a rule that all submitted identifiers are lowercased and trimmed of spaces - so no chance to trick account creation/lookup
 
 ## Next
 
-- [ ] Implement a rule that all submitted identifiers are lowercased and trimmed of spaces - so no chance to trick account creation/lookup
-- [ ] Implement a rule that usernames be lowercased so that attackers can't just pass uppercase characters to bypass lock out rules
+- [ ] Look at supporting MFA (QR Code & app)
 - [ ] Implement a way to ensure that username lookup timing attacks can't happen (establish that a username is valid within a system)
 - [ ] Implement the same principle for passwords
 - [ ] Look at supporting forgot password flow

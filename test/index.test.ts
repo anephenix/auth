@@ -363,4 +363,36 @@ describe("Auth class", () => {
 			expect(expiresAt).toStrictEqual(tenMinutesFromNow);
 		});
 	});
+
+	describe("normalize", () => {
+		it("should normalize a username by removing all whitespace and converting to lowercase", () => {
+			const auth = new Auth({});
+
+			const variations = [
+				"  Example  ",
+				"Example",
+				"  EXAMPLE  ",
+				" exa mpl e ",
+				"  eXaMpLe  ",
+			];
+
+			variations.forEach((username) => {
+				const normalized = auth.normalize(username);
+				expect(normalized).toBe("example");
+			});
+
+			const emailVariations = [
+				"Paul@Anephenix.com",
+				"  Paul@Anephenix.com  ",
+				"paul@anephenix. com",
+				"  PAUL@ANEPHENIX.COM  ",
+				" Pa ul@Ane ph enix.com ",
+				"  pAuL@aNePhEnIx.CoM  ",
+			];
+			emailVariations.forEach((email) => {
+				const normalized = auth.normalize(email);
+				expect(normalized).toBe("paul@anephenix.com");
+			});
+		});
+	});
 });

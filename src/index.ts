@@ -139,6 +139,18 @@ export class Auth {
 	}
 
 	/*
+		This function is normalizes a string value by removing 
+		all whitespace and converting all characters to lowercase.
+
+		This helps to prevent attackers from using variations of the same
+		value (e.g., "Example" vs "example") to bypass authentication checks
+		and rate limit protections.
+	*/
+	normalize(value: string): string {
+		return value.trim().toLowerCase().replace(/\s+/g, "");
+	}
+
+	/*
 		Generates a session object containing access and refresh tokens,
 		and their respective expiration times.
 	*/
