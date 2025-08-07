@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { isSmsCode } from "../../utils/comparators";
+import { isIsoString, isSmsCode } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -8,6 +8,7 @@ import {
 import config from "./config";
 import appDB from "./db";
 import app from "./index";
+import { Session } from "./models/Session";
 import { SmsCode } from "./models/SmsCode";
 import { User } from "./models/User";
 import SmsCodeQueue from "./queues/SmsCodeQueue";
@@ -152,21 +153,8 @@ describe("app for mfa sms code", () => {
 
 	describe("POST /sessions/verify-code", () => {
 		describe("when the code is valid", () => {
-			it("should return a 201 response with the access/refresh tokens and their expiry dates", async () => {
-				/*
-						Steps:
-
-						1. Create a user
-						2. Create the payload for authenticating the user
-						3. Make the API request to authenticate the user
-						4. Get the token from the API response
-						5. Get the Code from the SMSCode job queue
-						6. Then make the request to the verify-code API endpoint with the code and token
-						7. Verify that the response is a 201
-						8. Verify that you get the access and refresh tokens and their expiry datetimes in the response
-					*/
-
-				await User.query().insert({
+			it("should return a 201 response with the access/refresh tokens and their expiry dates, create a session, and mark the SMS code as used so that it cannot be used again", async () => {
+				const user = await User.query().insert({
 					username: "testuser",
 					email: "testuser@example.com",
 					password: "ValidPassword!123",
@@ -190,9 +178,9 @@ describe("app for mfa sms code", () => {
 				const responseBody = await response.json();
 
 				/*
-						We use this when we make the request to the verify-code endpoint
-						as a means of finding the SmsCode record in the database
-					*/
+					We use this when we make the request to the verify-code endpoint
+					as a means of finding the SmsCode record in the database
+				*/
 				const { token } = responseBody;
 
 				const smsCodeJob = (await SmsCodeQueue.inspect()) as SmsCodeQueueJob;
@@ -215,11 +203,14 @@ describe("app for mfa sms code", () => {
 					access_token_expires_at: expect.any(String),
 					refresh_token_expires_at: expect.any(String),
 				});
+
+				const session = await Session.query().findOne({ user_id: user.id });
+				expect(session?.user_id).toBe(user.id);
+
+				const smsCode = await SmsCode.query().findOne({ token });
+				expect(smsCode?.used_at).toBeDefined();
+				expect(isIsoString(smsCode?.used_at || "")).toBe(true);
 			});
-			it.todo("should create a Session record in the database");
-			it.todo(
-				"should mark the SmsCode as used so that it cannot be used again",
-			);
 		});
 
 		describe("when the code is incorrect", () => {
