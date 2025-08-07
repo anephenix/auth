@@ -83,9 +83,9 @@ const controller = {
 			// 	return reply.status(400).send({ error: "SMS code has already been used" });
 			// }
 
-			// if (smsCode.codeHasExpired()) {
-			// 	return reply.status(400).send({ error: "SMS code has expired" });
-			// }
+			if (smsCode.codeHasExpired()) {
+				return reply.status(400).send({ error: "Code has expired" });
+			}
 
 			const isCodeValid = await smsCode.verifyCode(code);
 

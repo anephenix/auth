@@ -1,5 +1,13 @@
 import { join } from "node:path";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+	afterAll,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 import { isIsoString, isSmsCode } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
@@ -266,7 +274,65 @@ describe("app for mfa sms code", () => {
 		});
 
 		describe("when the code is expired", () => {
-			it.todo("should return a 400 response with the error message");
+			it("should return a 400 response with the error message", async () => {
+				const user = await User.query().insert({
+					username: "testuser",
+					email: "testuser@example.com",
+					password: "ValidPassword!123",
+					mobile_number: "07711 123456", // Doesn't have to be a real mobile phone - we're not sending the sms code out to a phone number, just putting it in a message queue.
+				});
+
+				const payload = {
+					identifier: "testuser",
+					password: "ValidPassword!123",
+				};
+
+				const response = await fetch(sessionsUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+
+				expect(response.status).toBe(201);
+				const responseBody = await response.json();
+
+				/*
+					We use this when we make the request to the verify-code endpoint
+					as a means of finding the SmsCode record in the database
+				*/
+				const { token } = responseBody;
+
+				const smsCodeJob = (await SmsCodeQueue.inspect()) as SmsCodeQueueJob;
+
+				const { code } = smsCodeJob.data;
+
+				vi.useFakeTimers(); // Enables fake timers
+				vi.advanceTimersByTime(1000 * 60 * 10); // Simulate 10 minutes passing
+
+				const smsCode = await SmsCode.query().findOne({ token });
+				expect(smsCode?.expires_at).toBeDefined();
+
+				const verifyCodeResponse = await fetch(verifyCodeUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				const verifyCodeResponseBody = await verifyCodeResponse.json();
+				expect(verifyCodeResponse.status).toBe(400);
+				expect(verifyCodeResponseBody).toEqual({
+					error: "Code has expired",
+				});
+
+				const session = await Session.query().findOne({ user_id: user.id });
+				expect(session).not.toBeDefined();
+
+				vi.useRealTimers();
+			});
 			it.todo("should not create a Session record in the database");
 		});
 
