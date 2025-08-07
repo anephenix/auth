@@ -36,7 +36,6 @@ export class SmsCode extends Model {
 		return new Date(this.expires_at) < now;
 	}
 
-	// TODO - write unit tests to cover this method
 	verifyCode = async (code: string): Promise<boolean> => {
 		const isValid = await auth.verifyPassword(code, this.hashed_code);
 		return isValid;

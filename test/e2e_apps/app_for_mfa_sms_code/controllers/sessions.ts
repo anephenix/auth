@@ -62,13 +62,12 @@ const controller = {
 				token: string;
 			};
 
-			// TODO - add unit tests to cover these cases
-			// if (!token) {
-			// 	return reply.status(400).send({ error: "Token is required" });
-			// }
-			// if (!code) {
-			// 	return reply.status(400).send({ error: "Code is required" });
-			// }
+			if (!token) {
+				return reply.status(400).send({ error: "Token is required" });
+			}
+			if (!code) {
+				return reply.status(400).send({ error: "Code is required" });
+			}
 
 			// We use the token to find the SmsCode record
 			const smsCode = await SmsCode.query().findOne({ token });
@@ -77,11 +76,9 @@ const controller = {
 				return reply.status(400).send({ error: "Invalid token" });
 			}
 
-			// TODO - add unit tests to cover these cases
-
-			// if (smsCode.used_at) {
-			// 	return reply.status(400).send({ error: "SMS code has already been used" });
-			// }
+			if (smsCode.used_at) {
+				return reply.status(400).send({ error: "Code has already been used" });
+			}
 
 			if (smsCode.codeHasExpired()) {
 				return reply.status(400).send({ error: "Code has expired" });

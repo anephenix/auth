@@ -9,10 +9,12 @@ import {
 	vi,
 } from "vitest";
 import { isIsoString, isSmsCode } from "../../utils/comparators";
+import { delay } from "../../utils/delay";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
 } from "../app_for_password_in_separate_table/utils/manageDatabase";
+import auth from "./auth";
 import config from "./config";
 import appDB from "./db";
 import app from "./index";
@@ -221,6 +223,42 @@ describe("app for mfa sms code", () => {
 			});
 		});
 
+		describe("when the token is not provided", () => {
+			it("should return a 400 response with the error message", async () => {
+				const verifyCodeResponse = await fetch(verifyCodeUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ code: "111111" }),
+				});
+
+				const verifyCodeResponseBody = await verifyCodeResponse.json();
+				expect(verifyCodeResponse.status).toBe(400);
+				expect(verifyCodeResponseBody).toEqual({
+					error: "Token is required",
+				});
+			});
+		});
+
+		describe("when the code is not provided", () => {
+			it("should return a 400 response with the error message", async () => {
+				const verifyCodeResponse = await fetch(verifyCodeUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token: auth.tokenGenerator() }),
+				});
+
+				const verifyCodeResponseBody = await verifyCodeResponse.json();
+				expect(verifyCodeResponse.status).toBe(400);
+				expect(verifyCodeResponseBody).toEqual({
+					error: "Code is required",
+				});
+			});
+		});
+
 		describe("when the code is incorrect", () => {
 			it("should return a 400 response with the error message", async () => {
 				const user = await User.query().insert({
@@ -333,12 +371,89 @@ describe("app for mfa sms code", () => {
 
 				vi.useRealTimers();
 			});
-			it.todo("should not create a Session record in the database");
 		});
 
 		describe("when the code is already used", () => {
-			it.todo("should return a 400 response with the error message");
-			it.todo("should not create a Session record in the database");
+			it("should return a 400 response with the error message", async () => {
+				/*
+
+					Steps:
+
+					1. Create a user
+					2. Create a payload for authentication
+					3. Make the API request to authenticate
+					4. Get the token and the code for doing the verify code step with
+					5. Make a request to verify the code
+					6. Check that the 1st request is a 201
+					7. Wait 5 miliseconds
+					8. Try to make the request again
+					9. Check that the 2nd attempt is a 400
+					10. Check that the response says that the code has already been used
+					11. Check that there is only 1 session in the database for the user and not 2
+				
+				*/
+				const user = await User.query().insert({
+					username: "testuser",
+					email: "testuser@example.com",
+					password: "ValidPassword!123",
+					mobile_number: "07711 123456", // Doesn't have to be a real mobile phone - we're not sending the sms code out to a phone number, just putting it in a message queue.
+				});
+
+				const payload = {
+					identifier: "testuser",
+					password: "ValidPassword!123",
+				};
+
+				const response = await fetch(sessionsUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+
+				expect(response.status).toBe(201);
+				const responseBody = await response.json();
+
+				/*
+					We use this when we make the request to the verify-code endpoint
+					as a means of finding the SmsCode record in the database
+				*/
+				const { token } = responseBody;
+
+				const smsCodeJob = (await SmsCodeQueue.inspect()) as SmsCodeQueueJob;
+
+				const { code } = smsCodeJob.data;
+
+				const verifyCodeResponse = await fetch(verifyCodeUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(verifyCodeResponse.status).toBe(201);
+
+				await delay(5);
+
+				const secondVerifyCodeResponse = await fetch(verifyCodeUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(secondVerifyCodeResponse.status).toBe(400);
+				const secondVerifyCodeResponseBody =
+					await secondVerifyCodeResponse.json();
+				expect(secondVerifyCodeResponseBody).toEqual({
+					error: "Code has already been used",
+				});
+				const sessions = await Session.query().where({ user_id: user.id });
+				expect(sessions.length).toBe(1);
+			});
 		});
 	});
 });

@@ -9,14 +9,14 @@
 - [x] Look at supporting Magic Link (email)
 - [x] Add options to configure the token and code used for magic link (length, characters, etc) 
 - [x] Do a review and cleanup any TODO/NOTE/QUESTION items, plus refine any `.toBeDefined` calls in the unit tests
+- [x] Look at supporting MFA (SMS)
 
 ## Now
 
-- [ ] Look at supporting MFA (SMS)
+- [ ] Look at supporting MFA (QR Code & app)
 
 ## Next
 
-- [ ] Look at supporting MFA (QR Code & app)
 - [ ] Look at supporting forgot password flow
 - [ ] Look at supporting reset password flow
 - [ ] Look at updating username flow

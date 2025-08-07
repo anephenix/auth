@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { isIsoString } from "../../../utils/comparators";
+import { delay } from "../../../utils/delay";
 import { Session } from "./Session";
 import { User } from "./User";
 
@@ -7,9 +8,6 @@ const makeInvalidSession = async () => {
 	const session = new Session();
 	session.$validate();
 };
-
-// A little
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("Session Model", () => {
 	let user: User;
