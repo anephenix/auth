@@ -214,8 +214,55 @@ describe("app for mfa sms code", () => {
 		});
 
 		describe("when the code is incorrect", () => {
-			it.todo("should return a 400 response with the error message");
-			it.todo("should not create a Session record in the database");
+			it("should return a 400 response with the error message", async () => {
+				const user = await User.query().insert({
+					username: "testuser",
+					email: "testuser@example.com",
+					password: "ValidPassword!123",
+					mobile_number: "07711 123456", // Doesn't have to be a real mobile phone - we're not sending the sms code out to a phone number, just putting it in a message queue.
+				});
+
+				const payload = {
+					identifier: "testuser",
+					password: "ValidPassword!123",
+				};
+
+				const response = await fetch(sessionsUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				});
+
+				expect(response.status).toBe(201);
+				const responseBody = await response.json();
+
+				/*
+					We use this when we make the request to the verify-code endpoint
+					as a means of finding the SmsCode record in the database
+				*/
+				const { token } = responseBody;
+
+				const verifyCodeResponse = await fetch(verifyCodeUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code: "111111" }),
+				});
+
+				const verifyCodeResponseBody = await verifyCodeResponse.json();
+				expect(verifyCodeResponse.status).toBe(400);
+				expect(verifyCodeResponseBody).toEqual({
+					error: "Invalid code",
+				});
+
+				const session = await Session.query().findOne({ user_id: user.id });
+				expect(session).not.toBeDefined();
+				const smsCode = await SmsCode.query().findOne({ token });
+				expect(smsCode?.used_at).toBe(null);
+			});
 		});
 
 		describe("when the code is expired", () => {
