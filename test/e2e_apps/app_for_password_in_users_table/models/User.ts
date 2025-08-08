@@ -23,6 +23,7 @@ export class User extends Model {
 
 	async $beforeInsert(queryContext) {
 		await super.$beforeInsert(queryContext);
+		if (this.username) this.username = auth.normalize(this.username);
 		if (this.password) {
 			if (!auth.validatePassword(this.password)) {
 				throw new Error("Password does not meet validation rules");
@@ -48,9 +49,10 @@ export class User extends Model {
 	// This is an implementation of the User.authenticate method, used previously in a different project.
 	static async authenticate(payload) {
 		const { identifier, password } = payload;
+		const normalizedIdentifier = auth.normalize(identifier ? identifier : "");
 		const params = {};
-		const key = isEmail(identifier) ? "email" : "username";
-		params[key] = identifier;
+		const key = isEmail(normalizedIdentifier) ? "email" : "username";
+		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
 		if (!user) throw new Error("User not found");
 		const isAuthenticated = await auth.verifyPassword(

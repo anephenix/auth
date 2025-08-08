@@ -1,6 +1,6 @@
 import { Model } from "objection";
 // We will piggyback off of the util in the other app rather than duplicating it here.
-//import auth from "../auth";
+import auth from "../auth";
 import db from "../db";
 
 // Attach the knex connection instance to the Model
@@ -18,12 +18,16 @@ export class User extends Model {
 	}
 
 	async $beforeInsert(queryContext) {
+		if (this.username) this.username = auth.normalize(this.username);
+		if (this.email) this.email = auth.normalize(this.email);
 		await super.$beforeInsert(queryContext);
 	}
 
 	/* This runs updates a timestamp before a record is updated in the database */
 	async $beforeUpdate(opt, queryContext) {
 		await super.$beforeUpdate(opt, queryContext);
+		if (this.username) this.username = auth.normalize(this.username);
+		if (this.email) this.email = auth.normalize(this.email);
 		this.updated_at = new Date().toISOString();
 	}
 
