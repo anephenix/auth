@@ -9,8 +9,13 @@ Model.knex(db);
 export class User extends Model {
 	id!: number;
 	username!: string;
+	email!: string;
+	mobile_number!: string;
 	password?: string;
 	hashed_password!: string;
+	mfa_totp_secret?: string; // Field to store the encrypted TOTP secret
+	created_at!: string;
+	updated_at!: string;
 
 	static get tableName() {
 		return "users";
@@ -23,24 +28,75 @@ export class User extends Model {
 	async $beforeInsert(queryContext) {
 		await super.$beforeInsert(queryContext);
 		if (this.username) this.username = auth.normalize(this.username);
+		if (this.email) this.email = auth.normalize(this.email);
+
 		if (this.password) {
 			if (!auth.validatePassword(this.password)) {
 				throw new Error("Password does not meet validation rules");
 			}
 			this.hashed_password = await auth.hashPassword(this.password);
 			this.clearPlaintextPassword();
+
+			/* This runs sets timestamps before a record is inserted into the database */
+			const date = new Date().toISOString();
+			this.created_at = date;
+			this.updated_at = date;
 		} else {
 			throw new Error("Password is required");
 		}
 	}
 
+	/* This runs updates a timestamp before a record is updated in the database */
+	async $beforeUpdate(opt, queryContext) {
+		await super.$beforeUpdate(opt, queryContext);
+		if (this.username) this.username = auth.normalize(this.username);
+		if (this.email) this.email = auth.normalize(this.email);
+		this.updated_at = new Date().toISOString();
+	}
+
 	static get jsonSchema() {
 		return {
 			type: "object",
-			required: ["username"],
+			required: ["username", "email", "mobile_number"],
 			properties: {
 				id: { type: "integer" },
-				username: { type: "string", minLength: 1, maxLength: 255 },
+				username: {
+					type: "string",
+					minLength: 2,
+					maxLength: 64,
+					pattern: String.raw`^([\w\d]){1,255}$`,
+				},
+				email: {
+					type: "string",
+					format: "email",
+					pattern: String.raw`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`,
+					minLength: 1,
+					maxLength: 255,
+				},
+				mobile_number: {
+					type: "string",
+					minLength: 10,
+					maxLength: 15,
+					pattern: String.raw`^\+?[0-9\s]+$`, // Basic pattern for international phone numbers
+				},
+				mfa_totp_secret: {
+					type: "string",
+					minLength: 1,
+					maxLength: 255,
+					writeOnly: true,
+				},
+				hashed_password: {
+					type: "string",
+					minLength: 10,
+					maxLength: 255,
+					writeOnly: true,
+				},
+				created_at: {
+					type: "string",
+					format: "date-time",
+					readOnly: true,
+				},
+				updated_at: { type: "string", format: "date-time" },
 			},
 		};
 	}
@@ -62,11 +118,10 @@ export class User extends Model {
 			return {
 				id: user.id,
 				username: user.username,
+				mobile_number: user.mobile_number,
 			};
 		} else {
 			throw new Error("Password incorrect");
 		}
 	}
 }
-
-export default User;

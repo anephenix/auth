@@ -44,4 +44,5 @@ jobs:
       - run: cd test/e2e_apps/app_with_auth_and_sessions_implemented && npm i
       - run: cd test/e2e_apps/app_for_magic_links && npm i
       - run: cd test/e2e_apps/app_for_mfa_sms_code && npm i
+      - run: cd test/e2e_apps/app_for_mfa_totp && npm i
       - run: npm run cover

@@ -1,0 +1,20 @@
+{
+	"scripts": {
+		"test": "vitest run --no-file-parallelism"
+	},
+	"devDependencies": {
+		"vitest": "^3.2.4"
+	},
+	"dependencies": {
+		"@fastify/cookie": "^11.0.2",
+		"dotenv": "^17.2.1",
+		"fastify": "^5.4.0",
+		"jsqr": "^1.4.0",
+		"knex": "^3.1.0",
+		"objection": "^3.1.5",
+		"otplib": "^12.0.1",
+		"pngjs": "^7.0.0",
+		"qrcode": "^1.5.4",
+		"sqlite3": "^5.1.7"
+	}
+}
