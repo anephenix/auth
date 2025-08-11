@@ -22,6 +22,10 @@ export type AuthOptions = {
 		smsCodeExpiresIn?: number; // in seconds
 		smsCodeGenerator?: () => string; // Function to generate a code for SMS
 	};
+	mfaTokenOptions?: {
+		mfaTokenExpiresIn?: number; // in seconds
+		tokenGenerator?: () => string; // Function to generate a token
+	}; // Options for MFA tokens
 };
 
 export interface GenerateSessionProps {

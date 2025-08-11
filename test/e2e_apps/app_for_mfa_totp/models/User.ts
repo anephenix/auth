@@ -25,6 +25,10 @@ export class User extends Model {
 		this.password = undefined;
 	}
 
+	isUsingMFA() {
+		return !!this.mfa_totp_secret;
+	}
+
 	async $beforeInsert(queryContext) {
 		await super.$beforeInsert(queryContext);
 		if (this.username) this.username = auth.normalize(this.username);
@@ -118,7 +122,7 @@ export class User extends Model {
 			return {
 				id: user.id,
 				username: user.username,
-				mobile_number: user.mobile_number,
+				isUsingMFA: user.isUsingMFA(),
 			};
 		} else {
 			throw new Error("Password incorrect");

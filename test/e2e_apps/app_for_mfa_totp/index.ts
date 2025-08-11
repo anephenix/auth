@@ -2,6 +2,7 @@
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import config from "./config";
+import sessions from "./controllers/sessions";
 import users from "./controllers/users";
 import { authenticateSession } from "./middleware";
 
@@ -14,6 +15,8 @@ app.register(fastifyCookie, {
 
 const routes = [
 	{ method: "POST", url: "/signup", handler: users.signup },
+	{ method: "POST", url: "/login", handler: sessions.create },
+	{ method: "POST", url: "/login/mfa", handler: sessions.mfaLogin },
 	{
 		method: "POST",
 		url: "/auth/mfa/setup",
@@ -25,7 +28,7 @@ const routes = [
 		url: "/auth/mfa/verify",
 		preHandler: [authenticateSession],
 		handler: users.verifyMFATOTP,
-	}, // Assuming you have a verify endpoint
+	},
 ];
 
 routes.forEach((route) => app.route(route));

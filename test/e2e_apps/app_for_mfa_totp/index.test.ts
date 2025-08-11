@@ -3,6 +3,7 @@ import jsQR from "jsqr";
 import { authenticator } from "otplib";
 import { PNG } from "pngjs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { isIsoString } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -10,12 +11,16 @@ import {
 import config from "./config";
 import appDB from "./db"; // Assuming you have a db module to handle database connections
 import app from "./index";
+import { MfaToken } from "./models/MfaToken"; // Adjust the import path as necessary
 import { Session } from "./models/Session";
 import { User } from "./models/User";
+import mfaService from "./services/mfaService"; // Adjust the import path as necessary
 
 const port = 3000; // Port for the Fastify server
 const baseUrl = "http://localhost:3000";
 const signupUrl = `${baseUrl}/signup`;
+const loginUrl = `${baseUrl}/login`;
+const loginWithMfaUrl = `${baseUrl}/login/mfa`; // URL for logging in with MFA
 const setupMFATotpUrl = `${baseUrl}/auth/mfa/setup`;
 
 describe("E2E Tests for MFA TOTP", () => {
@@ -48,8 +53,8 @@ describe("E2E Tests for MFA TOTP", () => {
 		await appDB.destroy();
 	});
 
-	describe("setting up a new user to use MFA TOTP", () => {
-		it("should support the flow of setting up a MFA TOTP for a new user", async () => {
+	describe("setting up a user to use MFA TOTP", () => {
+		it("should support the flow of setting up a MFA TOTP for a user", async () => {
 			const newUserPayload = {
 				username: "testuser",
 				email: "testuser@example.com",
@@ -118,26 +123,68 @@ describe("E2E Tests for MFA TOTP", () => {
 		});
 	});
 
-	describe("an existing user deciding to enable MFA TOTP", () => {
-		it.todo(
-			"should support the flow of setting up a MFA TOTP for an existing user",
-		);
-	});
-
 	describe("logging in as a user with MFA TOTP enabled", () => {
-		it.todo(
-			"should support the flow of logging in as a user with MFA TOTP enabled",
-		);
-		/*
-            - We need to create a new user
-            - We then need to POST signup (username, email password)
-            - We then need to make an API request to setup MFA - I'll need to check the flow here
-            - We then need to login with the user and get the access token
-            - We then need to make an API request to get the QR code data URL
-            - We then need to use a library to read the QR code data URL and get the secret
-            - We then need to use the secret to generate a TOTP code
-            - We then need to use the TOTP code to login and get a session back (access token, refresh token)
-        */
+		it("should support the flow of logging in as a user with MFA TOTP enabled", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const { secret } = await mfaService.setupMFATOTP(user);
+			const code = authenticator.generate(secret);
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const { token } = loginResponse;
+
+			const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ token, code }),
+			});
+
+			expect(verifyMfaRequest.status).toBe(201);
+			const verifyMfaResponse = await verifyMfaRequest.json();
+			const {
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			} = verifyMfaResponse;
+
+			const session = await Session.query().findOne({
+				access_token,
+				refresh_token,
+			});
+			expect(session?.access_token).toBe(access_token);
+			expect(session?.refresh_token).toBe(refresh_token);
+			expect(isIsoString(access_token_expires_at)).toBe(true);
+			expect(isIsoString(refresh_token_expires_at)).toBe(true);
+
+			const mfaToken = await MfaToken.query().findOne({
+				user_id: user.id,
+				token,
+			});
+			if (!mfaToken) {
+				throw new Error("MFA token not found");
+			}
+			expect(isIsoString(mfaToken?.used_at || "")).toBe(true);
+		});
 	});
 
 	describe("logging in as a user with MFA disabled", () => {

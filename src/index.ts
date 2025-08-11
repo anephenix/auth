@@ -20,6 +20,7 @@ const DEFAULTS = {
 	accessTokenExpiresIn: 3600, // Default to 1 hour
 	refreshTokenExpiresIn: 86400, // Default to 1 day
 	tokenExpiresIn: 300, // Default to 5 minutes
+	mfaTokenExpiresIn: 30, // Default to 30 seconds
 	accessTokenGenerator: defaultTokenGenerator,
 	refreshTokenGenerator: defaultTokenGenerator,
 	tokenGenerator: defaultTokenGenerator,
@@ -177,6 +178,12 @@ export class Auth {
 		};
 	}
 
+	generateMfaLoginToken(): { token: string; expiresAt: Date } {
+		const token = this.mfaTokenGenerator();
+		const expiresAt = new Date(Date.now() + this.mfaTokenExpiresIn * 1000);
+		return { token, expiresAt };
+	}
+
 	accessTokenGenerator(): string {
 		return this.options?.sessionOptions?.accessTokenGenerator
 			? this.options?.sessionOptions?.accessTokenGenerator()
@@ -205,6 +212,12 @@ export class Auth {
 		return this.options?.smsCodeOptions?.smsCodeGenerator
 			? this.options?.smsCodeOptions?.smsCodeGenerator()
 			: DEFAULTS.smsCodeGenerator();
+	}
+
+	mfaTokenGenerator(): string {
+		return this.options?.mfaTokenOptions?.tokenGenerator
+			? this.options?.mfaTokenOptions?.tokenGenerator()
+			: DEFAULTS.tokenGenerator();
 	}
 
 	/*
@@ -274,5 +287,10 @@ export class Auth {
 	get smsCodeExpiresIn(): number {
 		const { smsCodeOptions } = this.options;
 		return smsCodeOptions?.smsCodeExpiresIn ?? DEFAULTS.smsCodeExpiresIn; // Default to 5 minutes
+	}
+
+	get mfaTokenExpiresIn(): number {
+		const { mfaTokenOptions } = this.options;
+		return mfaTokenOptions?.mfaTokenExpiresIn ?? DEFAULTS.mfaTokenExpiresIn; // Default to 30 seconds
 	}
 }

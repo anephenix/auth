@@ -395,4 +395,39 @@ describe("Auth class", () => {
 			});
 		});
 	});
+
+	describe("generateMfaLoginToken", () => {
+		describe("when using default options", () => {
+			it("should generate a token and an expiration time of 30 seconds", () => {
+				const auth = new Auth({});
+				const { token, expiresAt } = auth.generateMfaLoginToken();
+				const thirtySecondsFromNow = new Date(Date.now() + 30 * 1000);
+				expect(isRandomString(token)).toBe(true);
+				expect(expiresAt).toBeInstanceOf(Date);
+				expect(expiresAt).toStrictEqual(thirtySecondsFromNow);
+			});
+		});
+
+		describe("when using custom options passed during initialization of auth", () => {
+			it("should generate a token and an expiration time as defined in the auth config", () => {
+				const auth = new Auth({
+					mfaTokenOptions: {
+						mfaTokenExpiresIn: 60, // 1 minute
+						/*
+							These static strings are just for testing 
+							purposes. In real-world usage, we would be 
+							passing in a function that generates 
+							cryptographically secure random strings
+						*/
+						tokenGenerator: () => "customMfaToken",
+					},
+				});
+				const { token, expiresAt } = auth.generateMfaLoginToken();
+				const oneMinuteFromNow = new Date(Date.now() + 60 * 1000);
+				expect(token).toBe("customMfaToken");
+				expect(expiresAt).toBeInstanceOf(Date);
+				expect(expiresAt).toStrictEqual(oneMinuteFromNow);
+			});
+		});
+	});
 });
