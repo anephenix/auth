@@ -402,9 +402,44 @@ describe("E2E Tests for MFA TOTP", () => {
 	});
 
 	describe("logging in as a user with MFA disabled", () => {
-		it.todo(
-			"should support the flow of logging in as a user with MFA disabled",
-		);
+		it("should support the flow of logging in as a user with MFA disabled", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const {
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			} = loginResponse;
+
+			const session = await Session.query().findOne({
+				user_id: user.id,
+				access_token,
+				refresh_token,
+			});
+			expect(session?.access_token).toBe(access_token);
+			expect(session?.refresh_token).toBe(refresh_token);
+			expect(isIsoString(access_token_expires_at)).toBe(true);
+			expect(isIsoString(refresh_token_expires_at)).toBe(true);
+		});
 	});
 
 	describe("disabling MFA TOTP for a user", () => {
