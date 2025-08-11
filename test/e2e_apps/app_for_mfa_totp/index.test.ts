@@ -2,7 +2,15 @@ import { join } from "node:path";
 import jsQR from "jsqr";
 import { authenticator } from "otplib";
 import { PNG } from "pngjs";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+	afterAll,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	it,
+	vi,
+} from "vitest";
 import { isIsoString } from "../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
@@ -243,7 +251,49 @@ describe("E2E Tests for MFA TOTP", () => {
 		});
 
 		describe("logging in with MFA TOTP enabled and expired code", () => {
-			it.todo("should return an error when the MFA code has expired");
+			it("should return an error when the MFA code has expired", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+
+				const { secret } = await mfaService.setupMFATOTP(user);
+				const code = authenticator.generate(secret);
+
+				const loginRequest = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						identifier: user.email,
+						password: "ValidPassword123!",
+					}),
+				});
+
+				expect(loginRequest.status).toBe(201);
+				const loginResponse = await loginRequest.json();
+				const { token } = loginResponse;
+
+				vi.useFakeTimers(); // Enables fake timers
+				vi.advanceTimersByTime(1000 * 60); // Simulate 1 minute passing
+
+				const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(verifyMfaRequest.status).toBe(400);
+				const verifyMfaResponse = await verifyMfaRequest.json();
+				expect(verifyMfaResponse.error).toBe("Invalid code");
+
+				vi.useRealTimers();
+			});
 		});
 
 		describe("logging in with MFA TOTP enabled and invalid code", () => {

@@ -105,8 +105,6 @@ const controller = {
 				return reply.status(400).send({ error: "Invalid code" });
 			}
 
-			// TODO - handle the case where the token has expired
-			// TODO - handle the case where the token has been used already
 			// TODO - handle the case where the number of attempts has been exceeded
 			// TODO - handle the case where the code is invalid
 
