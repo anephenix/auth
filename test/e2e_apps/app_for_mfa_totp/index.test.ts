@@ -297,7 +297,43 @@ describe("E2E Tests for MFA TOTP", () => {
 		});
 
 		describe("logging in with MFA TOTP enabled and invalid code", () => {
-			it.todo("should return an error when the MFA code is invalid");
+			it("should return an error when the MFA code is invalid", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+
+				await mfaService.setupMFATOTP(user);
+
+				const loginRequest = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						identifier: user.email,
+						password: "ValidPassword123!",
+					}),
+				});
+
+				expect(loginRequest.status).toBe(201);
+				const loginResponse = await loginRequest.json();
+				const { token } = loginResponse;
+
+				const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code: "0000001" }),
+				});
+
+				expect(verifyMfaRequest.status).toBe(400);
+				const verifyMfaResponse = await verifyMfaRequest.json();
+				expect(verifyMfaResponse.error).toBe("Invalid code");
+			});
 		});
 	});
 
