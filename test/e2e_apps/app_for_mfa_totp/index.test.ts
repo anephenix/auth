@@ -185,6 +185,18 @@ describe("E2E Tests for MFA TOTP", () => {
 			}
 			expect(isIsoString(mfaToken?.used_at || "")).toBe(true);
 		});
+
+		describe("logging in with MFA TOTP enabled and used code", () => {
+			it.todo("should return an error when the MFA code has already been used");
+		});
+
+		describe("logging in with MFA TOTP enabled and expired code", () => {
+			it.todo("should return an error when the MFA code has expired");
+		});
+
+		describe("logging in with MFA TOTP enabled and invalid code", () => {
+			it.todo("should return an error when the MFA code is invalid");
+		});
 	});
 
 	describe("logging in as a user with MFA disabled", () => {
