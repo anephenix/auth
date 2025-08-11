@@ -44,6 +44,7 @@ describe("E2E Tests for MFA TOTP", () => {
 	});
 
 	beforeEach(async () => {
+		await MfaToken.query().delete();
 		await Session.query().delete();
 		await User.query().delete();
 	});
@@ -187,7 +188,58 @@ describe("E2E Tests for MFA TOTP", () => {
 		});
 
 		describe("logging in with MFA TOTP enabled and used code", () => {
-			it.todo("should return an error when the MFA code has already been used");
+			it("should return an error when the MFA code has already been used", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+
+				const { secret } = await mfaService.setupMFATOTP(user);
+				const code = authenticator.generate(secret);
+
+				const loginRequest = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						identifier: user.email,
+						password: "ValidPassword123!",
+					}),
+				});
+
+				expect(loginRequest.status).toBe(201);
+				const loginResponse = await loginRequest.json();
+				const { token } = loginResponse;
+
+				const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(verifyMfaRequest.status).toBe(201);
+
+				// Make a duplicate request with the same token and code
+				const duplicateVerifyMfaRequest = await fetch(loginWithMfaUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(duplicateVerifyMfaRequest.status).toBe(400);
+				const duplicateVerifyMfaResponse =
+					await duplicateVerifyMfaRequest.json();
+				expect(duplicateVerifyMfaResponse.error).toBe(
+					"MFA token has already been used",
+				);
+			});
 		});
 
 		describe("logging in with MFA TOTP enabled and expired code", () => {

@@ -79,6 +79,12 @@ const controller = {
 				return reply.status(400).send({ error: "MFA token not found" });
 			}
 
+			if (mfaToken.used_at) {
+				return reply
+					.status(400)
+					.send({ error: "MFA token has already been used" });
+			}
+
 			const user = await User.query().findById(mfaToken.user_id);
 			if (!user) {
 				return reply.status(400).send({ error: "User not found" });
