@@ -3,6 +3,7 @@
 		"test": "vitest run --no-file-parallelism"
 	},
 	"devDependencies": {
+		"@types/pngjs": "^6.0.5",
 		"vitest": "^3.2.4"
 	},
 	"dependencies": {
