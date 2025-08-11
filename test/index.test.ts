@@ -420,6 +420,7 @@ describe("Auth class", () => {
 							cryptographically secure random strings
 						*/
 						tokenGenerator: () => "customMfaToken",
+						maxAttempts: 3,
 					},
 				});
 				const { token, expiresAt } = auth.generateMfaLoginToken();
@@ -427,6 +428,7 @@ describe("Auth class", () => {
 				expect(token).toBe("customMfaToken");
 				expect(expiresAt).toBeInstanceOf(Date);
 				expect(expiresAt).toStrictEqual(oneMinuteFromNow);
+				expect(auth.maxMfaAttempts).toBe(3);
 			});
 		});
 	});

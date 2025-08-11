@@ -79,6 +79,10 @@ const controller = {
 				return reply.status(400).send({ error: "MFA token not found" });
 			}
 
+			if (mfaToken.number_of_attempts >= auth.maxMfaAttempts) {
+				return reply.status(400).send({ error: "Too many attempts" });
+			}
+
 			if (mfaToken.used_at) {
 				return reply
 					.status(400)
@@ -104,9 +108,6 @@ const controller = {
 				await mfaToken.$query().increment("number_of_attempts", 1);
 				return reply.status(400).send({ error: "Invalid code" });
 			}
-
-			// TODO - handle the case where the number of attempts has been exceeded
-			// TODO - handle the case where the code is invalid
 
 			const session = await Session.query().insert({
 				user_id: mfaToken.user_id,

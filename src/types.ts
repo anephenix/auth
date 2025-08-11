@@ -25,6 +25,7 @@ export type AuthOptions = {
 	mfaTokenOptions?: {
 		mfaTokenExpiresIn?: number; // in seconds
 		tokenGenerator?: () => string; // Function to generate a token
+		maxAttempts?: number; // Maximum number of attempts for MFA
 	}; // Options for MFA tokens
 };
 

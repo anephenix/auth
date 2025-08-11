@@ -27,6 +27,7 @@ const DEFAULTS = {
 	codeGenerator: defaultTokenGenerator,
 	smsCodeGenerator: () => randomBytes(3).toString("hex"),
 	smsCodeExpiresIn: 300, // Default to 5 minutes
+	maxMfaAttempts: 2, // Default to 2 attempts
 };
 
 export class Auth {
@@ -292,5 +293,11 @@ export class Auth {
 	get mfaTokenExpiresIn(): number {
 		const { mfaTokenOptions } = this.options;
 		return mfaTokenOptions?.mfaTokenExpiresIn ?? DEFAULTS.mfaTokenExpiresIn; // Default to 30 seconds
+	}
+
+	get maxMfaAttempts(): number {
+		return (
+			this.options?.mfaTokenOptions?.maxAttempts ?? DEFAULTS.maxMfaAttempts
+		); // Default to 2 attempts
 	}
 }
