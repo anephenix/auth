@@ -506,6 +506,117 @@ describe("E2E Tests for MFA TOTP", () => {
 			expect(updatedUser.mfa_totp_secret).toBeNull();
 		});
 
+		describe("when the code is invalid", () => {
+			it("should return an error when the MFA code is invalid", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+
+				const { secret } = await mfaService.setupMFATOTP(user);
+				const code = authenticator.generate(secret);
+
+				const loginRequest = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						identifier: user.email,
+						password: "ValidPassword123!",
+					}),
+				});
+
+				expect(loginRequest.status).toBe(201);
+				const loginResponse = await loginRequest.json();
+				const { token } = loginResponse;
+
+				const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(verifyMfaRequest.status).toBe(201);
+				const verifyMfaResponse = await verifyMfaRequest.json();
+				const { access_token } = verifyMfaResponse;
+
+				const disableMfaRequest = await fetch(disableMFATotpUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${access_token}`,
+					},
+					body: JSON.stringify({
+						password: "ValidPassword123!",
+						code: "000001", // The MFA TOTP code to verify before disabling
+					}),
+				});
+
+				expect(disableMfaRequest.status).toBe(400);
+				const disableMfaResponse = await disableMfaRequest.json();
+				expect(disableMfaResponse.error).toBe("Invalid MFA TOTP code");
+			});
+			it("should return an error when the password is incorrect", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+
+				const { secret } = await mfaService.setupMFATOTP(user);
+				const code = authenticator.generate(secret);
+
+				const loginRequest = await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						identifier: user.email,
+						password: "ValidPassword123!",
+					}),
+				});
+
+				expect(loginRequest.status).toBe(201);
+				const loginResponse = await loginRequest.json();
+				const { token } = loginResponse;
+
+				const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ token, code }),
+				});
+
+				expect(verifyMfaRequest.status).toBe(201);
+				const verifyMfaResponse = await verifyMfaRequest.json();
+				const { access_token } = verifyMfaResponse;
+
+				const disableMfaRequest = await fetch(disableMFATotpUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${access_token}`,
+					},
+					body: JSON.stringify({
+						password: "wrongPassword123!",
+						code,
+					}),
+				});
+
+				expect(disableMfaRequest.status).toBe(400);
+				const disableMfaResponse = await disableMfaRequest.json();
+				expect(disableMfaResponse.error).toBe("Password incorrect");
+			});
+		});
+
 		it.todo(
 			"should also support the option of disabling MFA TOTP if say the user lost the device they used for MFA TOTP with a recovery code",
 		);
