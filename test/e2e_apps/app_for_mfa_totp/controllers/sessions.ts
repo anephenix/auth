@@ -3,6 +3,7 @@ import auth from "../auth"; // Adjust the import path as necessary
 import handleError from "../helpers/handleError"; // Adjust the import path as necessary
 import { decryptTOTPSecret } from "../helpers/totpSecret";
 import { MfaToken } from "../models/MfaToken"; // Adjust the import path as necessary
+import { RecoveryCode } from "../models/RecoveryCode"; // Adjust the import path as necessary
 import { Session } from "../models/Session"; // Adjust the import path as necessary
 import { User } from "../models/User"; // Adjust the import path as necessary
 
@@ -64,13 +65,20 @@ const controller = {
 	},
 
 	mfaLogin: async (request, reply) => {
-		const { token, code } = request.body as {
+		const { token, code, recovery_code } = request.body as {
 			token: string;
 			code: string;
+			recovery_code?: string;
 		};
 
-		if (!token || !code) {
-			return reply.status(400).send({ error: "Token and code are required" });
+		// We check if the request has a code or recovery code
+		const hasCodeOrRecoveryCode = !!code || !!recovery_code;
+		const hasToken = !!token;
+
+		if (!hasToken || !hasCodeOrRecoveryCode) {
+			return reply
+				.status(400)
+				.send({ error: "Token and code/recovery_code are required" });
 		}
 
 		try {
@@ -100,13 +108,37 @@ const controller = {
 					.send({ error: "User does not have MFA enabled" });
 			}
 
-			const secret = decryptTOTPSecret(user.mfa_totp_secret);
+			// If the user is using a recovery code to perform MFA
+			if (recovery_code) {
+				const recoveryCodes = await RecoveryCode.query().where({
+					user_id: user.id,
+					used_at: null,
+				});
+				if (recoveryCodes.length === 0) {
+					return reply
+						.status(400)
+						.send({ error: "No recovery codes available" });
+				} else {
+					let isValidRecoveryCode = false;
+					for (const recoveryCodeRecord of recoveryCodes) {
+						if (await recoveryCodeRecord.verify(recovery_code)) {
+							isValidRecoveryCode = true;
+							break;
+						}
+					}
+					if (!isValidRecoveryCode) {
+						return reply.status(400).send({ error: "Invalid recovery code" });
+					}
+				}
+			} else {
+				const secret = decryptTOTPSecret(user.mfa_totp_secret);
 
-			const isValid = authenticator.check(code, secret);
-			if (!isValid) {
-				// Increment the number of attempts
-				await mfaToken.$query().increment("number_of_attempts", 1);
-				return reply.status(400).send({ error: "Invalid code" });
+				const isValid = authenticator.check(code, secret);
+				if (!isValid) {
+					// Increment the number of attempts
+					await mfaToken.$query().increment("number_of_attempts", 1);
+					return reply.status(400).send({ error: "Invalid code" });
+				}
 			}
 
 			const session = await Session.query().insert({

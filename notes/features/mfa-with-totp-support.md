@@ -21,7 +21,7 @@ However, you may want to think about how you handle the signup flow. A user is c
 - [x] Implement the flow to login with username/password and then MFA
 - [x] Test the flow to login as a user with/without MFA enabled, ensuring sessions are only created when allowed - (maybe as a check within the user model?)
 - [x] Test the ability for a user with MFA to download recovery codes
-- [ ] Implement a way for a user with MFA to login with a recovery code instead of a MFA token
+- [x] Implement a way for a user with MFA to login with a recovery code instead of a MFA token
 - [ ] Implement the flow to turn off MFA in case say someone's phone with the app is lost/missing (question is, how should that work to prevent misuse?)
 
 
@@ -43,6 +43,6 @@ However, you may want to think about how you handle the signup flow. A user is c
 - The user should receive the recovery codes in a text format.
 - The recovery code is stored by the user in a place of their choosing (a text file they save somewhere on a computer, or in a service somewhere)
 
-- [ ] Implement an API endpoint for downloading recovery codes for an account
-- [ ] Figure out if they can download only once, and if so, add logic to prevent downloading multiple times
-- [ ] Also, registered when they are used, so that they can't be re-used again
+- [x] Implement an API endpoint for downloading recovery codes for an account
+- [x] Figure out if they can download only once, and if so, add logic to prevent downloading multiple times
+- [x] Also, registered when they are used, so that they can't be re-used again

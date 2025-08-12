@@ -20,6 +20,7 @@ import config from "./config";
 import appDB from "./db"; // Assuming you have a db module to handle database connections
 import app from "./index";
 import { MfaToken } from "./models/MfaToken"; // Adjust the import path as necessary
+import { RecoveryCode } from "./models/RecoveryCode"; // Adjust the import path as necessary
 import { Session } from "./models/Session";
 import { User } from "./models/User";
 import mfaService from "./services/mfaService"; // Adjust the import path as necessary
@@ -675,6 +676,70 @@ describe("E2E Tests for MFA TOTP", () => {
 			const recoveryCodesResponse = await recoveryCodesRequest.json();
 			expect(recoveryCodesResponse.codes).toBeDefined();
 			expect(recoveryCodesResponse.codes).toHaveLength(8);
+		});
+	});
+
+	describe("using a recovery code to login when MFA device is lost/stolen", () => {
+		it("should allow login using a recovery code", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			await mfaService.setupMFATOTP(user);
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const { token } = loginResponse;
+
+			const codes = await RecoveryCode.generateCodes();
+			const recovery_code = codes[0];
+			// Create a recovery code that we will use
+			await RecoveryCode.query().insert({
+				user_id: user.id,
+				code: recovery_code,
+			});
+
+			const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ token, recovery_code }),
+			});
+
+			expect(verifyMfaRequest.status).toBe(201);
+			const verifyMfaResponse = await verifyMfaRequest.json();
+
+			const {
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			} = verifyMfaResponse;
+
+			const session = await Session.query().findOne({
+				user_id: user.id,
+				access_token,
+				refresh_token,
+			});
+			expect(session?.access_token).toBe(access_token);
+			expect(session?.refresh_token).toBe(refresh_token);
+			expect(isIsoString(access_token_expires_at)).toBe(true);
+			expect(isIsoString(refresh_token_expires_at)).toBe(true);
 		});
 	});
 });

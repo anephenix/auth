@@ -1,5 +1,5 @@
 import { RecoveryCode } from "../models/RecoveryCode";
-import { User } from "../models/User";
+import type { User } from "../models/User";
 
 const controller = {
 	create: async (request, reply) => {
@@ -9,11 +9,6 @@ const controller = {
 		}
 
 		const codes = await RecoveryCode.generateCodes();
-
-		const userRecord = await User.query().findById(user.id);
-		if (!userRecord) {
-			return reply.status(404).send({ error: "User not found" });
-		}
 
 		// TODO - look at optimising this later so that it can be done in a single query
 		for (const code of codes) {

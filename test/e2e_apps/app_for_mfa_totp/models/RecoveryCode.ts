@@ -22,6 +22,35 @@ export class RecoveryCode extends Model {
 		this.code = undefined;
 	}
 
+	/*
+		Verifies a recovery code 
+		
+		- if the code is valid, it marks it as used and returns true
+		- if the code is used, it increments the number_of_attempts and returns false
+	*/
+	async verify(code: string): Promise<boolean> {
+		if (!this.hashed_code) return false;
+		const result = await auth.verifyPassword(code, this.hashed_code);
+		// Mark the recovery code as used if verification is successful
+		if (result) {
+			await this.markAsUsed();
+		} else {
+			await this.incrementAttempts();
+		}
+		return result;
+	}
+
+	/* Increments the number of attempts for this recovery code */
+	async incrementAttempts() {
+		await this.$query().increment("number_of_attempts", 1);
+	}
+
+	/* Marks the recovery code as used so we know not to use it again */
+	async markAsUsed() {
+		const used_at = new Date().toISOString();
+		await this.$query().patch({ used_at });
+	}
+
 	async $beforeInsert(queryContext) {
 		await super.$beforeInsert(queryContext);
 
@@ -56,7 +85,7 @@ export class RecoveryCode extends Model {
 	static get jsonSchema() {
 		return {
 			type: "object",
-			required: ["user_id", "hashed_code"],
+			required: ["user_id"],
 			properties: {
 				id: { type: "integer" },
 				user_id: { type: "integer" },
