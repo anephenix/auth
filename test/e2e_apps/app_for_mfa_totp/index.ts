@@ -29,6 +29,12 @@ const routes = [
 		preHandler: [authenticateSession],
 		handler: users.verifyMFATOTP,
 	},
+	{
+		method: "POST",
+		url: "/auth/mfa/disable",
+		preHandler: [authenticateSession],
+		handler: users.disableMFATOTP,
+	},
 ];
 
 routes.forEach((route) => app.route(route));

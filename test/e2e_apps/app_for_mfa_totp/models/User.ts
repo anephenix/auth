@@ -84,7 +84,7 @@ export class User extends Model {
 					pattern: String.raw`^\+?[0-9\s]+$`, // Basic pattern for international phone numbers
 				},
 				mfa_totp_secret: {
-					type: "string",
+					type: ["string", "null"], // Can be a string or null if MFA is disabled
 					minLength: 1,
 					maxLength: 255,
 					writeOnly: true,

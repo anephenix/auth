@@ -30,6 +30,7 @@ const signupUrl = `${baseUrl}/signup`;
 const loginUrl = `${baseUrl}/login`;
 const loginWithMfaUrl = `${baseUrl}/login/mfa`; // URL for logging in with MFA
 const setupMFATotpUrl = `${baseUrl}/auth/mfa/setup`;
+const disableMFATotpUrl = `${baseUrl}/auth/mfa/disable`;
 
 describe("E2E Tests for MFA TOTP", () => {
 	beforeAll(async () => {
@@ -443,18 +444,70 @@ describe("E2E Tests for MFA TOTP", () => {
 	});
 
 	describe("disabling MFA TOTP for a user", () => {
-		it.todo("should support the flow of disabling MFA TOTP for a user");
+		it("should support the flow of disabling MFA TOTP for a user", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const { secret } = await mfaService.setupMFATOTP(user);
+			const code = authenticator.generate(secret);
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const { token } = loginResponse;
+
+			const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ token, code }),
+			});
+
+			expect(verifyMfaRequest.status).toBe(201);
+			const verifyMfaResponse = await verifyMfaRequest.json();
+			const { access_token } = verifyMfaResponse;
+
+			const disableMfaRequest = await fetch(disableMFATotpUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${access_token}`,
+				},
+				body: JSON.stringify({
+					password: "ValidPassword123!",
+					code, // The MFA TOTP code to verify before disabling
+				}),
+			});
+
+			const disableMfaResponse = await disableMfaRequest.json();
+			expect(disableMfaRequest.status).toBe(200);
+			expect(disableMfaResponse.message).toBe("MFA TOTP disabled successfully");
+
+			// Verify that the user's MFA TOTP secret is cleared
+			const updatedUser = await User.query().findById(user.id);
+			if (!updatedUser) {
+				throw new Error("User not found after disabling MFA TOTP");
+			}
+			expect(updatedUser.mfa_totp_secret).toBeNull();
+		});
+
 		it.todo(
 			"should also support the option of disabling MFA TOTP if say the user lost the device they used for MFA TOTP with a recovery code",
 		);
-
-		/*
-            - We need to create a new user
-            - We then need to POST signup (username, email password)
-            - We then need to make an API request to setup MFA - I'll need to check the flow here
-            - We then need to login with the user and get the access token
-            - We then need to make an API request to disable MFA TOTP
-            - We should then be able to login without MFA TOTP
-        */
 	});
 });
