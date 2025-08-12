@@ -31,6 +31,7 @@ const loginUrl = `${baseUrl}/login`;
 const loginWithMfaUrl = `${baseUrl}/login/mfa`; // URL for logging in with MFA
 const setupMFATotpUrl = `${baseUrl}/auth/mfa/setup`;
 const disableMFATotpUrl = `${baseUrl}/auth/mfa/disable`;
+const recoveryCodesUrl = `${baseUrl}/auth/mfa/recovery-codes`; // URL for generating recovery codes
 
 describe("E2E Tests for MFA TOTP", () => {
 	beforeAll(async () => {
@@ -620,5 +621,60 @@ describe("E2E Tests for MFA TOTP", () => {
 		it.todo(
 			"should also support the option of disabling MFA TOTP if say the user lost the device they used for MFA TOTP with a recovery code",
 		);
+	});
+
+	describe("generating recovery codes", () => {
+		it.todo("should support generating recovery codes for a user", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const { secret } = await mfaService.setupMFATOTP(user);
+			const code = authenticator.generate(secret);
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const { token } = loginResponse;
+
+			const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ token, code }),
+			});
+
+			expect(verifyMfaRequest.status).toBe(201);
+			const verifyMfaResponse = await verifyMfaRequest.json();
+			const { access_token } = verifyMfaResponse;
+
+			// Make a request to generate recovery codes
+			const recoveryCodesRequest = await fetch(recoveryCodesUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${access_token}`,
+				},
+			});
+
+			expect(recoveryCodesRequest.status).toBe(201);
+			const recoveryCodesResponse = await recoveryCodesRequest.json();
+			expect(recoveryCodesResponse.codes).toBeDefined();
+			expect(recoveryCodesResponse.codes).toHaveLength(8);
+		});
 	});
 });

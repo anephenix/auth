@@ -19,8 +19,11 @@ However, you may want to think about how you handle the signup flow. A user is c
 - [x] Implement the flow to setup MFA when a user has been created
 - [x] Implement the flow to setup MFA when a user has logged in and decided to turn on MFA, including verifying that it works
 - [x] Implement the flow to login with username/password and then MFA
+- [x] Test the flow to login as a user with/without MFA enabled, ensuring sessions are only created when allowed - (maybe as a check within the user model?)
+- [x] Test the ability for a user with MFA to download recovery codes
+- [ ] Implement a way for a user with MFA to login with a recovery code instead of a MFA token
 - [ ] Implement the flow to turn off MFA in case say someone's phone with the app is lost/missing (question is, how should that work to prevent misuse?)
-- [ ] Test the flow to login as a user with/without MFA enabled, ensuring sessions are only created when allowed - (maybe as a check within the user model?)
+
 
 ### Implement the flow to turn off MFA in case say someone's phone with the app is lost/missing (question is, how should that work to prevent misuse?)
 

@@ -2,6 +2,7 @@
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import config from "./config";
+import recoveryCodes from "./controllers/recoveryCodes";
 import sessions from "./controllers/sessions";
 import users from "./controllers/users";
 import { authenticateSession } from "./middleware";
@@ -17,6 +18,12 @@ const routes = [
 	{ method: "POST", url: "/signup", handler: users.signup },
 	{ method: "POST", url: "/login", handler: sessions.create },
 	{ method: "POST", url: "/login/mfa", handler: sessions.mfaLogin },
+	{
+		method: "POST",
+		url: "/auth/mfa/recovery-codes",
+		preHandler: [authenticateSession],
+		handler: recoveryCodes.create,
+	},
 	{
 		method: "POST",
 		url: "/auth/mfa/setup",
