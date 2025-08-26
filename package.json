@@ -36,7 +36,7 @@
 		"argon2": "^0.44.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.2.0",
+		"@biomejs/biome": "2.2.2",
 		"@cucumber/cucumber": "^12.2.0",
 		"@size-limit/esbuild": "^11.2.0",
 		"@size-limit/esbuild-why": "^11.2.0",
