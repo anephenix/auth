@@ -37,7 +37,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.0",
-		"@cucumber/cucumber": "^12.1.0",
+		"@cucumber/cucumber": "^12.2.0",
 		"@size-limit/esbuild": "^11.2.0",
 		"@size-limit/esbuild-why": "^11.2.0",
 		"@size-limit/file": "^11.2.0",
