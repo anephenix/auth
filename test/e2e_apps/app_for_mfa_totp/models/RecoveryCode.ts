@@ -27,22 +27,20 @@ export class RecoveryCode extends Model {
 		
 		- if the code is valid, it marks it as used and returns true
 		- if the code is used, it increments the number_of_attempts and returns false
+			hang on, this works only if we know which recovery code to check against - do we pass an id?
+
+			I suspect that verify either needs to fetch all of the recovery code records for the user and try each one, ok, that is what we should do instead
 	*/
 	async verify(code: string): Promise<boolean> {
 		if (!this.hashed_code) return false;
 		const result = await auth.verifyPassword(code, this.hashed_code);
 		// Mark the recovery code as used if verification is successful
-		if (result) {
+		if (result && !this.used_at) {
 			await this.markAsUsed();
 		} else {
-			await this.incrementAttempts();
+			return false;
 		}
 		return result;
-	}
-
-	/* Increments the number of attempts for this recovery code */
-	async incrementAttempts() {
-		await this.$query().increment("number_of_attempts", 1);
 	}
 
 	/* Marks the recovery code as used so we know not to use it again */

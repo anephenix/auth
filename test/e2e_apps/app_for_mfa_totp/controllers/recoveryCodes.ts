@@ -1,8 +1,9 @@
+import type { FastifyReply, FastifyRequest } from "fastify";
 import { RecoveryCode } from "../models/RecoveryCode";
 import type { User } from "../models/User";
 
 const controller = {
-	create: async (request, reply) => {
+	create: async (request: FastifyRequest, reply: FastifyReply) => {
 		const user = request.user as User;
 		if (!user) {
 			return reply.status(401).send({ error: "Unauthorized" });

@@ -625,7 +625,7 @@ describe("E2E Tests for MFA TOTP", () => {
 	});
 
 	describe("generating recovery codes", () => {
-		it.todo("should support generating recovery codes for a user", async () => {
+		it("should support generating recovery codes for a user", async () => {
 			const user = await User.query().insert({
 				username: "mfauser",
 				email: "mfauser@example.com",
@@ -670,12 +670,13 @@ describe("E2E Tests for MFA TOTP", () => {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${access_token}`,
 				},
+				body: JSON.stringify({}),
 			});
 
-			expect(recoveryCodesRequest.status).toBe(201);
 			const recoveryCodesResponse = await recoveryCodesRequest.json();
+			expect(recoveryCodesRequest.status).toBe(201);
 			expect(recoveryCodesResponse.codes).toBeDefined();
-			expect(recoveryCodesResponse.codes).toHaveLength(8);
+			expect(recoveryCodesResponse.codes).toHaveLength(10);
 		});
 	});
 

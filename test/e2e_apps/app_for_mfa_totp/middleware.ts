@@ -1,4 +1,6 @@
+import type { FastifyReply, FastifyRequest } from "fastify";
 import { Session } from "./models/Session.js";
+import type { User } from "./models/User.js";
 
 /*
     This is a preHandler function for Fastify that will authenticate the session
@@ -6,7 +8,10 @@ import { Session } from "./models/Session.js";
     If the session is valid, it will attach the user to the request object for downstream handlers
     If the session is invalid, it will return a 401 Unauthorized response.
 */
-const authenticateSession = async (request, reply) => {
+const authenticateSession = async (
+	request: FastifyRequest,
+	reply: FastifyReply,
+) => {
 	const access_token =
 		request.headers.authorization?.replace("Bearer ", "") ||
 		request.cookies?.access_token;
@@ -26,7 +31,7 @@ const authenticateSession = async (request, reply) => {
 		return;
 	}
 
-	const user = await session.$relatedQuery("user");
+	const user = await session.$relatedQuery("user").first();
 
 	if (!user) {
 		reply.code(401).send({ error: "Invalid session" });
@@ -35,7 +40,7 @@ const authenticateSession = async (request, reply) => {
 
 	// Attach user to request for downstream handlers
 	request.access_token = session.access_token;
-	request.user = user;
+	request.user = user as User;
 };
 
 export { authenticateSession };
