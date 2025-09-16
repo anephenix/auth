@@ -1,4 +1,4 @@
-import { Model } from "objection";
+import { Model, type ModelOptions, type QueryContext } from "objection";
 import auth from "../auth";
 import db from "../db";
 import { User } from "./User";
@@ -38,7 +38,7 @@ export class Session extends Model {
 		};
 	}
 
-	async $beforeInsert(queryContext) {
+	async $beforeInsert(queryContext: QueryContext) {
 		await super.$beforeInsert(queryContext);
 		const date = new Date().toISOString();
 		this.created_at = date;
@@ -46,7 +46,7 @@ export class Session extends Model {
 	}
 
 	/* This runs updates a timestamp before a record is updated in the database */
-	async $beforeUpdate(opt, queryContext) {
+	async $beforeUpdate(opt: ModelOptions, queryContext: QueryContext) {
 		await super.$beforeUpdate(opt, queryContext);
 		this.updated_at = new Date().toISOString();
 	}

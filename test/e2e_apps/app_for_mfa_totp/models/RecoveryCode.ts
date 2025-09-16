@@ -1,4 +1,4 @@
-import { Model } from "objection";
+import { Model, type ModelOptions, type QueryContext } from "objection";
 import auth from "../auth";
 import db from "../db";
 
@@ -51,7 +51,7 @@ export class RecoveryCode extends Model {
 		await this.$query().patch({ used_at });
 	}
 
-	async $beforeInsert(queryContext) {
+	async $beforeInsert(queryContext: QueryContext) {
 		await super.$beforeInsert(queryContext);
 
 		if (this.code) {
@@ -68,7 +68,7 @@ export class RecoveryCode extends Model {
 	}
 
 	/* This runs updates a timestamp before a record is updated in the database */
-	async $beforeUpdate(opt, queryContext) {
+	async $beforeUpdate(opt: ModelOptions, queryContext: QueryContext) {
 		await super.$beforeUpdate(opt, queryContext);
 		this.updated_at = new Date().toISOString();
 	}
