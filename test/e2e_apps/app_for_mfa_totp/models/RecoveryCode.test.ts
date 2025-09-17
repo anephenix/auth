@@ -1,8 +1,18 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { RecoveryCode } from "./RecoveryCode";
 
 describe("RecoveryCode Model", () => {
 	describe("validations", () => {
-		it.todo("should have a user_id");
+		const makeInvalidRecoveryCode = async () => {
+			const recoveryCode = new RecoveryCode();
+			return recoveryCode.$validate();
+		};
+
+		it("should have a user_id", async () => {
+			await expect(makeInvalidRecoveryCode).rejects.toThrowError(
+				/user_id: must have required property 'user_id'/,
+			);
+		});
 		it.todo("should have a hashed_code");
 		it.todo("should have timestamps");
 	});
