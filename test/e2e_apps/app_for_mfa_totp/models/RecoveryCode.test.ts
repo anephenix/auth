@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { isIsoString } from "../../../utils/comparators";
+import { isHashed, isIsoString } from "../../../utils/comparators";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -65,29 +65,54 @@ describe("RecoveryCode Model", () => {
 				/Code is required/,
 			);
 		});
-
-		it("should have timestamps", async () => {
-			const user = await User.query().insert({
-				username: "mfauser",
-				email: "mfauser@example.com",
-				password: "ValidPassword123!",
-				mobile_number: "07711 123456",
-			});
-			const recoveryCode = await RecoveryCode.query().insert({
-				user_id: user.id,
-				code: "123456",
-			});
-			expect(isIsoString(recoveryCode.created_at)).toBe(true);
-			expect(isIsoString(recoveryCode.updated_at)).toBe(true);
-		});
 	});
 
 	describe("hooks", () => {
 		describe("beforeInsert", () => {
-			it.todo("should hash the code");
-			it.todo("should prefill the created_at and updated_at datetime fields");
-			it.todo("should clear the plaintext code");
-			it.todo("should throw an error if code is missing");
+			it("should hash the code", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+				const recoveryCode = await RecoveryCode.query().insert({
+					user_id: user.id,
+					code: "123456",
+				});
+
+				expect(recoveryCode.code).toBeUndefined();
+				expect(isHashed(recoveryCode.hashed_code)).toBe(true);
+			});
+			it("should prefill the created_at and updated_at datetime fields", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+				const recoveryCode = await RecoveryCode.query().insert({
+					user_id: user.id,
+					code: "123456",
+				});
+				expect(isIsoString(recoveryCode.created_at)).toBe(true);
+				expect(isIsoString(recoveryCode.updated_at)).toBe(true);
+			});
+
+			it("should clear the plaintext code", async () => {
+				const user = await User.query().insert({
+					username: "mfauser",
+					email: "mfauser@example.com",
+					password: "ValidPassword123!",
+					mobile_number: "07711 123456",
+				});
+				const recoveryCode = await RecoveryCode.query().insert({
+					user_id: user.id,
+					code: "123456",
+				});
+
+				expect(recoveryCode.code).toBeUndefined();
+			});
 		});
 	});
 

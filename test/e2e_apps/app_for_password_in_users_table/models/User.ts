@@ -1,4 +1,4 @@
-import { Model } from "objection";
+import { Model, type QueryContext } from "objection";
 import { isEmail } from "../../../utils/comparators";
 import auth from "../auth";
 import db from "../db";
@@ -20,7 +20,7 @@ export class User extends Model {
 		this.password = undefined;
 	}
 
-	async $beforeInsert(queryContext) {
+	async $beforeInsert(queryContext: QueryContext) {
 		await super.$beforeInsert(queryContext);
 		if (this.username) this.username = auth.normalize(this.username);
 		if (this.password) {
@@ -46,10 +46,10 @@ export class User extends Model {
 	}
 
 	// This is an implementation of the User.authenticate method, used previously in a different project.
-	static async authenticate(payload) {
+	static async authenticate(payload: Record<string, string>) {
 		const { identifier, password } = payload;
 		const normalizedIdentifier = auth.normalize(identifier ? identifier : "");
-		const params = {};
+		const params: Record<string, string> = {};
 		const key = isEmail(normalizedIdentifier) ? "email" : "username";
 		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
