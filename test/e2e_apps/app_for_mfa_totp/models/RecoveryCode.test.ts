@@ -1,7 +1,42 @@
-import { describe, expect, it } from "vitest";
+import { join } from "node:path";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { isIsoString } from "../../../utils/comparators";
+import {
+	removeDatabaseFileIfExists,
+	runMigrations,
+} from "../../app_for_password_in_separate_table/utils/manageDatabase";
+import config from "../config";
+import appDB from "../db"; // Assuming you have a db module to handle database connections
 import { RecoveryCode } from "./RecoveryCode";
+import { User } from "./User";
 
 describe("RecoveryCode Model", () => {
+	beforeAll(async () => {
+		const dbPath = join(
+			import.meta.dirname,
+			"..",
+			"..",
+			"..",
+			"test",
+			"e2e_apps",
+			"app_with_mfa_totp",
+			"database.sqlite",
+		);
+
+		// Delete the database.sqlite file (if it exists)
+		await removeDatabaseFileIfExists(dbPath);
+		// Run the knex migrations to create the database schema
+		await runMigrations(config.db);
+	});
+
+	beforeEach(async () => {
+		await User.query().delete();
+	});
+
+	afterAll(async () => {
+		await appDB.destroy();
+	});
+
 	describe("validations", () => {
 		const makeInvalidRecoveryCode = async () => {
 			const recoveryCode = new RecoveryCode();
@@ -13,8 +48,38 @@ describe("RecoveryCode Model", () => {
 				/user_id: must have required property 'user_id'/,
 			);
 		});
-		it.todo("should have a hashed_code");
-		it.todo("should have timestamps");
+		it("should have a code to then create a hashed_code from", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const makeRecoveryCodeWithoutCode = async () => {
+				return await RecoveryCode.query().insert({
+					user_id: user.id,
+				});
+			};
+			await expect(makeRecoveryCodeWithoutCode).rejects.toThrowError(
+				/Code is required/,
+			);
+		});
+
+		it("should have timestamps", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+			const recoveryCode = await RecoveryCode.query().insert({
+				user_id: user.id,
+				code: "123456",
+			});
+			expect(isIsoString(recoveryCode.created_at)).toBe(true);
+			expect(isIsoString(recoveryCode.updated_at)).toBe(true);
+		});
 	});
 
 	describe("hooks", () => {
