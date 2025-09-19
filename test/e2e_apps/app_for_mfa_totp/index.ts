@@ -42,6 +42,12 @@ const routes = [
 		preHandler: [authenticateSession],
 		handler: users.disableMFATOTP,
 	},
+	{
+		method: "POST",
+		url: "/auth/mfa/disable-with-recovery-code",
+		preHandler: [authenticateSession],
+		handler: users.disableMFATOTPWithRecoveryCode,
+	},
 ];
 
 routes.forEach((route) => app.route(route));

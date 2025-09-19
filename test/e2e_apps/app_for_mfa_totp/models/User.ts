@@ -2,6 +2,8 @@ import { Model, type ModelOptions, type QueryContext } from "objection";
 import { isEmail } from "../../../utils/comparators";
 import auth from "../auth";
 import db from "../db";
+import { RecoveryCode } from "./RecoveryCode";
+import { Session } from "./Session";
 
 // Attach the knex connection instance to the Model
 Model.knex(db);
@@ -127,5 +129,26 @@ export class User extends Model {
 		} else {
 			throw new Error("Password incorrect");
 		}
+	}
+
+	static get relationMappings() {
+		return {
+			sessions: {
+				relation: Model.HasManyRelation,
+				modelClass: Session,
+				join: {
+					from: "users.id",
+					to: "sessions.user_id",
+				},
+			},
+			recoveryCodes: {
+				relation: Model.HasManyRelation,
+				modelClass: RecoveryCode,
+				join: {
+					from: "users.id",
+					to: "recovery_codes.user_id",
+				},
+			},
+		};
 	}
 }

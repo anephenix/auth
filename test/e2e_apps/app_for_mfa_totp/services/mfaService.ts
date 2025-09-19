@@ -2,6 +2,7 @@ import { authenticator } from "otplib";
 import qrcode from "qrcode";
 import config from "../config"; // Adjust the import path as necessary
 import { decryptTOTPSecret, encryptTOTPSecret } from "../helpers/totpSecret";
+import { RecoveryCode } from "../models/RecoveryCode";
 import { User } from "../models/User"; // Adjust the import path as necessary
 
 // The service name for TOTP, used in the otpauth URI
@@ -60,8 +61,42 @@ const service = {
 		await user.$query().patch({
 			mfa_totp_secret: null,
 		});
+		await user.$relatedQuery("recoveryCodes").delete();
 
-		// TODO - you'll also have to delete the user's recovery codes if they exist
+		return { message: "MFA TOTP disabled successfully" };
+	},
+
+	disableMFATOTPWithRecoveryCode: async ({ user, password, code }) => {
+		if (!user) {
+			throw new Error("User is required to disable MFA TOTP");
+		}
+
+		if (!password || !code) {
+			throw new Error("Password and code are required to disable MFA TOTP");
+		}
+
+		// Verify the user's password (this should be done securely)
+		const isPasswordValid = await User.authenticate({
+			identifier: user.username,
+			password,
+		});
+
+		if (!isPasswordValid) {
+			throw new Error("Invalid password");
+		}
+
+		const isRecoveryCodeValid =
+			await RecoveryCode.checkForRecoveryCodeAndConsume(user.id, code);
+		if (!isRecoveryCodeValid) {
+			throw new Error("Invalid Recovery code");
+		}
+
+		// Clear the secret to disable MFA TOTP
+		await user.$query().patch({
+			mfa_totp_secret: null,
+		});
+
+		await user.$relatedQuery("recoveryCodes").delete();
 
 		return { message: "MFA TOTP disabled successfully" };
 	},

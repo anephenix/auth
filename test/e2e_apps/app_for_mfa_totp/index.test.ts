@@ -32,6 +32,7 @@ const loginUrl = `${baseUrl}/login`;
 const loginWithMfaUrl = `${baseUrl}/login/mfa`; // URL for logging in with MFA
 const setupMFATotpUrl = `${baseUrl}/auth/mfa/setup`;
 const disableMFATotpUrl = `${baseUrl}/auth/mfa/disable`;
+const disableMFATotpWithRecoveryCodeUrl = `${baseUrl}/auth/mfa/disable-with-recovery-code`;
 const recoveryCodesUrl = `${baseUrl}/auth/mfa/recovery-codes`; // URL for generating recovery codes
 
 describe("E2E Tests for MFA TOTP", () => {
@@ -446,7 +447,7 @@ describe("E2E Tests for MFA TOTP", () => {
 	});
 
 	describe("disabling MFA TOTP for a user", () => {
-		it("should support the flow of disabling MFA TOTP for a user", async () => {
+		it("should support the flow of disabling MFA TOTP for a user who is logged in", async () => {
 			const user = await User.query().insert({
 				username: "mfauser",
 				email: "mfauser@example.com",
@@ -619,9 +620,98 @@ describe("E2E Tests for MFA TOTP", () => {
 			});
 		});
 
-		it.todo(
-			"should also support the option of disabling MFA TOTP if say the user lost the device they used for MFA TOTP with a recovery code",
-		);
+		it("should also support the option of disabling MFA TOTP if say the user lost the device they used for MFA TOTP with a recovery code, and is not logged in", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			await mfaService.setupMFATOTP(user);
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const { token } = loginResponse;
+
+			const codes = await RecoveryCode.generateCodes();
+			const recovery_code = codes[0];
+			const second_recovery_code = codes[1];
+			// Create a recovery code that we will use
+			await RecoveryCode.query().insert({
+				user_id: user.id,
+				code: recovery_code,
+			});
+
+			await RecoveryCode.query().insert({
+				user_id: user.id,
+				code: second_recovery_code,
+			});
+
+			const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ token, recovery_code }),
+			});
+
+			expect(verifyMfaRequest.status).toBe(201);
+			const verifyMfaResponse = await verifyMfaRequest.json();
+
+			const {
+				access_token,
+				refresh_token,
+				access_token_expires_at,
+				refresh_token_expires_at,
+			} = verifyMfaResponse;
+
+			const session = await Session.query().findOne({
+				user_id: user.id,
+				access_token,
+				refresh_token,
+			});
+			expect(session?.access_token).toBe(access_token);
+			expect(session?.refresh_token).toBe(refresh_token);
+			expect(isIsoString(access_token_expires_at)).toBe(true);
+			expect(isIsoString(refresh_token_expires_at)).toBe(true);
+
+			// Now disable MFA TOTP using another recovery code
+			const disableMfaRequest = await fetch(disableMFATotpWithRecoveryCodeUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${access_token}`,
+				},
+				body: JSON.stringify({
+					email: user.email,
+					password: "ValidPassword123!",
+					code: second_recovery_code, // Use a different recovery code to disable
+				}),
+			});
+
+			const disableMfaResponse = await disableMfaRequest.json();
+			expect(disableMfaRequest.status).toBe(200);
+			expect(disableMfaResponse.message).toBe("MFA TOTP disabled successfully");
+
+			// Verify that the user's MFA TOTP secret is cleared
+			const updatedUser = await User.query().findById(user.id);
+			if (!updatedUser) {
+				throw new Error("User not found after disabling MFA TOTP");
+			}
+			expect(updatedUser.mfa_totp_secret).toBeUndefined;
+		});
 	});
 
 	describe("generating recovery codes", () => {
@@ -677,6 +767,77 @@ describe("E2E Tests for MFA TOTP", () => {
 			expect(recoveryCodesRequest.status).toBe(201);
 			expect(recoveryCodesResponse.codes).toBeDefined();
 			expect(recoveryCodesResponse.codes).toHaveLength(10);
+		});
+
+		it("should prevent generating recovery codes if the user has already generated them	", async () => {
+			const user = await User.query().insert({
+				username: "mfauser",
+				email: "mfauser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const { secret } = await mfaService.setupMFATOTP(user);
+			const code = authenticator.generate(secret);
+
+			const loginRequest = await fetch(loginUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier: user.email,
+					password: "ValidPassword123!",
+				}),
+			});
+
+			expect(loginRequest.status).toBe(201);
+			const loginResponse = await loginRequest.json();
+			const { token } = loginResponse;
+
+			const verifyMfaRequest = await fetch(loginWithMfaUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ token, code }),
+			});
+
+			expect(verifyMfaRequest.status).toBe(201);
+			const verifyMfaResponse = await verifyMfaRequest.json();
+			const { access_token } = verifyMfaResponse;
+
+			// Make a request to generate recovery codes
+			const recoveryCodesRequest = await fetch(recoveryCodesUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${access_token}`,
+				},
+				body: JSON.stringify({}),
+			});
+
+			const recoveryCodesResponse = await recoveryCodesRequest.json();
+			expect(recoveryCodesRequest.status).toBe(201);
+			expect(recoveryCodesResponse.codes).toBeDefined();
+			expect(recoveryCodesResponse.codes).toHaveLength(10);
+
+			// Now do a 2nd request to generate recovery codes - should be blocked
+			const secondRecoveryCodesRequest = await fetch(recoveryCodesUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${access_token}`,
+				},
+				body: JSON.stringify({}),
+			});
+
+			const secondRecoveryCodesResponse =
+				await secondRecoveryCodesRequest.json();
+			expect(secondRecoveryCodesRequest.status).toBe(400);
+			expect(secondRecoveryCodesResponse.error).toBe(
+				"Recovery codes have already been generated",
+			);
 		});
 	});
 

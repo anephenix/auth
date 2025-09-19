@@ -51,11 +51,11 @@ However, you may want to think about how you handle the signup flow. A user is c
 
 -[x] Create an API endpoint to download recovery codes
   - [x] The recovery codes are provided in plain-text form in the API endpoint
-  - [ ] The recovery codes are stored in an encrypted format in the database
-  - [ ] A boolean value is marked to indicate that the recovery codes have been generated and downloaded for that user
-  - [ ] If the user tries to call the endpoint again after having generated the recovery codes, refuse permission to do that (only question is, what is the process if they failed to download the codes or need to generate new ones?)
-- [ ] Create an API endpoint to be able to consume a recovery code
-  - [ ] Handle the case where the recovery code is invalid
-  - [ ] Handle the case where the recovery code is valid - mark the recovery code as valid and record it as being used
-  - [ ] Make sure that when a valid recovery code is provided, the ability to turn off MFA can happen
+  - [x] The recovery codes are stored in an encrypted format in the database
+  - [x] A boolean value is marked to indicate that the recovery codes have been generated and downloaded for that user (well, we could just check if the user has any recovery codes and that they are unused instead)
+  - [x] If the user tries to call the endpoint again after having generated the recovery codes, refuse permission to do that (only question is, what is the process if they failed to download the codes or need to generate new ones?)
+- [x] Create an API endpoint to be able to consume a recovery code
+  - [x] Handle the case where the recovery code is invalid
+  - [x] Handle the case where the recovery code is valid - mark the recovery code as valid and record it as being used
+  - [x] Make sure that when a valid recovery code is provided, the ability to turn off MFA can happen
 

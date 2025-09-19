@@ -91,6 +91,24 @@ const controller = {
 			return reply.status(400).send({ error: errorMessage });
 		}
 	},
+
+	disableMFATOTPWithRecoveryCode: async (request, reply) => {
+		const user = request.user;
+		const { password, code } = request.body;
+		if (!user) {
+			return reply.status(401).send({ error: "Unauthorized" });
+		}
+
+		try {
+			await mfaService.disableMFATOTPWithRecoveryCode({ user, password, code });
+			return reply
+				.status(200)
+				.send({ message: "MFA TOTP disabled successfully" });
+		} catch (error) {
+			const errorMessage = handleError(error);
+			return reply.status(400).send({ error: errorMessage });
+		}
+	},
 };
 
 export default controller;

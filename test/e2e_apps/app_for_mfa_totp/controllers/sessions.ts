@@ -120,12 +120,13 @@ const controller = {
 						.send({ error: "No recovery codes available" });
 				} else {
 					let isValidRecoveryCode = false;
-					for (const recoveryCodeRecord of recoveryCodes) {
-						if (await recoveryCodeRecord.verify(recovery_code)) {
-							isValidRecoveryCode = true;
-							break;
-						}
-					}
+					await Promise.all(
+						recoveryCodes.map(async (recoveryCodeRecord) => {
+							if (await recoveryCodeRecord.verify(recovery_code)) {
+								isValidRecoveryCode = true;
+							}
+						}),
+					);
 					if (!isValidRecoveryCode) {
 						return reply.status(400).send({ error: "Invalid recovery code" });
 					}

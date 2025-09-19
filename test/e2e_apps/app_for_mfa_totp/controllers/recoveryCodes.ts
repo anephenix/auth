@@ -9,6 +9,16 @@ const controller = {
 			return reply.status(401).send({ error: "Unauthorized" });
 		}
 
+		const recoveryCodes = await user
+			.$relatedQuery("recoveryCodes")
+			.where("used_at", null);
+
+		if (recoveryCodes.length > 0) {
+			return reply
+				.status(400)
+				.send({ error: "Recovery codes have already been generated" });
+		}
+
 		const codes = await RecoveryCode.generateCodes();
 
 		// TODO - look at optimising this later so that it can be done in a single query

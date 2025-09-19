@@ -80,6 +80,28 @@ export class RecoveryCode extends Model {
 		return codes;
 	}
 
+	static async checkForRecoveryCodeAndConsume(
+		userId: number,
+		code: string,
+	): Promise<boolean> {
+		// Fetch all unused recovery codes for the user
+		const recoveryCodes = await RecoveryCode.query()
+			.where("user_id", userId)
+			.where("used_at", null);
+
+		let isValidRecoveryCode = false;
+
+		await Promise.all(
+			recoveryCodes.map(async (recoveryCodeRecord) => {
+				if (await recoveryCodeRecord.verify(code)) {
+					isValidRecoveryCode = true;
+				}
+			}),
+		);
+
+		return isValidRecoveryCode;
+	}
+
 	static get jsonSchema() {
 		return {
 			type: "object",
