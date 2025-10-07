@@ -175,8 +175,8 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 					password: "SecondPassword123!",
 				});
 
-				const userForPassword = await password.$relatedQuery("user");
-				expect(userForPassword?.id).toBe(user?.id);
+				const userForPassword = await password.$relatedQuery("user").first();
+				expect((userForPassword as User)?.id).toBe((user as User)?.id);
 
 				const authenticatedUser = await User.authenticate({
 					identifier: "testuser",
