@@ -170,10 +170,13 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 				await createUserWithAPassword();
 				const user = await User.query().findOne({ username: "testuser" });
 
-				await Password.query().insert({
+				const password = await Password.query().insert({
 					user_id: user?.id,
 					password: "SecondPassword123!",
 				});
+
+				const userForPassword = await password.$relatedQuery("user");
+				expect(userForPassword?.id).toBe(user?.id);
 
 				const authenticatedUser = await User.authenticate({
 					identifier: "testuser",

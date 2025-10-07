@@ -1,7 +1,8 @@
-import { Model, type RelationMappings } from "objection";
+import { ObjectionRelation } from "@anephenix/objection-relations";
+import { Model, type QueryContext, type RelationMappings } from "objection";
 import auth from "../auth";
 import db from "../db";
-import User from "./User";
+import { User } from "./User";
 
 Model.knex(db);
 
@@ -20,7 +21,7 @@ export class Password extends Model {
 		this.password = undefined;
 	}
 
-	async $beforeInsert(queryContext) {
+	async $beforeInsert(queryContext: QueryContext) {
 		await super.$beforeInsert(queryContext);
 		if (this.password) {
 			if (!auth.validatePassword(this.password)) {
@@ -47,15 +48,37 @@ export class Password extends Model {
 	}
 
 	static get relationMappings(): RelationMappings {
-		return {
-			user: {
-				relation: Model.BelongsToOneRelation,
-				modelClass: User,
-				join: {
-					from: "passwords.user_id",
-					to: "users.id",
-				},
+		const or = new ObjectionRelation({
+			subject: "Password",
+			modelPath: __dirname,
+		});
+
+		const testOR = true;
+
+		const userRelation = or.belongsTo("User");
+		/*
+			TODO - we need to add support for using a model class directly in 
+			@anephenix/objection-relations 
+			
+			This is because Objection.js cannot resolve a string path when the 
+			model file is a typescript file.
+
+			For now, we're using a workaround below. But the best option is to add support for this in the package.
+		*/
+		// @ts-expect-error
+		userRelation.modelClass = User;
+
+		const currentUserRelation = {
+			relation: Model.BelongsToOneRelation,
+			modelClass: User,
+			join: {
+				from: "passwords.user_id",
+				to: "users.id",
 			},
+		};
+
+		return {
+			user: testOR ? userRelation : currentUserRelation,
 		};
 	}
 }

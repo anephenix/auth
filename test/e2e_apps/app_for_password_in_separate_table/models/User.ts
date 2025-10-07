@@ -41,10 +41,10 @@ export class User extends Model {
 	}
 
 	// This is an implementation of the User.authenticate method, used previously in a different project.
-	static async authenticate(payload) {
+	static async authenticate(payload: { identifier: string; password: string }) {
 		const { identifier, password } = payload;
 		const normalizedIdentifier = auth.normalize(identifier ? identifier : "");
-		const params = {};
+		const params: { [key: string]: string } = {};
 		const key = isEmail(normalizedIdentifier) ? "email" : "username";
 		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
