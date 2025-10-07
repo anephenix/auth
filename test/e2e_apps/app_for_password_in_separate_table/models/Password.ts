@@ -53,33 +53,7 @@ export class Password extends Model {
 			modelPath: __dirname,
 		});
 
-		const testOR = true;
-
-		const userRelation = or.belongsTo("User");
-		/*
-			TODO - we need to add support for using a model class directly in 
-			@anephenix/objection-relations 
-			
-			This is because Objection.js cannot resolve a string path when the 
-			model file is a typescript file.
-
-			For now, we're using a workaround below. But the best option is to add support for this in the package.
-		*/
-		// @ts-expect-error
-		userRelation.modelClass = User;
-
-		const currentUserRelation = {
-			relation: Model.BelongsToOneRelation,
-			modelClass: User,
-			join: {
-				from: "passwords.user_id",
-				to: "users.id",
-			},
-		};
-
-		return {
-			user: testOR ? userRelation : currentUserRelation,
-		};
+		return { user: or.belongsTo(User) };
 	}
 }
 
