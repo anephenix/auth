@@ -52,6 +52,8 @@ const routes = [
 ];
 
 // This adds each route to the Fastify app
-routes.forEach((route) => app.route(route));
+routes.forEach((route) => {
+	app.route(route);
+});
 
 export default app;

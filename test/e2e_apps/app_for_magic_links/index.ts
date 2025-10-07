@@ -16,6 +16,8 @@ const routes = [
 	{ method: "POST", url: "/magic-links/verify", handler: magicLinks.verify },
 ];
 
-routes.forEach((route) => app.route(route));
+routes.forEach((route) => {
+	app.route(route);
+});
 
 export default app;

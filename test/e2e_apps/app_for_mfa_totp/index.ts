@@ -50,6 +50,8 @@ const routes = [
 	},
 ];
 
-routes.forEach((route) => app.route(route));
+routes.forEach((route) => {
+	app.route(route);
+});
 
 export default app;
