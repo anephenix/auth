@@ -12,7 +12,11 @@
 */
 import { randomBytes } from "node:crypto";
 import * as argon2 from "argon2";
-import type { AuthOptions, GenerateSessionProps, SessionObject } from "./types";
+import type {
+	AuthOptions,
+	GenerateSessionProps,
+	SessionObject,
+} from "./types.js";
 
 const defaultTokenGenerator = () => randomBytes(32).toString("hex");
 
