@@ -1,5 +1,158 @@
 # CHANGELOG
 
+### 0.0.3 - Wednesday 8th October, 2025
+
+- Added publint and made some changes for the package to be in a good state
+- Removed a console.log and added some notes in the comments
+- Tested a working example of fastify-resource with one of the test E2E apps in auth
+- Added some tweaks and using the latest @anephenix/objection-relations package
+- Resolved a typescript
+- Added some code to test that @anephenix/objection-relations works as expected in a TypeScript codebase
+- Updated the package-lock.json file and fixed some linting issues
+- Merge pull request #30 from anephenix/dependabot/npm_and_yarn/typescript-5.9.3
+- Bump typescript from 5.9.2 to 5.9.3
+- Merge pull request #29 from anephenix/dependabot/npm_and_yarn/cross-env-10.1.0
+- Merge pull request #28 from anephenix/dependabot/npm_and_yarn/types/node-24.7.0
+- Merge pull request #27 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.5
+- Bump cross-env from 10.0.0 to 10.1.0
+- Bump @types/node from 24.5.2 to 24.7.0
+- Bump @biomejs/biome from 2.2.4 to 2.2.5
+- security update fix for tar-fs
+- Updated dependencies
+- Merge pull request #25 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/tar-fs-2.1.4
+- Bump tar-fs in /test/e2e_apps/app_for_password_in_users_table
+- Merge pull request #24 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/vite-7.1.7
+- Bump vite from 7.0.6 to 7.1.7 in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #23 from anephenix/dependabot/npm_and_yarn/types/node-24.5.2
+- Bump @types/node from 24.4.0 to 24.5.2
+- Added unit tests for preventing a duplicate request to generate recovery codes
+- Added unit tests for the other parts of the RecoveryCode model of the MFA_TOTP e2e test app
+- Added unit tests for the hooks part of the RecoveryCode model of the MFA_TOTP e2e test app
+- Added unit tests for the validations part of the RecoveryCode model of the MFA_TOTP e2e test app
+- Added a test and tidied up the TODO.md file
+- Some WIP on implementing support for disabling MFA with a recovery code
+- Added some types to the models
+- Merge pull request #22 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/vite-7.1.5
+- Bump vite in /test/e2e_apps/app_for_password_in_separate_table
+- Merge pull request #21 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.4
+- Merge pull request #20 from anephenix/dependabot/npm_and_yarn/types/node-24.4.0
+- Bump @biomejs/biome from 2.2.3 to 2.2.4
+- Bump @types/node from 24.3.1 to 24.4.0
+- Merge pull request #19 from anephenix/dependabot/npm_and_yarn/vite-7.1.5
+- Merge pull request #18 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/vite-7.1.5
+- Bump vite from 7.0.6 to 7.1.5
+- Bump vite from 7.1.1 to 7.1.5 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #16 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.3
+- Merge pull request #17 from anephenix/dependabot/npm_and_yarn/types/node-24.3.1
+- Bump @types/node from 24.3.0 to 24.3.1
+- Bump @biomejs/biome from 2.2.2 to 2.2.3
+- Merge pull request #15 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.2
+- Bump @biomejs/biome from 2.2.0 to 2.2.2
+- Merge pull request #14 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.2.0
+- Bump @cucumber/cucumber from 12.1.0 to 12.2.0
+- Merge pull request #13 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.0
+- Merge pull request #12 from anephenix/dependabot/npm_and_yarn/types/node-24.3.0
+- Bump @biomejs/biome from 2.1.4 to 2.2.0
+- Bump @types/node from 24.2.1 to 24.3.0
+- Handle the case of performing MFA with a recovery code
+- Added support for downloading MFA codes
+- Added fail test cases for disabling mfa
+- Added a way to disable MFA for a user in the app with mfa totp setup
+- Merge pull request #10 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.1.4
+- Bump @biomejs/biome from 2.1.2 to 2.1.4
+- Merge pull request #11 from anephenix/dependabot/npm_and_yarn/typescript-5.9.2
+- Merge pull request #9 from anephenix/dependabot/npm_and_yarn/argon2-0.44.0
+- Merge pull request #8 from anephenix/dependabot/npm_and_yarn/types/node-24.2.1
+- Bump typescript from 5.8.3 to 5.9.2
+- Bump argon2 from 0.43.1 to 0.44.0
+- Bump @types/node from 24.1.0 to 24.2.1
+- Added a unit test to check that logging in when MFA is not enabled is also possible
+- Handle the case of too many attempts made to verify the mfa token
+- Added a unit test for when the code in the MFA request is invalid
+- Hanlde the case of trying to use the mfa token when it has expired (1 minute after creation)
+- Added a check to ensure that an already used mfa token cannot be re-used again
+- Added a type for a package
+- Added markers for some unit tests that will need to be implemented
+- Added a test of the flow for authenticating a user with MFA code token
+- Got a working set of API endpoints to setup and verify a mfa token flow
+- Applied the normalize function to user models to trim unexpected characters from usernames/emails/identifiers
+- Added auth.normalize function to normalize usernames and email addresses
+- Added some TODO items
+- Added some more unit tests for testing fail cases in MFA SMS flow
+- Handle the fail case of trying to verify a SMS code after it has expired
+- Added a unit test for when the sms code is incorrect
+- Added further checks to the success test case for when a sms code is verified
+- Fleshed out the success case for the verify-code API endpoint for the mfa-sms-code app
+- Added more unit tests for the code
+- Added option to set custom expirty time for sms code in auth options
+- Applied some updates and added a file to track to .gitignore
+- Added a test flow for authenticating with mfa via sms
+- Small tweak to work towards the concept of plugin components for the API
+- Went through TODO/NOTE/QUESTION items in the codebase and tidied them up
+- Dealt with TODO items in the codebase
+- DRYed up a utility function to check if a string is an email
+- Added the ability to use a custom generator for the access and refresh tokens
+- Added the ability to use a custom function for generating the token and code for magic links
+- Fleshed out more unit tests and added some TODO items
+- Added unit tests for the MagicLink model
+- Added more unit tests to check that an incorrect code or token not found cases are handled
+- Added unit tests for checking that the magic link cannot be re-used or used when it has expired
+- Added a test to verify that trying to use an already used magic link will fail
+- Fleshed out the success case for verifying a magic link
+- Fleshed out some other unit tests for fail cases for the request magic-link API route
+- Fleshed out a unit test for when the request for a magic link provides no email field
+- Added some more notes and unit tests to fill in
+- Added initial code and some unit tests for app_with_magic_links functionality
+- A little tidyup of the unit tests relating to cookie inspection
+- Added unit tests for the User model in one of the test E2E apps
+- A bit of tidyup
+- Added unit tests and code for the DELETE /sessions API endpoint
+- Small tidyup
+- Fleshed out some more unit tests around the DELETE /sessions/:id endpoint to handle various cases
+- Added another successful test case for deleting a session via web client type
+- Added a test for deleting a session based on session id
+- Added --no-file-parallelism flag to cover script, and some package-lock.json files
+- Added another check within a unit test
+- Added unit tests for GET /sessions
+- Added unit tests for handling the fail cases for calling /auth/refresh without a valid refresh token
+- Added a unit test for POST /auth/refresh when using the cookie to pass the refresh token
+- Small linting fixes
+- Added a unit test for successfully calling POST /auth/refresh via the API client type
+- Handled POST /logout with cookie-based access_token, as well as invalid access_token on that url
+- Begun implementing the POST /logout flow
+- Handled the case of performing GET /profile with cookie-based authorization
+- Added unit tests for when the access_token is invalid or expired
+- Added a unit test to check for fetching a profile based on the access_token passed in the request headers
+- A little bit of tidyup
+- Wrote unit tests for calling POST /login with X-Client-Type as web (for cookie-based session token storage)
+- Work in progress on implementing the POST /login API route
+- Added unit tests and implementation for POST /signup
+- Work in Progress on building the e2e test app for handling sessions
+- Added an option to generate a session with unique expiry times for the access and refresh token that overrides defaults and auth intialization settings
+- Added a way to generate a session with custom expiration times
+- Small dependency order tweak to make biome happy
+- Initial work on generateSession
+- Merge pull request #6 from anephenix/feature/handle-encrypting-password-for-new-user
+- See if I can resolve installing libraries in the various E2E test apps in the build pipeline
+- Removed database.sqlite files from git tracking, and unit tests now generate clean databases before the full run
+- Added unit test to check the case of password authentication with email rather than username
+- Added a new test to ensure that a user can authenticate with the most recent password in a separate table, even if multiple passwords exist for the user.
+- Handle the case where the password is stored in the user's table directly.
+- Small refactoring
+- Added tests for User.authenticate with password
+- Added a unit test and working example of a user and password record being created in auth
+- Added another user to handle verifying a valid password before user creation
+- Added a unit test for making the auth library raise a failure on an invalid password being passed
+- Refined the development dependencies for size-limit
+- Added verifyPassword to the Auth class and beginnings of testing how to integrate Auth into a test e2e app
+- Removed old code
+- Small linting fix
+- Tidied up some old code and unnecessary dependencies
+- Added hashing a password to the Auth class
+- Added some code comments to explain the functions in the Auth class
+- Amended the husky pre-commit to build the dist for checking with the size command
+- Initial WIP on implementing password validation
+
 ### 0.0.2 - Sunday 27th July, 2025
 
 - Merge pull request #5 from anephenix/dependabot/npm_and_yarn/redis-5.6.1
