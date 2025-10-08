@@ -1,10 +1,12 @@
 // Dependencies
+import fastifyResource from "@anephenix/fastify-resource";
 import fastifyCookie from "@fastify/cookie";
 import fastify from "fastify";
 import config from "./config";
 import sessions from "./controllers/sessions";
 import users from "./controllers/users";
 import { authenticateSession } from "./middleware";
+import { User } from "./models/User";
 
 const app = fastify({ logger: false });
 
@@ -54,6 +56,11 @@ const routes = [
 // This adds each route to the Fastify app
 routes.forEach((route) => {
 	app.route(route);
+});
+
+app.register(fastifyResource, {
+	model: User,
+	resourceList: "user",
 });
 
 export default app;

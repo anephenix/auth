@@ -34,6 +34,7 @@ const refreshTokenUrl = `${baseUrl}/auth/refresh`;
 const sessionsUrl = `${baseUrl}/sessions`;
 const deleteSessionUrl = (id: number) => `${baseUrl}/sessions/${id}`;
 const deleteSessionsUrl = `${baseUrl}/sessions`;
+const usersUrl = `${baseUrl}/users`;
 
 describe("App with Auth and Sessions Implemented", () => {
 	// I think this hook might need to happen somewhere else before all other tests run
@@ -908,6 +909,17 @@ describe("App with Auth and Sessions Implemented", () => {
 					email: "testuser17@example.com",
 					password: "Password123!",
 				});
+
+				const usersRequest = await fetch(usersUrl, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				expect(usersRequest.status).toBe(200);
+				const users = await usersRequest.json();
+				expect(users.length).toBe(2);
+				console.log(users);
 
 				// Create a session for the user
 				const session = await Session.query().insert({
