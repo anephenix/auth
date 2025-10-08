@@ -919,7 +919,6 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(usersRequest.status).toBe(200);
 				const users = await usersRequest.json();
 				expect(users.length).toBe(2);
-				console.log(users);
 
 				// Create a session for the user
 				const session = await Session.query().insert({

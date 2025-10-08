@@ -58,6 +58,23 @@ routes.forEach((route) => {
 	app.route(route);
 });
 
+/*
+	We use this to test fastify-resource works with auth as an example.
+
+	In the real world we wouldn't look to expose user resources like this.
+
+	NOTE - If you get a TypeScript error with fastifyResource and 
+	something about overloads, then you'll want to run the following commands
+	to sort that out:
+
+		npm dedupe
+		npm ls fastify
+		
+		rm -rf node_modules package-lock.json
+		npm install
+
+	That will resolve an issue with mismatched Fastify types.
+*/
 app.register(fastifyResource, {
 	model: User,
 	resourceList: "user",
