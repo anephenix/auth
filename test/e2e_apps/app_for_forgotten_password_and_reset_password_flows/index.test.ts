@@ -92,7 +92,6 @@ describe("Forgot Password and Reset Password Flows", () => {
 					expect(forgotPasswordRecord?.user_id).toBe(user.id);
 					expect(forgotPasswordRecord?.expires_at).toBeDefined();
 					expect(forgotPasswordRecord?.used_at).toBe(null);
-					await forgotPasswordRequestWorker.stop();
 				});
 
 				it("should create an email on the email queue with the details needed for the user to access the forgotten_password password reset option", async () => {
@@ -118,13 +117,74 @@ describe("Forgot Password and Reset Password Flows", () => {
 			});
 
 			describe("when requesting with an email", () => {
-				it.todo("should respond with a 200 success");
-				it.todo(
-					"should create a forgotPassword record in the database linked to the user",
-				);
-				it.todo(
-					"should create an email on the email queue with the details needed for the user to access the forgotten_password password reset option",
-				);
+				let user: User;
+				let forgotPasswordAPIRequest: Response;
+
+				beforeAll(async () => {
+					await ForgotPassword.query().delete();
+					await User.query().delete();
+					// Create a user in the database to test against
+					user = await User.query().insert({
+						username: "testusertwo",
+						email: "testusertwo@example.com",
+						password: "Password123!",
+					});
+
+					const identifier = "testusertwo@example.com";
+					forgotPasswordAPIRequest = await fetch(forgotPasswordUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							identifier,
+						}),
+					});
+				});
+
+				it("should respond with a 200 success", async () => {
+					expect(forgotPasswordAPIRequest.status).toBe(200);
+				});
+
+				it("should create a job in the queue to check that the record exists", async () => {
+					const job = await forgotPasswordRequestQueue.inspect();
+					expect(job).not.toBeNull();
+					expect(job?.data?.identifier).toBe("testusertwo@example.com");
+					expect(job?.data?.isEmail).toBe(true);
+				});
+
+				it("should create a forgotPassword record in the database linked to the user if a user with that email exists", async () => {
+					await forgotPasswordRequestWorker.start();
+					const forgotPasswordRecord = await ForgotPassword.query()
+						.where({ user_id: user.id })
+						.first();
+					expect(forgotPasswordRecord).not.toBeUndefined();
+					expect(forgotPasswordRecord?.user_id).toBe(user.id);
+					expect(forgotPasswordRecord?.expires_at).toBeDefined();
+					expect(forgotPasswordRecord?.used_at).toBe(null);
+					await forgotPasswordRequestWorker.stop();
+				});
+
+				it("should create an email on the email queue with the details needed for the user to access the forgotten_password password reset option", async () => {
+					const job = await emailQueue.inspect();
+					expect(job).not.toBeNull();
+					expect(job?.name).toBe("send-forgot-password-email");
+					expect(job?.data?.to).toBe("testusertwo@example.com");
+					const token = job?.data?.token;
+					expect(token).toBeDefined();
+
+					const forgotPasswordRecord = await ForgotPassword.query()
+						.where({ user_id: user.id })
+						.first();
+					expect(forgotPasswordRecord).not.toBeUndefined();
+					if (!forgotPasswordRecord)
+						throw new Error("No forgotPassword record found");
+					const isValid = await auth.verifyPassword(
+						token,
+						forgotPasswordRecord.token_hash,
+					);
+					expect(isValid).toBe(true);
+				});
 			});
 		});
 
