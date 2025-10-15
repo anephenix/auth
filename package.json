@@ -38,10 +38,7 @@
 		"watch": "tsc --project tsconfig.json --watch"
 	},
 	"dependencies": {
-		"argon2": "^0.44.0",
-		"fastify": "^5.6.1",
-		"knex": "^3.1.0",
-		"objection": "^3.1.5"
+		"argon2": "^0.44.0"
 	},
 	"devDependencies": {
 		"@anephenix/fastify-resource": "^0.0.8",
