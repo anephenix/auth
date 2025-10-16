@@ -190,25 +190,109 @@ describe("Forgot Password and Reset Password Flows", () => {
 
 		describe("fail cases", () => {
 			describe("when the username does not exist", () => {
-				it.todo(
-					"should respond with the same status as if the user exists, so that account discovery attacks are not possible",
-				);
-				it.todo(
-					"should not create a forgotPassword record in the database linked to the user, or create an email on the email queue",
-				);
+				let forgotPasswordAPIRequest: Response;
+
+				beforeAll(async () => {
+					await ForgotPassword.query().delete();
+					await User.query().delete();
+					// Create a user in the database to test against
+					await User.query().insert({
+						username: "testuser",
+						email: "testuser@example.com",
+						password: "Password123!",
+					});
+
+					const identifier = "nonexistentuser";
+					forgotPasswordAPIRequest = await fetch(forgotPasswordUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							identifier,
+						}),
+					});
+				});
+
+				it("should respond with the same status as if the user exists, so that account discovery attacks are not possible", () => {
+					expect(forgotPasswordAPIRequest.status).toBe(200);
+				});
+
+				it("should create a job in the queue to check that the record exists", async () => {
+					const job = await forgotPasswordRequestQueue.inspect();
+					expect(job).not.toBeNull();
+					expect(job?.data?.identifier).toBe("nonexistentuser");
+					expect(job?.data?.isEmail).toBe(false);
+				});
+
+				it("should not create a forgotPassword record in the database as no user with that username exists", async () => {
+					await forgotPasswordRequestWorker.start();
+					const forgotPasswordRecordCount =
+						await ForgotPassword.query().resultSize();
+					expect(forgotPasswordRecordCount).toBe(0);
+					await forgotPasswordRequestWorker.stop();
+				});
 			});
 
 			describe("when the email address does not exist", () => {
-				it.todo(
-					"should respond with the same status as if the user exists, so that account discovery attacks are not possible",
-				);
-				it.todo(
-					"should not create a forgotPassword record in the database linked to the user, or create an email on the email queue",
-				);
+				let forgotPasswordAPIRequest: Response;
+
+				beforeAll(async () => {
+					await ForgotPassword.query().delete();
+					await User.query().delete();
+					// Create a user in the database to test against
+					await User.query().insert({
+						username: "testuser",
+						email: "testuser@example.com",
+						password: "Password123!",
+					});
+
+					const identifier = "nonexistentuser@example.com";
+					forgotPasswordAPIRequest = await fetch(forgotPasswordUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							identifier,
+						}),
+					});
+				});
+
+				it("should respond with the same status as if the user exists, so that account discovery attacks are not possible", () => {
+					expect(forgotPasswordAPIRequest.status).toBe(200);
+				});
+
+				it("should create a job in the queue to check that the record exists", async () => {
+					const job = await forgotPasswordRequestQueue.inspect();
+					expect(job).not.toBeNull();
+					expect(job?.data?.identifier).toBe("nonexistentuser@example.com");
+					expect(job?.data?.isEmail).toBe(true);
+				});
+
+				it("should not create a forgotPassword record in the database as no user with that username exists", async () => {
+					await forgotPasswordRequestWorker.start();
+					const forgotPasswordRecordCount =
+						await ForgotPassword.query().resultSize();
+					expect(forgotPasswordRecordCount).toBe(0);
+					await forgotPasswordRequestWorker.stop();
+				});
 			});
 
 			describe("when the request is attempting an SQL injection attack", () => {
-				it.todo("should respond with a fail status");
+				it("should respond with a fail status", async () => {
+					const identifier = "'; DROP TABLE users; --";
+					const forgotPasswordAPIRequest = await fetch(forgotPasswordUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							identifier,
+						}),
+					});
+					expect(forgotPasswordAPIRequest.status).toBe(400);
+				});
 			});
 
 			describe("when the request is attempting an SQL wildcard lookup", () => {
