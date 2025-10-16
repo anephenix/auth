@@ -296,7 +296,19 @@ describe("Forgot Password and Reset Password Flows", () => {
 			});
 
 			describe("when the request is attempting an SQL wildcard lookup", () => {
-				it.todo("should respond with a fail status");
+				it("should respond with a fail status", async () => {
+					const identifier = "*";
+					const forgotPasswordAPIRequest = await fetch(forgotPasswordUrl, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							identifier,
+						}),
+					});
+					expect(forgotPasswordAPIRequest.status).toBe(400);
+				});
 			});
 		});
 	});
