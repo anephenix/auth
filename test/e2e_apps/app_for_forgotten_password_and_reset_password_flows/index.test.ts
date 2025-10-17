@@ -21,6 +21,7 @@ const baseUrl = "http://localhost:3000";
 const forgotPasswordUrl = `${baseUrl}/forgot-password`;
 const getResetPasswordUrl = (selector: string, token: string) =>
 	`${baseUrl}/reset-password/${selector}?token=${token}`;
+const postResetPasswordUrl = `${baseUrl}/reset-password`;
 
 describe("Forgot Password and Reset Password Flows", () => {
 	beforeAll(async () => {
@@ -496,7 +497,63 @@ describe("Forgot Password and Reset Password Flows", () => {
 		});
 
 		describe("when the password and password_confirmation are correct", () => {
-			it.todo("should reset the password for the user");
+			it("should reset the password for the user", async () => {
+				user = await User.query().insert({
+					username: "testuserfour",
+					email: "testuserfour@example.com",
+					password: "Password123!",
+				});
+
+				const identifier = "testuserfour";
+				await fetch(forgotPasswordUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						identifier,
+					}),
+				});
+				await forgotPasswordRequestWorker.start();
+
+				const job = (await emailQueue.inspect()) as EmailJob | null;
+				if (!job) throw new Error("No email job found in the queue");
+				const { selector, token } = job.data;
+
+				const postResetPasswordRequest = await fetch(postResetPasswordUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						selector,
+						token,
+						password: "NewPassword123!",
+						password_confirmation: "NewPassword123!",
+					}),
+				});
+				expect(postResetPasswordRequest.status).toBe(200);
+
+				const hasUpdatedPassword = await User.authenticate({
+					identifier: "testuserfour",
+					password: "NewPassword123!",
+				});
+
+				// This verifies that the password has been updated
+				expect(hasUpdatedPassword).toStrictEqual({
+					id: user.id,
+					username: user.username,
+				});
+
+				const forgotPasswordRecord = await ForgotPassword.query()
+					.where({ user_id: user.id })
+					.first();
+				expect(forgotPasswordRecord).not.toBeUndefined();
+				if (!forgotPasswordRecord)
+					throw new Error("No forgotPassword record found");
+				expect(forgotPasswordRecord.used_at).not.toBeNull();
+			});
+
 			it.todo(
 				"should ensure that the forgotten_password request is marked as used, and cannot be used again",
 			);

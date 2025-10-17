@@ -59,6 +59,13 @@ export class User extends Model {
 		};
 	}
 
+	async updatePassword(password: string) {
+		const hashed_password = await auth.hashPassword(password);
+		await this.$query().patch({
+			hashed_password,
+		});
+	}
+
 	// This is an implementation of the User.authenticate method, used previously in a different project.
 	static async authenticate(payload: Record<string, string>) {
 		const { identifier, password } = payload;

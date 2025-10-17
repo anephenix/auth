@@ -19,6 +19,11 @@ const routes = [
 		url: "/reset-password/:selector",
 		handler: resetPassword.get,
 	},
+	{
+		method: "POST",
+		url: "/reset-password",
+		handler: resetPassword.reset,
+	},
 ];
 
 routes.forEach((route) => {
