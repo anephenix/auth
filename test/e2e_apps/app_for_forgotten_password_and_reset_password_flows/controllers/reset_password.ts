@@ -19,7 +19,7 @@ const controller = {
 
 		if (!forgotPasswordRecord) {
 			return reply.status(400).send({
-				error: "Invalid password reset request",
+				error: "Invalid reset password selector or token",
 			});
 		}
 
@@ -44,7 +44,7 @@ const controller = {
 
 		if (!isTokenValid) {
 			return reply.status(400).send({
-				error: "Invalid or expired password reset token",
+				error: "Invalid reset password selector or token",
 			});
 		}
 

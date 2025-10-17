@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
 	removeDatabaseFileIfExists,
 	runMigrations,
@@ -375,11 +375,95 @@ describe("Forgot Password and Reset Password Flows", () => {
 				);
 				expect(getResetPasswordRequest.status).toBe(200);
 			});
-			it.todo("should respond with a 400 status if the token is not valid");
-			it.todo("should respond with a 400 status if the token has expired");
-			it.todo(
-				"should respond with a 400 status if the token has already been used",
-			);
+
+			describe("when checking with an incorrect selector", () => {
+				it("should respond with a 400 status", async () => {
+					const job = (await emailQueue.inspect()) as EmailJob | null;
+					if (!job) throw new Error("No email job found in the queue");
+					const { token } = job.data;
+
+					const getResetPasswordRequest = await fetch(
+						getResetPasswordUrl("invalid-selector", token),
+						{
+							method: "GET",
+							headers: {
+								"Content-Type": "application/json",
+							},
+						},
+					);
+					expect(getResetPasswordRequest.status).toBe(400);
+					expect(await getResetPasswordRequest.json()).toEqual({
+						error: "Invalid reset password selector or token",
+					});
+				});
+			});
+
+			describe("when checking with an incorrect token", () => {
+				it("should respond with a 400 status", async () => {
+					const job = (await emailQueue.inspect()) as EmailJob | null;
+					if (!job) throw new Error("No email job found in the queue");
+					const { selector } = job.data;
+
+					const getResetPasswordRequest = await fetch(
+						getResetPasswordUrl(selector, "invalid-token"),
+						{
+							method: "GET",
+							headers: {
+								"Content-Type": "application/json",
+							},
+						},
+					);
+					expect(getResetPasswordRequest.status).toBe(400);
+					expect(await getResetPasswordRequest.json()).toEqual({
+						error: "Invalid reset password selector or token",
+					});
+				});
+			});
+
+			describe("when checking with an expired token", () => {
+				it("should respond with a 400 status", async () => {
+					const user = await User.query().insert({
+						username: "testusertwo",
+						email: "testusertwo@example.com",
+						password: "Password123!",
+					});
+
+					const token = auth.tokenGenerator();
+
+					// Create a forgotpassword record
+					const forgotPassword = await ForgotPassword.query().insert({
+						user_id: user.id,
+						token,
+					});
+					// Enables fake timers
+					vi.useFakeTimers();
+
+					// Simulate 1 hour passing
+					vi.advanceTimersByTime(1000 * 60 * 60);
+
+					const getResetPasswordRequest = await fetch(
+						getResetPasswordUrl(forgotPassword.selector, token),
+						{
+							method: "GET",
+							headers: {
+								"Content-Type": "application/json",
+							},
+						},
+					);
+					expect(getResetPasswordRequest.status).toBe(400);
+					expect(await getResetPasswordRequest.json()).toEqual({
+						error: "Password reset token has expired",
+					});
+
+					// Restore real timers
+					vi.useRealTimers();
+				});
+			});
+
+			describe("when checking with a token that has already been used", () => {
+				// TODO - we need to create a forgot password record that has been used to test this properly
+				it.todo("should respond with a 400 status");
+			});
 		});
 
 		describe("when the password and password_confirmation are correct", () => {
