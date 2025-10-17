@@ -8,6 +8,7 @@ Model.knex(db);
 export class ForgotPassword extends Model {
 	id!: number;
 	user_id!: number;
+	selector!: string;
 	token?: string;
 	token_hash!: string;
 	expires_at!: Date;
@@ -28,6 +29,7 @@ export class ForgotPassword extends Model {
 		}
 
 		// We store a hashed version of the token in the database
+		this.selector = auth.codeGenerator();
 		this.token_hash = await auth.hashPassword(this.token);
 		// We unset the plaintext token so that it is not saved in the database
 		this.token = undefined;
@@ -48,6 +50,7 @@ export class ForgotPassword extends Model {
 			properties: {
 				id: { type: "integer" },
 				user_id: { type: "integer" },
+				selector: { type: "string", minLength: 1, maxLength: 255 },
 				token_hash: { type: "string", minLength: 1, maxLength: 255 },
 				expires_at: { type: "string", format: "date-time" },
 				used_at: { type: ["string", "null"], format: "date-time" },

@@ -7,6 +7,7 @@ exports.up = async (knex) => {
 			.references("id")
 			.inTable("users")
 			.onDelete("CASCADE");
+		table.string("selector").notNullable().unique();
 		table.string("token_hash").notNullable().unique();
 		table.timestamp("expires_at").notNullable();
 		table.timestamp("used_at");

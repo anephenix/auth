@@ -10,13 +10,17 @@ import appDB from "./db"; // Assuming you have a db module to handle database co
 import app from "./index";
 import ForgotPassword from "./models/ForgotPassword";
 import User from "./models/User";
-import emailQueue from "./queues/EmailQueue";
-import forgotPasswordRequestQueue from "./queues/ForgotPasswordRequestQueue";
+import emailQueue, { type EmailJob } from "./queues/EmailQueue";
+import forgotPasswordRequestQueue, {
+	type ForgotPasswordRequestJob,
+} from "./queues/ForgotPasswordRequestQueue";
 import forgotPasswordRequestWorker from "./workers/ForgotPasswordRequestWorker";
 
 const port = 3000;
 const baseUrl = "http://localhost:3000";
 const forgotPasswordUrl = `${baseUrl}/forgot-password`;
+const getResetPasswordUrl = (selector: string, token: string) =>
+	`${baseUrl}/reset-password/${selector}?token=${token}`;
 
 describe("Forgot Password and Reset Password Flows", () => {
 	beforeAll(async () => {
@@ -77,7 +81,8 @@ describe("Forgot Password and Reset Password Flows", () => {
 				});
 
 				it("should create a job in the queue to check that the record exists", async () => {
-					const job = await forgotPasswordRequestQueue.inspect();
+					const job =
+						(await forgotPasswordRequestQueue.inspect()) as ForgotPasswordRequestJob | null;
 					expect(job).not.toBeNull();
 					expect(job?.data?.identifier).toBe("testuser");
 					expect(job?.data?.isEmail).toBe(false);
@@ -95,7 +100,9 @@ describe("Forgot Password and Reset Password Flows", () => {
 				});
 
 				it("should create an email on the email queue with the details needed for the user to access the forgotten_password password reset option", async () => {
-					const job = await emailQueue.inspect();
+					const job = (await emailQueue.inspect()) as EmailJob | null;
+					if (!job) throw new Error("No email job found in the queue");
+					await emailQueue.inspect();
 					expect(job).not.toBeNull();
 					expect(job?.name).toBe("send-forgot-password-email");
 					expect(job?.data?.to).toBe("testuser@example.com");
@@ -147,7 +154,8 @@ describe("Forgot Password and Reset Password Flows", () => {
 				});
 
 				it("should create a job in the queue to check that the record exists", async () => {
-					const job = await forgotPasswordRequestQueue.inspect();
+					const job =
+						(await forgotPasswordRequestQueue.inspect()) as ForgotPasswordRequestJob | null;
 					expect(job).not.toBeNull();
 					expect(job?.data?.identifier).toBe("testusertwo@example.com");
 					expect(job?.data?.isEmail).toBe(true);
@@ -162,11 +170,11 @@ describe("Forgot Password and Reset Password Flows", () => {
 					expect(forgotPasswordRecord?.user_id).toBe(user.id);
 					expect(forgotPasswordRecord?.expires_at).toBeDefined();
 					expect(forgotPasswordRecord?.used_at).toBe(null);
-					await forgotPasswordRequestWorker.stop();
 				});
 
 				it("should create an email on the email queue with the details needed for the user to access the forgotten_password password reset option", async () => {
-					const job = await emailQueue.inspect();
+					const job = (await emailQueue.inspect()) as EmailJob | null;
+					if (!job) throw new Error("No email job found in the queue");
 					expect(job).not.toBeNull();
 					expect(job?.name).toBe("send-forgot-password-email");
 					expect(job?.data?.to).toBe("testusertwo@example.com");
@@ -219,7 +227,8 @@ describe("Forgot Password and Reset Password Flows", () => {
 				});
 
 				it("should create a job in the queue to check that the record exists", async () => {
-					const job = await forgotPasswordRequestQueue.inspect();
+					const job =
+						(await forgotPasswordRequestQueue.inspect()) as ForgotPasswordRequestJob | null;
 					expect(job).not.toBeNull();
 					expect(job?.data?.identifier).toBe("nonexistentuser");
 					expect(job?.data?.isEmail).toBe(false);
@@ -230,7 +239,6 @@ describe("Forgot Password and Reset Password Flows", () => {
 					const forgotPasswordRecordCount =
 						await ForgotPassword.query().resultSize();
 					expect(forgotPasswordRecordCount).toBe(0);
-					await forgotPasswordRequestWorker.stop();
 				});
 			});
 
@@ -264,7 +272,8 @@ describe("Forgot Password and Reset Password Flows", () => {
 				});
 
 				it("should create a job in the queue to check that the record exists", async () => {
-					const job = await forgotPasswordRequestQueue.inspect();
+					const job =
+						(await forgotPasswordRequestQueue.inspect()) as ForgotPasswordRequestJob | null;
 					expect(job).not.toBeNull();
 					expect(job?.data?.identifier).toBe("nonexistentuser@example.com");
 					expect(job?.data?.isEmail).toBe(true);
@@ -275,7 +284,6 @@ describe("Forgot Password and Reset Password Flows", () => {
 					const forgotPasswordRecordCount =
 						await ForgotPassword.query().resultSize();
 					expect(forgotPasswordRecordCount).toBe(0);
-					await forgotPasswordRequestWorker.stop();
 				});
 			});
 
@@ -310,6 +318,94 @@ describe("Forgot Password and Reset Password Flows", () => {
 					expect(forgotPasswordAPIRequest.status).toBe(400);
 				});
 			});
+		});
+	});
+
+	describe("Resetting a password following a forgotten password request", () => {
+		let user: User;
+
+		beforeAll(async () => {
+			await ForgotPassword.query().delete();
+			await User.query().delete();
+			// Create a user in the database to test against
+			user = await User.query().insert({
+				username: "testuser",
+				email: "testuser@example.com",
+				password: "Password123!",
+			});
+
+			const identifier = "testuser";
+			await fetch(forgotPasswordUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					identifier,
+				}),
+			});
+			await forgotPasswordRequestWorker.start();
+			const forgotPasswordRecord = await ForgotPassword.query()
+				.where({ user_id: user.id })
+				.first();
+			expect(forgotPasswordRecord).not.toBeUndefined();
+			expect(forgotPasswordRecord?.user_id).toBe(user.id);
+			expect(forgotPasswordRecord?.expires_at).toBeDefined();
+			expect(forgotPasswordRecord?.used_at).toBe(null);
+		});
+
+		afterAll(async () => {
+			await forgotPasswordRequestWorker.stop();
+		});
+
+		describe("checking that the reset password token is valid", () => {
+			it("should respond with a 200 status if the token is valid", async () => {
+				const job = (await emailQueue.inspect()) as EmailJob | null;
+				if (!job) throw new Error("No email job found in the queue");
+				const { selector, token } = job.data;
+
+				const getResetPasswordRequest = await fetch(
+					getResetPasswordUrl(selector, token),
+					{
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					},
+				);
+				expect(getResetPasswordRequest.status).toBe(200);
+			});
+			it.todo("should respond with a 400 status if the token is not valid");
+			it.todo("should respond with a 400 status if the token has expired");
+			it.todo(
+				"should respond with a 400 status if the token has already been used",
+			);
+		});
+
+		describe("when the password and password_confirmation are correct", () => {
+			it.todo("should reset the password for the user");
+			it.todo(
+				"should ensure that the forgotten_password request is marked as used, and cannot be used again",
+			);
+			it.todo(
+				"should ensure that there is no way to reuse the reset_password token as well - if there is a token",
+			);
+		});
+
+		describe("when the password and password_confirmation do not match", () => {
+			it.todo("should respond with a 400 error");
+			it.todo("should not reset the password for the user");
+			it.todo(
+				"should ensure that the forgotten_password request is not marked as used",
+			);
+		});
+
+		describe("when the token has expired", () => {
+			it.todo("should respond with a 400 error");
+			it.todo("should not reset the password for the user");
+			it.todo(
+				"should ensure that the forgotten_password request is marked as used",
+			);
 		});
 	});
 });

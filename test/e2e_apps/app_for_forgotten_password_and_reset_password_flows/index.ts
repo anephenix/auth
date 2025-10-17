@@ -3,6 +3,7 @@
 import fastify from "fastify";
 // import config from "./config";
 import forgotPassword from "./controllers/forgot_password";
+import resetPassword from "./controllers/reset_password";
 
 const app = fastify({ logger: false });
 // app.register(fastifyCookie, {
@@ -13,6 +14,11 @@ const app = fastify({ logger: false });
 
 const routes = [
 	{ method: "POST", url: "/forgot-password", handler: forgotPassword.create },
+	{
+		method: "GET",
+		url: "/reset-password/:selector",
+		handler: resetPassword.get,
+	},
 ];
 
 routes.forEach((route) => {
