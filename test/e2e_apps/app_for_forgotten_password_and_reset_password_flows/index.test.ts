@@ -651,8 +651,61 @@ describe("Forgot Password and Reset Password Flows", () => {
 		});
 
 		describe("when the token has expired", () => {
-			it.todo("should respond with a 400 error");
-			it.todo("should not reset the password for the user");
+			let user: User;
+
+			beforeAll(async () => {
+				user = await User.query().insert({
+					username: "testuserseven",
+					email: "testuserseven@example.com",
+					password: "Password123!",
+				});
+			});
+
+			it("should respond with a 400 error", async () => {
+				const token = auth.tokenGenerator();
+
+				// Create a forgotpassword record
+				const forgotPassword = await ForgotPassword.query().insert({
+					user_id: user.id,
+					token,
+				});
+
+				// Enables fake timers
+				vi.useFakeTimers();
+
+				// Simulate 1 hour passing
+				vi.advanceTimersByTime(1000 * 60 * 60);
+
+				const postResetPasswordRequest = await fetch(postResetPasswordUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						selector: forgotPassword.selector,
+						token,
+						password: "NewPassword123!",
+						password_confirmation: "NewPassword123!",
+					}),
+				});
+				expect(postResetPasswordRequest.status).toBe(400);
+				expect(await postResetPasswordRequest.json()).toEqual({
+					error: "Password reset token has expired",
+				});
+
+				// Restore real timers
+				vi.useRealTimers();
+			});
+
+			it("should not reset the password for the user", async () => {
+				const hasUpdatedPassword = await User.authenticate({
+					identifier: "testuserseven",
+					password: "NewPassword123!",
+				}).catch(() => null);
+
+				// This verifies that the password has NOT been updated
+				expect(hasUpdatedPassword).toBeNull();
+			});
 		});
 	});
 });
