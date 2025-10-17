@@ -551,31 +551,108 @@ describe("Forgot Password and Reset Password Flows", () => {
 				expect(forgotPasswordRecord).not.toBeUndefined();
 				if (!forgotPasswordRecord)
 					throw new Error("No forgotPassword record found");
+
+				// Check that the used_at field is now set
 				expect(forgotPasswordRecord.used_at).not.toBeNull();
 			});
+		});
 
-			it.todo(
-				"should ensure that the forgotten_password request is marked as used, and cannot be used again",
-			);
-			it.todo(
-				"should ensure that there is no way to reuse the reset_password token as well - if there is a token",
-			);
+		describe("attempting to reset with an already used forgot_password token", () => {
+			it("should respond with a 400 error, and not reset the password at all", async () => {
+				const user = await User.query().insert({
+					username: "testuserfive",
+					email: "testuserfive@example.com",
+					password: "Password123!",
+				});
+
+				const token = auth.tokenGenerator();
+
+				// Create a forgotpassword record
+				const forgotPassword = await ForgotPassword.query().insert({
+					user_id: user.id,
+					token,
+				});
+
+				// Mark the forgot password record as used
+				await forgotPassword.markAsUsed();
+
+				const postResetPasswordRequest = await fetch(postResetPasswordUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						selector: forgotPassword.selector,
+						token,
+						password: "NewPassword123!",
+						password_confirmation: "NewPassword123!",
+					}),
+				});
+				expect(postResetPasswordRequest.status).toBe(400);
+				expect(await postResetPasswordRequest.json()).toEqual({
+					error: "Password reset token has already been used",
+				});
+			});
 		});
 
 		describe("when the password and password_confirmation do not match", () => {
-			it.todo("should respond with a 400 error");
-			it.todo("should not reset the password for the user");
-			it.todo(
-				"should ensure that the forgotten_password request is not marked as used",
-			);
+			let user: User;
+
+			beforeAll(async () => {
+				user = await User.query().insert({
+					username: "testusersix",
+					email: "testusersix@example.com",
+					password: "Password123!",
+				});
+			});
+
+			it("should respond with a 400 error, and not reset the password at all", async () => {
+				const token = auth.tokenGenerator();
+
+				// Create a forgotpassword record
+				const forgotPassword = await ForgotPassword.query().insert({
+					user_id: user.id,
+					token,
+				});
+
+				const postResetPasswordRequest = await fetch(postResetPasswordUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						selector: forgotPassword.selector,
+						token,
+						password: "NewPassword123!",
+						password_confirmation: "NewPassword124!",
+					}),
+				});
+				expect(postResetPasswordRequest.status).toBe(400);
+				expect(await postResetPasswordRequest.json()).toEqual({
+					error: "Password and password confirmation do not match",
+				});
+			});
+			it("should not reset the password for the user", async () => {
+				const hasUpdatedPassword = await User.authenticate({
+					identifier: "testusersix",
+					password: "NewPassword123!",
+				}).catch(() => null);
+
+				// This verifies that the password has NOT been updated
+				expect(hasUpdatedPassword).toBeNull();
+			});
+			it("should ensure that the forgotten_password request is not marked as used", async () => {
+				const forgotPasswordRecord = await ForgotPassword.query()
+					.where({ user_id: user.id })
+					.first();
+				expect(forgotPasswordRecord).not.toBeUndefined();
+				expect(forgotPasswordRecord?.used_at).toBeNull();
+			});
 		});
 
 		describe("when the token has expired", () => {
 			it.todo("should respond with a 400 error");
 			it.todo("should not reset the password for the user");
-			it.todo(
-				"should ensure that the forgotten_password request is marked as used",
-			);
 		});
 	});
 });
