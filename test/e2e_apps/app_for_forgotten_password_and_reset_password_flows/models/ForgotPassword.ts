@@ -12,7 +12,17 @@ export class ForgotPassword extends Model {
 	token?: string;
 	token_hash!: string;
 	expires_at!: Date;
-	used_at?: Date;
+	/*
+		There is an odd inconsistency here - the other date fields do not get 
+		validate called on them, therefore they get set as Date objects.
+
+		However, used_at does get validate called on it, therefore it gets 
+		set as a string.
+
+		This inconsistency is due to how Objection.js handles validation 
+		and type coercion.
+	*/
+	used_at?: Date | string | null;
 	created_at!: Date;
 	updated_at!: Date;
 
@@ -43,6 +53,10 @@ export class ForgotPassword extends Model {
 		this.updated_at = now;
 	}
 
+	async markAsUsed() {
+		await this.$query().patch({ used_at: new Date().toISOString() });
+	}
+
 	static get jsonSchema() {
 		return {
 			type: "object",
@@ -53,7 +67,7 @@ export class ForgotPassword extends Model {
 				selector: { type: "string", minLength: 1, maxLength: 255 },
 				token_hash: { type: "string", minLength: 1, maxLength: 255 },
 				expires_at: { type: "string", format: "date-time" },
-				used_at: { type: ["string", "null"], format: "date-time" },
+				used_at: { type: "string", format: "date-time" },
 				created_at: { type: "string", format: "date-time" },
 				updated_at: { type: "string", format: "date-time" },
 			},

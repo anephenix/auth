@@ -11,7 +11,7 @@ exports.up = async (knex) => {
 		table.string("token_hash").notNullable().unique();
 		table.timestamp("expires_at").notNullable();
 		table.timestamp("used_at");
-		table.timestamp("created_at").defaultTo(knex.fn.now());
+		table.timestamp("created_at");
 		table.timestamp("updated_at");
 	});
 };

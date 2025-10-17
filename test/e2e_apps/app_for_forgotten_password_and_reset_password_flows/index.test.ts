@@ -461,8 +461,37 @@ describe("Forgot Password and Reset Password Flows", () => {
 			});
 
 			describe("when checking with a token that has already been used", () => {
-				// TODO - we need to create a forgot password record that has been used to test this properly
-				it.todo("should respond with a 400 status");
+				it("should respond with a 400 status", async () => {
+					const user = await User.query().insert({
+						username: "testuserthree",
+						email: "testuserthree@example.com",
+						password: "Password123!",
+					});
+
+					const token = auth.tokenGenerator();
+
+					// Create a forgotpassword record
+					const forgotPassword = await ForgotPassword.query().insert({
+						user_id: user.id,
+						token,
+					});
+
+					await forgotPassword.markAsUsed();
+
+					const getResetPasswordRequest = await fetch(
+						getResetPasswordUrl(forgotPassword.selector, token),
+						{
+							method: "GET",
+							headers: {
+								"Content-Type": "application/json",
+							},
+						},
+					);
+					expect(getResetPasswordRequest.status).toBe(400);
+					expect(await getResetPasswordRequest.json()).toEqual({
+						error: "Password reset token has already been used",
+					});
+				});
 			});
 		});
 
