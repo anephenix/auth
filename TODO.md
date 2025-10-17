@@ -14,14 +14,14 @@
 - [x] Implement a rule that all submitted identifiers are lowercased and trimmed of spaces - so no chance to trick account creation/lookup
 - [x] Look at supporting MFA (QR Code & app)
 - [x] Look at supporting forgot password flow
+- [x] Look at supporting reset password flow
 
 ## Now
 
-- [ ] Look at supporting reset password flow
+- [ ] Implement a way to ensure that username lookup timing attacks can't happen (establish that a username is valid within a system)
 
 ## Next
 
-- [ ] Implement a way to ensure that username lookup timing attacks can't happen (establish that a username is valid within a system)
 - [ ] Implement the same principle for passwords
 - [ ] Look at updating username flow
 - [ ] Look at updating email flow
