@@ -13,16 +13,36 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+        redis:
+            image: redis:latest
+            ports:
+                - 6379:6379
+            options: >-
+                --health-cmd "redis-cli ping || exit 1"
+                --health-interval 5s
+                --health-timeout 5s
+                --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests for all apps
         run: cd test/e2e_apps/app_for_password_in_separate_table && npm i
-
       - run: cd test/e2e_apps/app_for_password_in_users_table && npm i
       - run: cd test/e2e_apps/app_with_auth_and_sessions_implemented && npm i
       - run: cd test/e2e_apps/app_for_magic_links && npm i
@@ -30,7 +50,6 @@ jobs:
       - run: cd test/e2e_apps/app_for_mfa_totp && npm i
       - run: cd test/e2e_apps/app_for_forgotten_password_and_reset_password_flows && npm i
       - run: npm run cover
-
 
       - name: Build project
         run: npm run build
