@@ -1,5 +1,27 @@
 # CHANGELOG
 
+### 0.0.4 - Monday 20th October, 2025
+
+- Added a test app to the github workflow for installing its dependencies before running tests
+- Updated the TODO list
+- Fleshed out the final unit tests for the reset password flow
+- Added some more unit tests to verify the fail cases for the reset password flow
+- Added another unit tests that verifies the success case of resetting a password
+- Added another unit test
+- Added a few more unit tests for the reset password flow
+- Added a GET /reset-password/:selector?token= API route to check the validity of a reset password token, plus some other tweaks
+- Another tests and updated the TODO.md completion list
+- Fleshed out the remaining unit tests for the forgot password flow
+- completed more unit tests for the forgot password flow
+- Removed some dependencies that were accidentally added in the wrong location
+- Merge branch 'main' of github.com:anephenix/auth
+- WIP on testing the forgot password flow
+- Merge pull request #32 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.2.6
+- Merge pull request #31 from anephenix/dependabot/npm_and_yarn/types/node-24.7.2
+- Bump @biomejs/biome from 2.2.5 to 2.2.6
+- Bump @types/node from 24.7.0 to 24.7.2
+- Small typescript tweak
+
 ### 0.0.3 - Wednesday 8th October, 2025
 
 - Added publint and made some changes for the package to be in a good state
