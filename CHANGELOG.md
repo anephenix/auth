@@ -1,5 +1,12 @@
 # CHANGELOG
 
+### 0.0.5 - Monday 20th October, 2025
+
+- Merge pull request #33 from anephenix/dependabot/npm_and_yarn/publint-0.3.15
+- Fix the publish workflow file
+- Bump publint from 0.3.14 to 0.3.15
+- Fix the workflows file to run all tests before publish
+
 ### 0.0.4 - Monday 20th October, 2025
 
 - Added a test app to the github workflow for installing its dependencies before running tests
