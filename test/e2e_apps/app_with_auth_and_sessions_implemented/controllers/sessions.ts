@@ -1,3 +1,4 @@
+import type { FastifyReply, FastifyRequest } from "fastify";
 import auth from "../auth";
 import detectClientType from "../helpers/detectClientType";
 import handleError from "../helpers/handleError";
@@ -11,14 +12,14 @@ import { User } from "../models/User";
 const secureCookieEnabled = process.env.NODE_ENV === "production";
 
 const controller = {
-	index: async (request, reply) => {
+	index: async (request: FastifyRequest, reply: FastifyReply) => {
 		const sessions = await Session.query()
 			.select("id", "user_agent", "ip_address", "created_at", "updated_at")
 			.where("user_id", request.user.id);
 		reply.status(200).send(sessions);
 	},
 
-	create: async (request, reply) => {
+	create: async (request: FastifyRequest, reply: FastifyReply) => {
 		const { identifier, password } = request.body as {
 			identifier: string;
 			password: string;
@@ -78,7 +79,7 @@ const controller = {
 		}
 	},
 
-	logout: async (request, reply) => {
+	logout: async (request: FastifyRequest, reply: FastifyReply) => {
 		const user = request.user;
 		const access_token = request.access_token;
 		if (!user) {
@@ -99,7 +100,7 @@ const controller = {
 		}
 	},
 
-	refresh: async (request, reply) => {
+	refresh: async (request: FastifyRequest, reply: FastifyReply) => {
 		const clientType = detectClientType(request);
 		// If it is defined in the cookie, get it there
 		let refresh_token = request.cookies?.refresh_token;
@@ -154,7 +155,7 @@ const controller = {
 		}
 	},
 
-	delete: async (request, reply) => {
+	delete: async (request: FastifyRequest, reply: FastifyReply) => {
 		const sessionId = request.params.id;
 		const user = request.user;
 		const session = await Session.query()
@@ -183,7 +184,7 @@ const controller = {
 		reply.status(200).send(clientType === "web" ? message : { message });
 	},
 
-	deleteAll: async (request, reply) => {
+	deleteAll: async (request: FastifyRequest, reply: FastifyReply) => {
 		const user = request.user;
 		if (!user) {
 			return reply.status(401).send({ error: "Unauthorized" });
