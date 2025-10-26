@@ -41,7 +41,7 @@
 		"argon2": "^0.44.0"
 	},
 	"devDependencies": {
-		"@anephenix/fastify-resource": "^0.0.8",
+		"@anephenix/fastify-resource": "^0.0.9",
 		"@biomejs/biome": "2.2.6",
 		"@cucumber/cucumber": "^12.2.0",
 		"@size-limit/esbuild": "^11.2.0",
