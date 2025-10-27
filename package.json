@@ -56,7 +56,7 @@
 		"size-limit": "^11.2.0",
 		"size-limit-node-esbuild": "^0.4.0",
 		"typescript": "^5.9.3",
-		"vitest": "^3.2.4"
+		"vitest": "^4.0.4"
 	},
 	"size-limit": [
 		{
