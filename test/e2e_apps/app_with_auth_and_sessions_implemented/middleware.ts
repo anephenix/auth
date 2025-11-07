@@ -1,3 +1,4 @@
+import type { FastifyReply, FastifyRequest } from "fastify";
 import { Session } from "./models/Session.js";
 
 /*
@@ -6,7 +7,16 @@ import { Session } from "./models/Session.js";
     If the session is valid, it will attach the user to the request object for downstream handlers
     If the session is invalid, it will return a 401 Unauthorized response.
 */
-const authenticateSession = async (request, reply) => {
+
+type AuthenticatedRequest = FastifyRequest & {
+	access_token?: string;
+	user?: any;
+};
+
+const authenticateSession = async (
+	request: AuthenticatedRequest,
+	reply: FastifyReply,
+) => {
 	const access_token =
 		request.headers.authorization?.replace("Bearer ", "") ||
 		request.cookies?.access_token;
