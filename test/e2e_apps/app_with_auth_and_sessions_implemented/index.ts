@@ -5,7 +5,7 @@ import fastify from "fastify";
 import config from "./config";
 import sessions from "./controllers/sessions";
 import users from "./controllers/users";
-import { authenticateSession } from "./middleware";
+import { authenticateSession } from "./middleware/middleware";
 import { User } from "./models/User";
 
 const app = fastify({ logger: false });

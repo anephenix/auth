@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { Session } from "./models/Session.js";
+import { Session } from "../models/Session.js";
 
 /*
     This is a preHandler function for Fastify that will authenticate the session
@@ -26,6 +26,9 @@ const authenticateSession = async (
 		return;
 	}
 
+	// The bit that accesses the model/database to find the session and check that it is valid, based on the access token
+	// Then, you pass it 2 things - the request and reply objects from Fastify
+	// It will then handle the authorization logic and what to do if unauthorized
 	const session = await Session.query().findOne({ access_token });
 	if (!session) {
 		reply.code(401).send({ error: "Invalid session" });
