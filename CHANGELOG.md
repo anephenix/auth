@@ -1,5 +1,59 @@
 # CHANGELOG
 
+### 0.0.6 - Wednesday 3rd December, 2025
+
+- Updated dependencies
+- Merge pull request #53 from anephenix/dependabot/npm_and_yarn/vitest-4.0.13
+- Merge branch 'main' into dependabot/npm_and_yarn/vitest-4.0.13
+- Added a type
+- Merge pull request #55 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.7
+- Merge pull request #54 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.13
+- Bump @biomejs/biome from 2.3.4 to 2.3.7
+- Bump @vitest/coverage-v8 from 4.0.10 to 4.0.13
+- Bump vitest from 4.0.10 to 4.0.13
+- Applied dependency updates to the test e2e apps
+- Updated dependencies
+- Merge pull request #50 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.8
+- Merge pull request #51 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.4
+- Bump @biomejs/biome from 2.3.3 to 2.3.4
+- Bump @vitest/coverage-v8 from 4.0.6 to 4.0.8
+- WIP on adding unit tests for middleware for the session test app
+- Merge branch 'main' of github.com:anephenix/auth
+- Applied typing to the authenticateSession middleware
+- Merge pull request #48 from anephenix/dependabot/npm_and_yarn/vitest-4.0.6
+- Merge branch 'main' into dependabot/npm_and_yarn/vitest-4.0.6
+- Merge pull request #45 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.6
+- Bump vitest from 4.0.4 to 4.0.6
+- Bump @vitest/coverage-v8 from 4.0.4 to 4.0.6
+- Merge pull request #46 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.3
+- Merge pull request #47 from anephenix/dependabot/npm_and_yarn/types/node-24.10.0
+- Bump @types/node from 24.9.1 to 24.10.0
+- Bump @biomejs/biome from 2.3.1 to 2.3.3
+- Linting fixes
+- Merge pull request #42 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.4
+- Updated vitest dependency
+- Merge pull request #43 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/vite-7.1.12
+- Bump vite from 7.1.7 to 7.1.12 in /test/e2e_apps/app_for_mfa_sms_code
+- Bump @vitest/coverage-v8 from 3.2.4 to 4.0.4
+- Merge pull request #41 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.1
+- Merge pull request #40 from anephenix/dependabot/npm_and_yarn/types/node-24.9.1
+- Bump @biomejs/biome from 2.2.6 to 2.3.1
+- Bump @types/node from 24.8.1 to 24.9.1
+- Merge branch 'main' of github.com:anephenix/auth
+- Small TypeScript type tweaks
+- Merge pull request #37 from anephenix/dependabot/npm_and_yarn/vite-7.1.11
+- Merge pull request #38 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/vite-7.1.11
+- Bump vite from 7.1.5 to 7.1.11 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #36 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/vite-7.1.11
+- Merge pull request #35 from anephenix/dependabot/npm_and_yarn/anephenix/fastify-resource-0.0.9
+- Bump vite from 7.1.5 to 7.1.11
+- Bump vite in /test/e2e_apps/app_for_password_in_separate_table
+- Bump @anephenix/fastify-resource from 0.0.8 to 0.0.9
+- Merge branch 'main' of github.com:anephenix/auth
+- Trying a tweak for the publish.yaml workflow file
+- Merge pull request #34 from anephenix/dependabot/npm_and_yarn/types/node-24.8.1
+- Bump @types/node from 24.7.2 to 24.8.1
+
 ### 0.0.5 - Monday 20th October, 2025
 
 - Merge pull request #33 from anephenix/dependabot/npm_and_yarn/publint-0.3.15
