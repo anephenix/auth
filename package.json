@@ -48,7 +48,7 @@
 		"@size-limit/esbuild-why": "^12.0.0",
 		"@size-limit/file": "^12.0.0",
 		"@types/node": "^25.0.3",
-		"@vitest/coverage-v8": "^4.0.13",
+		"@vitest/coverage-v8": "^4.0.16",
 		"cross-env": "^10.1.0",
 		"husky": "^9.1.7",
 		"nyc": "^17.1.0",
