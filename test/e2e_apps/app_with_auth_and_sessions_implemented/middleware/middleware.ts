@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { Session } from "../models/Session.js";
+import type { User } from "../models/User.js";
 
 /*
     This is a preHandler function for Fastify that will authenticate the session
@@ -10,7 +11,7 @@ import { Session } from "../models/Session.js";
 
 type AuthenticatedRequest = FastifyRequest & {
 	access_token?: string;
-	user?: any;
+	user?: User;
 };
 
 const authenticateSession = async (

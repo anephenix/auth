@@ -1,67 +1,68 @@
 {
-	"name": "@anephenix/auth",
-	"version": "0.0.6",
-	"keywords": [
-		"fastify",
-		"objection",
-		"authentication"
-	],
-	"author": "Paul Jensen <paul@anephenix.com>",
-	"license": "MIT",
-	"type": "module",
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.js"
-		}
-	},
-	"types": "./dist/index.d.ts",
-	"files": [
-		"dist",
-		"README.md"
-	],
-	"engines": {
-		"node": ">=12"
-	},
-	"scripts": {
-		"analyze": "size-limit --why",
-		"build": "tsc --project tsconfig.json",
-		"cover": "cross-env NODE_ENV=test npx vitest test --run --coverage --no-file-parallelism",
-		"lint": "npx @biomejs/biome check --write src scripts test .github",
-		"lint:package": "npx publint",
-		"prepare": "husky",
-		"prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
-		"publish-patch-release": "npm run prepare-patch-release && git push origin main && git push --tags",
-		"size": "size-limit",
-		"update-changelog": "node --experimental-strip-types scripts/update-changelog.ts",
-		"test": "cross-env NODE_ENV=test npx vitest test --run --no-file-parallelism",
-		"watch": "tsc --project tsconfig.json --watch"
-	},
-	"dependencies": {
-		"argon2": "^0.44.0"
-	},
-	"devDependencies": {
-		"@anephenix/fastify-resource": "^0.0.11",
-		"@biomejs/biome": "2.4.7",
-		"@cucumber/cucumber": "^12.7.0",
-		"@size-limit/esbuild": "^12.0.0",
-		"@size-limit/esbuild-why": "^12.0.0",
-		"@size-limit/file": "^12.0.0",
-		"@types/node": "^25.5.0",
-		"@vitest/coverage-v8": "^4.1.0",
-		"cross-env": "^10.1.0",
-		"husky": "^9.1.7",
-		"nyc": "^18.0.0",
-		"publint": "^0.3.18",
-		"size-limit": "^12.0.0",
-		"size-limit-node-esbuild": "^0.4.0",
-		"typescript": "^5.9.3",
-		"vitest": "^4.0.16"
-	},
-	"size-limit": [
-		{
-			"path": "dist/*.js",
-			"limit": "10 KB"
-		}
-	]
+  "name": "@anephenix/auth",
+  "version": "0.0.6",
+  "keywords": [
+    "fastify",
+    "objection",
+    "authentication"
+  ],
+  "author": "Paul Jensen <paul@anephenix.com>",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "analyze": "size-limit --why",
+    "build": "tsc --project tsconfig.json",
+    "cover": "cross-env NODE_ENV=test npx vitest test --run --coverage --no-file-parallelism",
+    "format": "npx @biomejs/biome check src scripts test .github --write",
+    "lint": "npx @biomejs/biome check src scripts test .github",
+    "lint:package": "npx publint",
+    "prepare": "husky",
+    "prepare-patch-release": "npm run update-changelog && git add CHANGELOG.md && git commit -m \"Updated changelog\" && npm version patch",
+    "publish-patch-release": "npm run prepare-patch-release && git push origin main && git push --tags",
+    "size": "size-limit",
+    "update-changelog": "node --experimental-strip-types scripts/update-changelog.ts",
+    "test": "cross-env NODE_ENV=test npx vitest test --run --no-file-parallelism",
+    "watch": "tsc --project tsconfig.json --watch"
+  },
+  "dependencies": {
+    "argon2": "^0.44.0"
+  },
+  "devDependencies": {
+    "@anephenix/fastify-resource": "^0.0.11",
+    "@biomejs/biome": "2.4.7",
+    "@cucumber/cucumber": "^12.7.0",
+    "@size-limit/esbuild": "^12.0.0",
+    "@size-limit/esbuild-why": "^12.0.0",
+    "@size-limit/file": "^12.0.0",
+    "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "cross-env": "^10.1.0",
+    "husky": "^9.1.7",
+    "nyc": "^18.0.0",
+    "publint": "^0.3.18",
+    "size-limit": "^12.0.0",
+    "size-limit-node-esbuild": "^0.4.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "size-limit": [
+    {
+      "path": "dist/*.js",
+      "limit": "10 KB"
+    }
+  ]
 }
