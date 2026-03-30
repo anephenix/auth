@@ -3,7 +3,7 @@
 
 name: Node.js CI
 permissions:
-    contents: read
+  contents: read
 
 on:
   push:
@@ -16,28 +16,28 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-        redis:
-            image: redis:latest
-            ports:
-                - 6379:6379
-            options: >-
-                --health-cmd "redis-cli ping || exit 1"
-                --health-interval 5s
-                --health-timeout 5s
-                --health-retries 5
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
 
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
       - run: npm i
       - run: cd test/e2e_apps/app_for_password_in_separate_table && npm i
       - run: cd test/e2e_apps/app_for_password_in_users_table && npm i
