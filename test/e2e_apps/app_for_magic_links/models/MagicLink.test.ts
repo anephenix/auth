@@ -135,9 +135,10 @@ describe("MagicLinks model", () => {
 	describe("static methods", () => {
 		describe("generateTokens", () => {
 			it("should generate the token, token expire date, code and hashed code for a magic link token", async () => {
+				const beforeExpiry = Date.now() + 5 * 60 * 1000;
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await MagicLink.generateTokens();
-				const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+				const afterExpiry = Date.now() + 5 * 60 * 1000;
 				expect(isRandomString(token)).toBe(true);
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
 				expect(isRandomString(code)).toBe(true);
@@ -148,7 +149,8 @@ describe("MagicLinks model", () => {
 					hashedCode,
 				);
 				expect(isHashedCodeVerified).toBe(true);
-				expect(tokenExpiresAt).toStrictEqual(fiveMinutesFromNow);
+				expect(tokenExpiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+				expect(tokenExpiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 			});
 		});
 

@@ -230,11 +230,23 @@ describe("Auth class", () => {
 					refreshTokenExpiresIn: 86400 * 2, // 2 days
 				},
 			});
+			const beforeAccessExpiry = Date.now() + 3600 * 2 * 1000;
+			const beforeRefreshExpiry = Date.now() + 3600 * 48 * 1000;
 			const session = auth.generateSession();
-			const twoHoursFromNow = new Date(Date.now() + 3600 * 2 * 1000);
-			const twoDaysFromNow = new Date(Date.now() + 3600 * 48 * 1000);
-			expect(session.accessTokenExpiresAt).toStrictEqual(twoHoursFromNow);
-			expect(session.refreshTokenExpiresAt).toStrictEqual(twoDaysFromNow);
+			const afterAccessExpiry = Date.now() + 3600 * 2 * 1000;
+			const afterRefreshExpiry = Date.now() + 3600 * 48 * 1000;
+			expect(session.accessTokenExpiresAt.getTime()).toBeGreaterThanOrEqual(
+				beforeAccessExpiry,
+			);
+			expect(session.accessTokenExpiresAt.getTime()).toBeLessThanOrEqual(
+				afterAccessExpiry,
+			);
+			expect(session.refreshTokenExpiresAt.getTime()).toBeGreaterThanOrEqual(
+				beforeRefreshExpiry,
+			);
+			expect(session.refreshTokenExpiresAt.getTime()).toBeLessThanOrEqual(
+				afterRefreshExpiry,
+			);
 		});
 
 		it("should generate a session with custom expiration times if provided in the function", () => {
@@ -244,17 +256,25 @@ describe("Auth class", () => {
 					refreshTokenExpiresIn: 86400 * 2, // 2 days
 				},
 			});
+			const beforeAccessExpiry = Date.now() + 3600 * 0.25 * 1000;
+			const beforeRefreshExpiry = Date.now() + 3600 * 8 * 1000;
 			const uniqueSession = auth.generateSession({
 				accessTokenExpiresIn: 3600 * 0.25, // 15 minutes
 				refreshTokenExpiresIn: 3600 * 8, // 8 hours
 			});
-			const fifteenMinutesFromNow = new Date(Date.now() + 3600 * 0.25 * 1000);
-			const eightHoursFromNow = new Date(Date.now() + 3600 * 8 * 1000);
-			expect(uniqueSession.accessTokenExpiresAt).toStrictEqual(
-				fifteenMinutesFromNow,
+			const afterAccessExpiry = Date.now() + 3600 * 0.25 * 1000;
+			const afterRefreshExpiry = Date.now() + 3600 * 8 * 1000;
+			expect(
+				uniqueSession.accessTokenExpiresAt.getTime(),
+			).toBeGreaterThanOrEqual(beforeAccessExpiry);
+			expect(uniqueSession.accessTokenExpiresAt.getTime()).toBeLessThanOrEqual(
+				afterAccessExpiry,
 			);
-			expect(uniqueSession.refreshTokenExpiresAt).toStrictEqual(
-				eightHoursFromNow,
+			expect(
+				uniqueSession.refreshTokenExpiresAt.getTime(),
+			).toBeGreaterThanOrEqual(beforeRefreshExpiry);
+			expect(uniqueSession.refreshTokenExpiresAt.getTime()).toBeLessThanOrEqual(
+				afterRefreshExpiry,
 			);
 		});
 
@@ -281,14 +301,16 @@ describe("Auth class", () => {
 		describe("when using default options", () => {
 			it("should generate a token, code, and token expiration time of 5 minutes", async () => {
 				const auth = new Auth({});
+				const beforeExpiry = Date.now() + 5 * 60 * 1000;
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await auth.generateTokenAndCode();
-				const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+				const afterExpiry = Date.now() + 5 * 60 * 1000;
 				expect(isRandomString(token)).toBe(true);
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
 				expect(isRandomString(code)).toBe(true);
 				expect(isHashed(hashedCode)).toBe(true);
-				expect(tokenExpiresAt).toStrictEqual(fiveMinutesFromNow);
+				expect(tokenExpiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+				expect(tokenExpiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 			});
 		});
 
@@ -307,14 +329,16 @@ describe("Auth class", () => {
 						codeGenerator: () => "customCode",
 					},
 				});
+				const beforeExpiry = Date.now() + 10 * 60 * 1000;
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await auth.generateTokenAndCode();
-				const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+				const afterExpiry = Date.now() + 10 * 60 * 1000;
 				expect(token).toBe("customToken");
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
 				expect(code).toBe("customCode");
 				expect(isHashed(hashedCode)).toBe(true);
-				expect(tokenExpiresAt).toStrictEqual(tenMinutesFromNow);
+				expect(tokenExpiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+				expect(tokenExpiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 			});
 		});
 
@@ -325,14 +349,16 @@ describe("Auth class", () => {
 						tokenExpiresIn: 60 * 10, // 10 minutes
 					},
 				});
+				const beforeExpiry = Date.now() + 15 * 60 * 1000;
 				const { token, tokenExpiresAt, code, hashedCode } =
 					await auth.generateTokenAndCode({ tokenExpiresIn: 60 * 15 });
-				const fifteenMinutesFromNow = new Date(Date.now() + 15 * 60 * 1000);
+				const afterExpiry = Date.now() + 15 * 60 * 1000;
 				expect(isRandomString(token)).toBe(true);
 				expect(tokenExpiresAt).toBeInstanceOf(Date);
 				expect(isRandomString(code)).toBe(true);
 				expect(isHashed(hashedCode)).toBe(true);
-				expect(tokenExpiresAt).toStrictEqual(fifteenMinutesFromNow);
+				expect(tokenExpiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+				expect(tokenExpiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 			});
 		});
 	});
@@ -340,13 +366,15 @@ describe("Auth class", () => {
 	describe("#generateSmsCode", () => {
 		it("should generate a token, a code, a hashed code, and an expiration time of 5 minutes", async () => {
 			const auth = new Auth({});
+			const beforeExpiry = Date.now() + 5 * 60 * 1000;
 			const { token, code, hashedCode, expiresAt } =
 				await auth.generateSmsCode();
-			const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+			const afterExpiry = Date.now() + 5 * 60 * 1000;
 			expect(isRandomString(token)).toBe(true);
 			expect(isSmsCode(code)).toBe(true);
 			expect(isHashed(hashedCode)).toBe(true);
-			expect(expiresAt).toStrictEqual(fiveMinutesFromNow);
+			expect(expiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+			expect(expiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 		});
 
 		it("should use custom smsCodeGenerator if provided in the auth config", async () => {
@@ -356,11 +384,13 @@ describe("Auth class", () => {
 					smsCodeExpiresIn: 10 * 60, // 10 minutes
 				},
 			});
+			const beforeExpiry = Date.now() + 10 * 60 * 1000;
 			const { token, code, expiresAt } = await auth.generateSmsCode();
-			const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+			const afterExpiry = Date.now() + 10 * 60 * 1000;
 			expect(isRandomString(token)).toBe(true);
 			expect(code).toBe("customSmsCode");
-			expect(expiresAt).toStrictEqual(tenMinutesFromNow);
+			expect(expiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+			expect(expiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 		});
 	});
 
@@ -400,11 +430,13 @@ describe("Auth class", () => {
 		describe("when using default options", () => {
 			it("should generate a token and an expiration time of 30 seconds", () => {
 				const auth = new Auth({});
+				const beforeExpiry = Date.now() + 30 * 1000;
 				const { token, expiresAt } = auth.generateMfaLoginToken();
-				const thirtySecondsFromNow = new Date(Date.now() + 30 * 1000);
+				const afterExpiry = Date.now() + 30 * 1000;
 				expect(isRandomString(token)).toBe(true);
 				expect(expiresAt).toBeInstanceOf(Date);
-				expect(expiresAt).toStrictEqual(thirtySecondsFromNow);
+				expect(expiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+				expect(expiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 			});
 		});
 
@@ -423,11 +455,13 @@ describe("Auth class", () => {
 						maxAttempts: 3,
 					},
 				});
+				const beforeExpiry = Date.now() + 60 * 1000;
 				const { token, expiresAt } = auth.generateMfaLoginToken();
-				const oneMinuteFromNow = new Date(Date.now() + 60 * 1000);
+				const afterExpiry = Date.now() + 60 * 1000;
 				expect(token).toBe("customMfaToken");
 				expect(expiresAt).toBeInstanceOf(Date);
-				expect(expiresAt).toStrictEqual(oneMinuteFromNow);
+				expect(expiresAt.getTime()).toBeGreaterThanOrEqual(beforeExpiry);
+				expect(expiresAt.getTime()).toBeLessThanOrEqual(afterExpiry);
 				expect(auth.maxMfaAttempts).toBe(3);
 			});
 		});
