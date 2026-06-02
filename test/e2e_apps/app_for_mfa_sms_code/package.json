@@ -8,7 +8,8 @@
 		"sqlite3": "^6.0.1"
 	},
 	"devDependencies": {
-		"vitest": "^3.2.4"
+		"@vitest/coverage-v8": "^4.1.8",
+		"vitest": "^4.1.8"
 	},
 	"scripts": {
 		"test": "vitest run --no-file-parallelism"
