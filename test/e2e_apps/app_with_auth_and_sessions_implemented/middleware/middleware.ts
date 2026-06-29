@@ -46,8 +46,6 @@ const authenticateSession = async (
 		reply.code(401).send({ error: "Invalid session" });
 		return;
 	}
-
-	// Attach user to request for downstream handlers
 	request.access_token = session.access_token;
 	request.user = user;
 };

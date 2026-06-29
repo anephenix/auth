@@ -595,8 +595,8 @@ describe("App with Auth and Sessions Implemented", () => {
 					...Session.generateTokens(),
 				});
 
-				vi.useFakeTimers(); // Enables fake timers
-				vi.advanceTimersByTime(1000 * 60 * 60); // Simulate 1 hour passing
+				vi.useFakeTimers({ toFake: ["Date"] }); // Only mock Date, not setTimeout (which would break the DB pool)
+				vi.setSystemTime(new Date(Date.now() + 1000 * 60 * 60)); // Simulate 1 hour passing
 
 				const profileRequest = await fetch(profileUrl, {
 					method: "GET",
@@ -604,6 +604,7 @@ describe("App with Auth and Sessions Implemented", () => {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${session.access_token}`,
 					},
+					signal: AbortSignal.timeout(4000),
 				});
 				expect(profileRequest.status).toBe(401);
 				const data = await profileRequest.json();
@@ -623,20 +624,17 @@ describe("App with Auth and Sessions Implemented", () => {
 
 		describe("when the user is authenticated via API client type", () => {
 			it("should log out the user and delete the session", async () => {
-				console.log("Step 1");
 				const user = await User.query().insert({
 					username: "testuser11",
 					email: "testuser11@example.com",
 					password: "Password123!",
 				});
 
-				console.log("Step 2");
 				const session = await Session.query().insert({
 					user_id: user.id,
 					...Session.generateTokens(),
 				});
 
-				console.log("Step 3");
 				const response = await fetch(logoutUrl, {
 					method: "POST",
 					headers: {
@@ -644,16 +642,11 @@ describe("App with Auth and Sessions Implemented", () => {
 					},
 					signal: AbortSignal.timeout(4000),
 				});
-				console.log("Step 4");
 				expect(response.status).toBe(200);
-				console.log("Step 5");
 				const data = await response.json();
-				console.log("Step 6");
 				expect(data).toHaveProperty("message");
 				expect(data.message).toBe("Logged out successfully");
-				console.log("Step 7");
 				const nonExistentSession = await Session.query().findById(session.id);
-				console.log("Step 8");
 				expect(nonExistentSession).toBeUndefined(); // Session should be deleted
 			});
 

@@ -346,8 +346,8 @@ describe("app for mfa sms code", () => {
 
 				const { code } = smsCodeJob.data;
 
-				vi.useFakeTimers(); // Enables fake timers
-				vi.advanceTimersByTime(1000 * 60 * 10); // Simulate 10 minutes passing
+				vi.useFakeTimers({ toFake: ["Date"] }); // Only mock Date, not setTimeout (which would break the DB pool)
+				vi.setSystemTime(new Date(Date.now() + 1000 * 60 * 10)); // Simulate 10 minutes passing
 
 				const smsCode = await SmsCode.query().findOne({ token });
 				expect(smsCode?.expires_at).toBeDefined();

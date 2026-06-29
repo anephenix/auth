@@ -281,8 +281,8 @@ describe("E2E Tests for MFA TOTP", () => {
 				const loginResponse = await loginRequest.json();
 				const { token } = loginResponse;
 
-				vi.useFakeTimers(); // Enables fake timers
-				vi.advanceTimersByTime(1000 * 60); // Simulate 1 minute passing
+				vi.useFakeTimers({ toFake: ["Date"] }); // Only mock Date, not setTimeout (which would break the DB pool)
+				vi.setSystemTime(new Date(Date.now() + 1000 * 60)); // Simulate 1 minute passing
 
 				const verifyMfaRequest = await fetch(loginWithMfaUrl, {
 					method: "POST",

@@ -436,11 +436,11 @@ describe("Forgot Password and Reset Password Flows", () => {
 						user_id: user.id,
 						token,
 					});
-					// Enables fake timers
-					vi.useFakeTimers();
+					// Only mock Date, not setTimeout (which would break the DB pool)
+					vi.useFakeTimers({ toFake: ["Date"] });
 
 					// Simulate 1 hour passing
-					vi.advanceTimersByTime(1000 * 60 * 60);
+					vi.setSystemTime(new Date(Date.now() + 1000 * 60 * 60));
 
 					const getResetPasswordRequest = await fetch(
 						getResetPasswordUrl(forgotPassword.selector, token),
@@ -670,11 +670,11 @@ describe("Forgot Password and Reset Password Flows", () => {
 					token,
 				});
 
-				// Enables fake timers
-				vi.useFakeTimers();
+				// Only mock Date, not setTimeout (which would break the DB pool)
+				vi.useFakeTimers({ toFake: ["Date"] });
 
 				// Simulate 1 hour passing
-				vi.advanceTimersByTime(1000 * 60 * 60);
+				vi.setSystemTime(new Date(Date.now() + 1000 * 60 * 60));
 
 				const postResetPasswordRequest = await fetch(postResetPasswordUrl, {
 					method: "POST",
