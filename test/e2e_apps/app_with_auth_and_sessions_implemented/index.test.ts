@@ -623,28 +623,36 @@ describe("App with Auth and Sessions Implemented", () => {
 
 		describe("when the user is authenticated via API client type", () => {
 			it("should log out the user and delete the session", async () => {
+				console.log("Step 1");
 				const user = await User.query().insert({
 					username: "testuser11",
 					email: "testuser11@example.com",
 					password: "Password123!",
 				});
 
+				console.log("Step 2");
 				const session = await Session.query().insert({
 					user_id: user.id,
 					...Session.generateTokens(),
 				});
 
+				console.log("Step 3");
 				const response = await fetch(logoutUrl, {
 					method: "POST",
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
 					},
 				});
+				console.log("Step 4");
 				expect(response.status).toBe(200);
+				console.log("Step 5");
 				const data = await response.json();
+				console.log("Step 6");
 				expect(data).toHaveProperty("message");
 				expect(data.message).toBe("Logged out successfully");
+				console.log("Step 7");
 				const nonExistentSession = await Session.query().findById(session.id);
+				console.log("Step 8");
 				expect(nonExistentSession).toBeUndefined(); // Session should be deleted
 			});
 
