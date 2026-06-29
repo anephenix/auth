@@ -642,6 +642,7 @@ describe("App with Auth and Sessions Implemented", () => {
 					headers: {
 						Authorization: `Bearer ${session.access_token}`,
 					},
+					signal: AbortSignal.timeout(4000),
 				});
 				console.log("Step 4");
 				expect(response.status).toBe(200);
