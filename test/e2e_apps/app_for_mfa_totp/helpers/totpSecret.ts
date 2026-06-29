@@ -4,7 +4,7 @@ import config from "../config";
 // We get this from the environment variables, it should be set in the .env file
 const { totpSecretEncryptionKey } = config.totp;
 
-if (!totpSecretEncryptionKey || totpSecretEncryptionKey.length !== 64) {
+if (totpSecretEncryptionKey?.length !== 64) {
 	throw new Error(
 		"TOTP_SECRET_ENCRYPTION_KEY must be set and be 64 characters long (32 bytes in hex)",
 	);
