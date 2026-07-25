@@ -171,7 +171,7 @@ describe("Auth class", () => {
 			const hashedPassword = await auth.hashPassword("plaintextPassword");
 			expect(hashedPassword.includes("plaintextPassword")).toBe(false);
 			expect(hashedPassword).toMatch(
-				/^\$argon2id\$v=(?:16|19)\$m=\d{1,10},t=\d{1,10},p=\d{1,3}(?:,keyid=[A-Za-z0-9+/]{0,11}(?:,data=[A-Za-z0-9+/]{0,43})?)?\$[A-Za-z0-9+/]{11,64}\$[A-Za-z0-9+/]{16,86}$/i,
+				/^\$argon2id\$v=(?:16|19)\$m=\d{1,10},p=\d{1,3},t=\d{1,10}(?:,keyid=[A-Za-z0-9+/]{0,11}(?:,data=[A-Za-z0-9+/]{0,43})?)?\$[A-Za-z0-9+/]{11,64}\$[A-Za-z0-9+/]{16,86}$/i,
 			);
 		});
 	});

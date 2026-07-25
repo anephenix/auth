@@ -39,7 +39,7 @@
 		"watch": "tsc --project tsconfig.json --watch"
 	},
 	"dependencies": {
-		"argon2": "^0.44.0"
+		"argon2": "^0.45.1"
 	},
 	"devDependencies": {
 		"@anephenix/fastify-resource": "^0.0.12",
