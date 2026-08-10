@@ -44,7 +44,7 @@
 	"devDependencies": {
 		"@anephenix/fastify-resource": "^0.0.12",
 		"@biomejs/biome": "2.5.6",
-		"@cucumber/cucumber": "^13.2.0",
+		"@cucumber/cucumber": "^13.2.1",
 		"@size-limit/esbuild": "^13.0.1",
 		"@size-limit/esbuild-why": "^13.0.1",
 		"@size-limit/file": "^13.0.1",
