@@ -446,6 +446,37 @@ describe("E2E Tests for MFA TOTP", () => {
 		});
 	});
 
+	describe("brute force protection on login", () => {
+		it("should lock the account out after reaching the configured maximum number of failed attempts", async () => {
+			await User.query().insert({
+				username: "lockoutuser",
+				email: "lockoutuser@example.com",
+				password: "ValidPassword123!",
+				mobile_number: "07711 123456",
+			});
+
+			const attemptLogin = async (password: string) =>
+				await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ identifier: "lockoutuser", password }),
+				});
+
+			// auth.maxLoginAttempts is 3 for this app (see auth.ts)
+			for (let i = 0; i < 3; i++) {
+				const response = await attemptLogin("WrongPassword123!");
+				expect(response.status).toBe(401);
+			}
+
+			const blockedResponse = await attemptLogin("ValidPassword123!");
+			expect(blockedResponse.status).toBe(401);
+			const blockedData = await blockedResponse.json();
+			expect(blockedData.error).toMatch(/Too many login attempts/);
+		});
+	});
+
 	describe("disabling MFA TOTP for a user", () => {
 		it("should support the flow of disabling MFA TOTP for a user who is logged in", async () => {
 			const user = await User.query().insert({

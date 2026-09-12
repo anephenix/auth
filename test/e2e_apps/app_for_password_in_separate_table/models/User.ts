@@ -11,6 +11,8 @@ export class User extends Model {
 	id!: number;
 	username!: string;
 	email?: string;
+	failed_login_attempts!: number;
+	failed_login_window_started_at?: string | null;
 
 	static get tableName() {
 		return "users";
@@ -48,6 +50,28 @@ export class User extends Model {
 		const key = isEmail(normalizedIdentifier) ? "email" : "username";
 		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
+
+		/*
+			The rate limit window resets once it has expired, so we work out
+			up front whether the stored attempt count is still relevant.
+		*/
+		const windowExpired =
+			!user?.failed_login_window_started_at ||
+			Date.now() - new Date(user.failed_login_window_started_at).getTime() >=
+				auth.loginWindowSeconds * 1000;
+
+		if (user && !windowExpired) {
+			const rateLimitStatus = auth.checkRateLimit({
+				attempts: user.failed_login_attempts,
+				firstAttemptAt: user.failed_login_window_started_at as string,
+			});
+			if (rateLimitStatus.blocked) {
+				throw new Error(
+					`Too many login attempts. Please try again in ${rateLimitStatus.retryAfter} seconds.`,
+				);
+			}
+		}
+
 		/*
 			I discovered that the created_at field's timestamps are accurate to the second,
 			which means that we cannot reliably use them in a unit test to determine the most recent password.
@@ -68,13 +92,32 @@ export class User extends Model {
 			password,
 			passwordRecord?.hashed_password,
 		);
-		if (!isAuthenticated || !user) {
-			throw new Error("Invalid credentials");
+
+		if (isAuthenticated && user) {
+			if (user.failed_login_attempts > 0) {
+				await user.$query().patch({
+					failed_login_attempts: 0,
+					failed_login_window_started_at: null,
+				});
+			}
+			return {
+				id: user.id,
+				username: user.username,
+			};
 		}
-		return {
-			id: user.id,
-			username: user.username,
-		};
+
+		if (user) {
+			await user.$query().patch({
+				failed_login_attempts: windowExpired
+					? 1
+					: user.failed_login_attempts + 1,
+				failed_login_window_started_at: windowExpired
+					? new Date().toISOString()
+					: user.failed_login_window_started_at,
+			});
+		}
+
+		throw new Error("Invalid credentials");
 	}
 }
 

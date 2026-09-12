@@ -12,6 +12,8 @@ export class User extends Model {
 	email!: string;
 	password?: string;
 	hashed_password!: string;
+	failed_login_attempts!: number;
+	failed_login_window_started_at?: string | null;
 	created_at!: string;
 	updated_at!: string;
 
@@ -76,6 +78,12 @@ export class User extends Model {
 					maxLength: 255,
 					writeOnly: true,
 				},
+				failed_login_attempts: { type: "integer", writeOnly: true },
+				failed_login_window_started_at: {
+					type: ["string", "null"],
+					format: "date-time",
+					writeOnly: true,
+				},
 				created_at: {
 					type: "string",
 					format: "date-time",
@@ -94,16 +102,57 @@ export class User extends Model {
 		const key = isEmail(normalizedIdentifier) ? "email" : "username";
 		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
+
+		/*
+			The rate limit window resets once it has expired, so we work out
+			up front whether the stored attempt count is still relevant.
+		*/
+		const windowExpired =
+			!user?.failed_login_window_started_at ||
+			Date.now() - new Date(user.failed_login_window_started_at).getTime() >=
+				auth.loginWindowSeconds * 1000;
+
+		if (user && !windowExpired) {
+			const rateLimitStatus = auth.checkRateLimit({
+				attempts: user.failed_login_attempts,
+				firstAttemptAt: user.failed_login_window_started_at as string,
+			});
+			if (rateLimitStatus.blocked) {
+				throw new Error(
+					`Too many login attempts. Please try again in ${rateLimitStatus.retryAfter} seconds.`,
+				);
+			}
+		}
+
 		const isAuthenticated = await auth.verifyPasswordSafe(
 			password,
 			user?.hashed_password,
 		);
-		if (!isAuthenticated || !user) {
-			throw new Error("Invalid credentials");
+
+		if (isAuthenticated && user) {
+			if (user.failed_login_attempts > 0) {
+				await user.$query().patch({
+					failed_login_attempts: 0,
+					failed_login_window_started_at: null,
+				});
+			}
+			return {
+				id: user.id,
+				username: user.username,
+			};
 		}
-		return {
-			id: user.id,
-			username: user.username,
-		};
+
+		if (user) {
+			await user.$query().patch({
+				failed_login_attempts: windowExpired
+					? 1
+					: user.failed_login_attempts + 1,
+				failed_login_window_started_at: windowExpired
+					? new Date().toISOString()
+					: user.failed_login_window_started_at,
+			});
+		}
+
+		throw new Error("Invalid credentials");
 	}
 }

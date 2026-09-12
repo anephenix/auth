@@ -708,4 +708,28 @@ describe("Forgot Password and Reset Password Flows", () => {
 			});
 		});
 	});
+
+	describe("brute force protection on login", () => {
+		it("should lock the account out after reaching the configured maximum number of failed attempts", async () => {
+			await User.query().insert({
+				username: "lockoutuser",
+				email: "lockoutuser@example.com",
+				password: "ValidPassword123!",
+			});
+
+			const attemptLogin = (password: string) =>
+				User.authenticate({ identifier: "lockoutuser", password });
+
+			// auth.maxLoginAttempts is 3 for this app (see auth.ts)
+			for (let i = 0; i < 3; i++) {
+				await expect(attemptLogin("WrongPassword!")).rejects.toThrowError(
+					"Invalid credentials",
+				);
+			}
+
+			await expect(attemptLogin("ValidPassword123!")).rejects.toThrowError(
+				/Too many login attempts/,
+			);
+		});
+	});
 });

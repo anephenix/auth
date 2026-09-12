@@ -463,6 +463,82 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(data.error).toBe("Invalid credentials");
 			});
 		});
+
+		describe("brute force protection", () => {
+			const attemptLogin = async (password: string) =>
+				await fetch(loginUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ identifier: "lockoutuser", password }),
+				});
+
+			it("should lock the account out after reaching the configured maximum number of failed attempts", async () => {
+				await User.query().insert({
+					username: "lockoutuser",
+					email: "lockoutuser@example.com",
+					password: "Password123!",
+				});
+
+				// auth.maxLoginAttempts is 3 for this app (see auth.ts)
+				for (let i = 0; i < 3; i++) {
+					const response = await attemptLogin("WrongPassword!");
+					expect(response.status).toBe(401);
+					const data = await response.json();
+					expect(data.error).toBe("Invalid credentials");
+				}
+
+				// The 4th attempt is blocked before the password is even checked,
+				// even though we now supply the correct password.
+				const blockedResponse = await attemptLogin("Password123!");
+				expect(blockedResponse.status).toBe(401);
+				const blockedData = await blockedResponse.json();
+				expect(blockedData.error).toMatch(/Too many login attempts/);
+			});
+
+			it("should reset the failed attempt count after a successful login", async () => {
+				await User.query().insert({
+					username: "lockoutuser",
+					email: "lockoutuser@example.com",
+					password: "Password123!",
+				});
+
+				await attemptLogin("WrongPassword!");
+				await attemptLogin("WrongPassword!");
+
+				const successResponse = await attemptLogin("Password123!");
+				expect(successResponse.status).toBe(201);
+
+				const user = await User.query().findOne({ username: "lockoutuser" });
+				expect(user?.failed_login_attempts).toBe(0);
+				expect(user?.failed_login_window_started_at).toBeNull();
+			});
+
+			it("should allow login attempts again once the rate limit window has expired", async () => {
+				const user = await User.query().insert({
+					username: "lockoutuser",
+					email: "lockoutuser@example.com",
+					password: "Password123!",
+				});
+
+				for (let i = 0; i < 3; i++) {
+					await attemptLogin("WrongPassword!");
+				}
+				const blockedResponse = await attemptLogin("Password123!");
+				expect(blockedResponse.status).toBe(401);
+
+				// Simulate the rate limit window (60 seconds) having expired.
+				await user.$query().patch({
+					failed_login_window_started_at: new Date(
+						Date.now() - 61 * 1000,
+					).toISOString(),
+				});
+
+				const response = await attemptLogin("Password123!");
+				expect(response.status).toBe(201);
+			});
+		});
 	});
 
 	describe("GET /profile", () => {

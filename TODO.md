@@ -17,10 +17,9 @@
 - [x] Look at supporting reset password flow
 - [x] Implement a way to ensure that username lookup timing attacks can't happen (establish that a username is valid within a system)
 - [x] Implement the same principle for passwords
+- [x] Add rate limiting / brute force protection to the e2e app login flows using `auth.checkRateLimit`
 
 ## Now
-
-- [ ] Add rate limiting / brute force protection to the e2e app login flows using `auth.checkRateLimit`
 
 ## Next
 

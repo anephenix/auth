@@ -122,5 +122,46 @@ describe("E2E Tests for User Creation and Password Handling with the password st
 				).rejects.toThrowError("Invalid credentials");
 			});
 		});
+
+		describe("brute force protection", () => {
+			it("should lock the account out after reaching the configured maximum number of failed attempts", async () => {
+				await User.query().insert({
+					username: "lockoutuser",
+					password: "ValidPassword123!",
+				});
+
+				const attemptLogin = (password: string) =>
+					User.authenticate({ identifier: "lockoutuser", password });
+
+				// auth.maxLoginAttempts is 3 for this app (see auth.ts)
+				for (let i = 0; i < 3; i++) {
+					await expect(attemptLogin("WrongPassword!")).rejects.toThrowError(
+						"Invalid credentials",
+					);
+				}
+
+				await expect(attemptLogin("ValidPassword123!")).rejects.toThrowError(
+					/Too many login attempts/,
+				);
+			});
+
+			it("should reset the failed attempt count after a successful login", async () => {
+				await User.query().insert({
+					username: "lockoutuser",
+					password: "ValidPassword123!",
+				});
+
+				const attemptLogin = (password: string) =>
+					User.authenticate({ identifier: "lockoutuser", password });
+
+				await expect(attemptLogin("WrongPassword!")).rejects.toThrowError();
+				await expect(attemptLogin("WrongPassword!")).rejects.toThrowError();
+				await expect(attemptLogin("ValidPassword123!")).resolves.toBeTruthy();
+
+				const user = await User.query().findOne({ username: "lockoutuser" });
+				expect(user?.failed_login_attempts).toBe(0);
+				expect(user?.failed_login_window_started_at).toBeNull();
+			});
+		});
 	});
 });

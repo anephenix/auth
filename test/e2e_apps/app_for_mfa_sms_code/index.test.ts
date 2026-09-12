@@ -159,6 +159,37 @@ describe("app for mfa sms code", () => {
 				expect(smsCode.length).toBe(0);
 			});
 		});
+
+		describe("brute force protection", () => {
+			const attemptLogin = async (password: string) =>
+				await fetch(sessionsUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ identifier: "lockoutuser", password }),
+				});
+
+			it("should lock the account out after reaching the configured maximum number of failed attempts", async () => {
+				await User.query().insert({
+					username: "lockoutuser",
+					email: "lockoutuser@example.com",
+					password: "ValidPassword!123",
+					mobile_number: "07711 123456",
+				});
+
+				// auth.maxLoginAttempts is 3 for this app (see auth.ts)
+				for (let i = 0; i < 3; i++) {
+					const response = await attemptLogin("WrongPassword!123");
+					expect(response.status).toBe(401);
+				}
+
+				const blockedResponse = await attemptLogin("ValidPassword!123");
+				expect(blockedResponse.status).toBe(401);
+				const blockedData = await blockedResponse.json();
+				expect(blockedData.error).toMatch(/Too many login attempts/);
+			});
+		});
 	});
 
 	describe("POST /sessions/verify-code", () => {

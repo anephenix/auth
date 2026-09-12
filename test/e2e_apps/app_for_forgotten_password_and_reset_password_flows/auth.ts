@@ -9,6 +9,10 @@ const auth = new Auth({
 		requireNumbers: true,
 		requireSpecialCharacters: true,
 	},
+	loginOptions: {
+		maxAttempts: 3,
+		windowSeconds: 60, // 1 minute
+	},
 });
 
 export default auth;

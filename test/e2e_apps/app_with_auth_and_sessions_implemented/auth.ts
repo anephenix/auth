@@ -13,6 +13,10 @@ const auth = new Auth({
 		accessTokenExpiresIn: 60 * 15, // 15 minutes
 		refreshTokenExpiresIn: 86400 * 7, // 7 days
 	},
+	loginOptions: {
+		maxAttempts: 3,
+		windowSeconds: 60, // 1 minute
+	},
 });
 
 export default auth;
