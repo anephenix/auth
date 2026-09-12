@@ -1,5 +1,411 @@
 # CHANGELOG
 
+### 0.0.7 - Saturday 12th September, 2026
+
+- Wire rate limiting into e2e app login flows
+- Implemented a fix for timing attack on the verifyPasswrod function, and implemented rate limit checking logic for attempting password logins
+- Merge pull request #254 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-5.0.0
+- Updated dependencies
+- Merge branch 'main' into dependabot/npm_and_yarn/vitest/coverage-v8-5.0.0
+- Merge pull request #251 from anephenix/dependabot/npm_and_yarn/anephenix/fastify-resource-0.0.14
+- Bump @vitest/coverage-v8 from 4.1.11 to 5.0.0
+- Bump @anephenix/fastify-resource from 0.0.12 to 0.0.14
+- Merge pull request #253 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.12
+- Merge pull request #252 from anephenix/dependabot/npm_and_yarn/types/node-26.4.1
+- Bump @biomejs/biome from 2.5.11 to 2.5.12
+- Bump @types/node from 26.4.0 to 26.4.1
+- Merge pull request #250 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/fast-uri-3.1.7
+- Merge pull request #249 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/fast-uri-3.1.7
+- Merge pull request #248 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/fast-uri-3.1.7
+- Bump fast-uri
+- Bump fast-uri in /test/e2e_apps/app_for_password_in_users_table
+- Merge pull request #247 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/multi-db0bac8a53
+- Bump fast-uri in /test/e2e_apps/app_for_password_in_separate_table
+- Merge pull request #246 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/multi-db0bac8a53
+- Merge pull request #245 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/multi-db0bac8a53
+- Merge pull request #244 from anephenix/dependabot/npm_and_yarn/multi-db0bac8a53
+- Merge pull request #243 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/multi-db0bac8a53
+- Bump fast-uri in /test/e2e_apps/app_for_mfa_sms_code
+- Bump fast-uri in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Bump fast-uri in /test/e2e_apps/app_for_magic_links
+- Bump fast-uri
+- Bump fast-uri in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #242 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.11
+- Merge pull request #241 from anephenix/dependabot/npm_and_yarn/types/node-26.4.0
+- Bump @biomejs/biome from 2.5.9 to 2.5.11
+- Bump @types/node from 26.2.0 to 26.4.0
+- Merge pull request #240 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.9
+- Bump @biomejs/biome from 2.5.8 to 2.5.9
+- Updated dependencies
+- Merge pull request #238 from anephenix/dependabot/npm_and_yarn/types/node-26.2.0
+- Merge pull request #239 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.8
+- Bump @biomejs/biome from 2.5.7 to 2.5.8
+- Bump @types/node from 26.1.2 to 26.2.0
+- Merge pull request #236 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.7
+- Bump @biomejs/biome from 2.5.6 to 2.5.7
+- Merge pull request #237 from anephenix/dependabot/npm_and_yarn/publint-0.3.23
+- Merge pull request #235 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-13.2.1
+- Bump publint from 0.3.22 to 0.3.23
+- Bump @cucumber/cucumber from 13.2.0 to 13.2.1
+- Updated dependencies
+- Merge pull request #230 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/fast-uri-3.1.5
+- Merge pull request #231 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/postcss-8.5.25
+- Merge pull request #229 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/undici-6.28.0
+- Bump fast-uri in /test/e2e_apps/app_for_password_in_users_table
+- Bump postcss in /test/e2e_apps/app_for_password_in_users_table
+- Bump undici in /test/e2e_apps/app_for_password_in_users_table
+- Merge pull request #228 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/multi-636905840e
+- Bump fast-uri in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #227 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.6
+- Bump @biomejs/biome from 2.5.5 to 2.5.6
+- Updated dependencies
+- Merge pull request #222 from anephenix/dependabot/npm_and_yarn/size-limit/file-13.0.1
+- Updated dependencies
+- Merge pull request #223 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.5
+- Bump @biomejs/biome from 2.5.4 to 2.5.5
+- Bump @size-limit/file from 12.1.0 to 13.0.1
+- Implemented some pending unit tests for the middleware for the app_with_auth_and_sessions_implemented e2e test application
+- Merge pull request #214 from anephenix/dependabot/npm_and_yarn/argon2-0.45.0
+- Updated the regular expression that checks for Argon's hashed output
+- Bump argon2 from 0.44.0 to 0.45.1
+- Updated dependencies
+- Merge pull request #221 from anephenix/dependabot/npm_and_yarn/fast-uri-3.1.4
+- Merge pull request #220 from anephenix/dependabot/npm_and_yarn/find-my-way-9.7.0
+- Merge pull request #219 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/fast-uri-3.1.4
+- Bump fast-uri from 3.1.3 to 3.1.4
+- Bump find-my-way from 9.6.0 to 9.7.0
+- Bump fast-uri
+- Merge pull request #218 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/fast-uri-3.1.4
+- Merge pull request #216 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-13.2.0
+- Merge pull request #217 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/find-my-way-9.7.0
+- Bump @cucumber/cucumber from 13.0.0 to 13.2.0
+- Bump fast-uri in /test/e2e_apps/app_for_password_in_users_table
+- Bump find-my-way
+- Merge pull request #215 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.4
+- Bump @biomejs/biome from 2.5.3 to 2.5.4
+- Merge pull request #212 from anephenix/dependabot/npm_and_yarn/typescript-7.0.2
+- Merge pull request #213 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.3
+- Bump @biomejs/biome from 2.5.2 to 2.5.3
+- Bump typescript from 6.0.3 to 7.0.2
+- Merge branch 'main' of github.com:anephenix/auth
+- Updated dependencies and TypeScript version and biome schema
+- Merge pull request #210 from anephenix/dependabot/npm_and_yarn/vitest-4.1.10
+- Merge pull request #208 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.10
+- Bump vitest from 4.1.9 to 4.1.10
+- Bump @vitest/coverage-v8 from 4.1.9 to 4.1.10
+- Merge pull request #211 from anephenix/dependabot/npm_and_yarn/types/node-26.1.0
+- Merge pull request #209 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.2
+- Bump @types/node from 26.0.1 to 26.1.0
+- Bump @biomejs/biome from 2.5.1 to 2.5.2
+- Merge pull request #207 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.1
+- Bump @biomejs/biome from 2.5.0 to 2.5.1
+- Fixed an issue in GitHub Actions, which spotted that the tests use of fakeTimer was affecting setTimeout, which affected knex's connection pooling logic
+- Added some more debugging to work out what is going on
+- Added some logging to see where the timeout may be occurring
+- Updated dependencies
+- Another tweak to the GitHub action runner
+- Adjust vitest config to resolve a timeout issue with the GitHub action runner
+- Test tweak to GitHub Action
+- Formatting fixes
+- Updated dependencies
+- Updated dependencies
+- Merge branch 'main' of github.com:anephenix/auth
+- Updated dependencies in the test apps
+- Merge pull request #206 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/undici-6.27.0
+- Bump undici
+- Merge pull request #205 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/undici-6.27.0
+- Bump undici from 6.26.0 to 6.27.0 in /test/e2e_apps/app_for_magic_links
+- Merge pull request #204 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/undici-6.27.0
+- Bump undici from 6.26.0 to 6.27.0 in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #203 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/undici-6.27.0
+- Bump undici from 6.26.0 to 6.27.0 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #202 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/undici-6.27.0
+- Bump undici in /test/e2e_apps/app_for_password_in_separate_table
+- Merge pull request #201 from anephenix/dependabot/npm_and_yarn/types/node-26.0.0
+- Bump @types/node from 25.9.3 to 26.0.0
+- Merge pull request #197 from anephenix/dependabot/npm_and_yarn/vitest-4.1.9
+- Merge pull request #200 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.9
+- Bump vitest from 4.1.8 to 4.1.9
+- Bump @vitest/coverage-v8 from 4.1.8 to 4.1.9
+- Merge pull request #199 from anephenix/dependabot/npm_and_yarn/types/node-25.9.3
+- Merge pull request #198 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.0
+- Bump @types/node from 25.9.2 to 25.9.3
+- Bump @biomejs/biome from 2.4.16 to 2.5.0
+- Merge pull request #196 from anephenix/dependabot/npm_and_yarn/esbuild-0.28.1
+- Bump esbuild from 0.28.0 to 0.28.1
+- Merge pull request #195 from anephenix/dependabot/npm_and_yarn/types/node-25.9.2
+- Bump @types/node from 25.9.1 to 25.9.2
+- Updated vitest and @vitest/coverage-v8 dependencies
+- Merge branch 'main' of github.com:anephenix/auth
+- Updated dependencies
+- Merge pull request #192 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.16
+- Bump @biomejs/biome from 2.4.15 to 2.4.16
+- Merge pull request #191 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-13.0.0
+- Merge pull request #194 from anephenix/dependabot/npm_and_yarn/vitest-4.1.8
+- Merge pull request #193 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.8
+- Bump vitest from 4.1.7 to 4.1.8
+- Bump @vitest/coverage-v8 from 4.1.7 to 4.1.8
+- Bump @cucumber/cucumber from 12.9.0 to 13.0.0
+- Merge pull request #190 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/vitest-4.1.0
+- Merge pull request #189 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/vitest-4.1.0
+- Bump vitest from 3.2.4 to 4.1.0 in /test/e2e_apps/app_for_magic_links
+- Bump vitest in /test/e2e_apps/app_for_password_in_separate_table
+- Merge pull request #187 from anephenix/dependabot/npm_and_yarn/vitest-4.1.7
+- Merge pull request #186 from anephenix/dependabot/npm_and_yarn/types/node-25.9.1
+- Bump vitest from 4.1.6 to 4.1.7
+- Bump @types/node from 25.9.0 to 25.9.1
+- Merge pull request #184 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.9.0
+- Merge pull request #183 from anephenix/dependabot/npm_and_yarn/publint-0.3.21
+- Merge pull request #185 from anephenix/dependabot/npm_and_yarn/types/node-25.9.0
+- Bump @types/node from 25.7.0 to 25.9.0
+- Bump @cucumber/cucumber from 12.8.2 to 12.9.0
+- Bump publint from 0.3.20 to 0.3.21
+- Merge pull request #181 from anephenix/dependabot/npm_and_yarn/vitest-4.1.6
+- Merge pull request #178 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.6
+- bump vitest from 4.1.5 to 4.1.6
+- Bump @vitest/coverage-v8 from 4.1.5 to 4.1.6
+- Merge pull request #182 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.15
+- Merge pull request #180 from anephenix/dependabot/npm_and_yarn/types/node-25.7.0
+- Merge pull request #179 from anephenix/dependabot/npm_and_yarn/publint-0.3.20
+- Bump @biomejs/biome from 2.4.14 to 2.4.15
+- Bump @types/node from 25.6.0 to 25.7.0
+- Bump publint from 0.3.18 to 0.3.20
+- Merge pull request #177 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/fast-uri-3.1.2
+- Merge pull request #176 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/fast-uri-3.1.2
+- Merge pull request #174 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/fast-uri-3.1.2
+- Merge pull request #173 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/fast-uri-3.1.2
+- Bump fast-uri in /test/e2e_apps/app_for_password_in_users_table
+- Bump fast-uri
+- Bump fast-uri in /test/e2e_apps/app_for_password_in_separate_table
+- Bump fast-uri from 3.1.0 to 3.1.2 in /test/e2e_apps/app_for_magic_links
+- Merge pull request #172 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/fast-uri-3.1.2
+- Merge pull request #171 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/fast-uri-3.1.2
+- Merge pull request #170 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/fast-uri-3.1.2
+- Merge pull request #175 from anephenix/dependabot/npm_and_yarn/fast-uri-3.1.2
+- Bump fast-uri from 3.1.0 to 3.1.2
+- Bump fast-uri in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Bump fast-uri from 3.1.0 to 3.1.2 in /test/e2e_apps/app_for_mfa_totp
+- Bump fast-uri from 3.1.0 to 3.1.2 in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #169 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.14
+- Bump @biomejs/biome from 2.4.13 to 2.4.14
+- Updated dependencies
+- Merge pull request #167 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.8.2
+- Bump @cucumber/cucumber from 12.8.1 to 12.8.2
+- Merge pull request #168 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.13
+- Merge pull request #166 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.5
+- Merge pull request #165 from anephenix/dependabot/npm_and_yarn/vitest-4.1.5
+- Bump @biomejs/biome from 2.4.11 to 2.4.13
+- Bump @vitest/coverage-v8 from 4.1.4 to 4.1.5
+- Bump vitest from 4.1.4 to 4.1.5
+- Updated dependencies for the test apps
+- Updated dependencies
+- Merge pull request #163 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.8.1
+- Merge pull request #161 from anephenix/dependabot/npm_and_yarn/typescript-6.0.3
+- Bump @cucumber/cucumber from 12.7.0 to 12.8.1
+- Bump typescript from 6.0.2 to 6.0.3
+- Merge pull request #158 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/fastify-5.8.5
+- Merge pull request #157 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/fastify-5.8.5
+- Merge pull request #156 from anephenix/dependabot/npm_and_yarn/fastify-5.8.5
+- Merge pull request #155 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/fastify-5.8.5
+- Bump fastify from 5.8.4 to 5.8.5 in /test/e2e_apps/app_for_magic_links
+- Bump fastify in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Bump fastify from 5.8.4 to 5.8.5
+- Bump fastify from 5.8.4 to 5.8.5 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #154 from anephenix/dependabot/npm_and_yarn/types/node-25.6.0
+- Bump @types/node from 25.5.2 to 25.6.0
+- Merge pull request #152 from anephenix/dependabot/npm_and_yarn/vitest-4.1.4
+- Merge pull request #153 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.4
+- Merge pull request #151 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.11
+- Bump @biomejs/biome from 2.4.10 to 2.4.11
+- Merge pull request #150 from anephenix/dependabot/npm_and_yarn/anephenix/fastify-resource-0.0.12
+- Bump @vitest/coverage-v8 from 4.1.2 to 4.1.4
+- Bump vitest from 4.1.2 to 4.1.4
+- Bump @anephenix/fastify-resource from 0.0.11 to 0.0.12
+- Made timestamp test assertions accommodate for 1ms variation between the execution and the timestamp check
+- Updated dependencies
+- Merge pull request #149 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/lodash-4.18.1
+- Merge pull request #148 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/lodash-4.18.1
+- Bump lodash in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Bump lodash from 4.17.23 to 4.18.1 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #147 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/lodash-4.18.1
+- Bump lodash
+- Merge pull request #146 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/lodash-4.18.1
+- Merge pull request #143 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/vite-7.3.2
+- Merge pull request #142 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/vite-7.3.2
+- Bump lodash from 4.17.23 to 4.18.1 in /test/e2e_apps/app_for_magic_links
+- Merge pull request #144 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/vite-7.3.2
+- Merge pull request #141 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/vite-7.3.2
+- Merge pull request #145 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/lodash-4.18.1
+- Merge pull request #140 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/vite-7.3.2
+- Bump vite from 7.3.1 to 7.3.2 in /test/e2e_apps/app_for_mfa_sms_code
+- Bump vite from 7.3.1 to 7.3.2 in /test/e2e_apps/app_for_magic_links
+- Bump vite
+- Bump vite in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Bump vite from 7.3.1 to 7.3.2 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #139 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/vite-7.3.2
+- Merge pull request #138 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/vite-7.3.2
+- Merge pull request #137 from anephenix/dependabot/npm_and_yarn/vite-8.0.5
+- Bump lodash in /test/e2e_apps/app_for_password_in_separate_table
+- Merge pull request #136 from anephenix/dependabot/npm_and_yarn/types/node-25.5.2
+- Merge pull request #135 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.10
+- Bump vite in /test/e2e_apps/app_for_password_in_users_table
+- Bump vite in /test/e2e_apps/app_for_password_in_separate_table
+- Bump vite from 8.0.3 to 8.0.5
+- Bump @types/node from 25.5.0 to 25.5.2
+- Bump @biomejs/biome from 2.4.9 to 2.4.10
+- Merge pull request #132 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.2
+- Various updates
+- Merge pull request #133 from anephenix/dependabot/npm_and_yarn/typescript-6.0.2
+- Merge pull request #131 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.9
+- Bump typescript from 5.9.3 to 6.0.2
+- Bump @vitest/coverage-v8 from 4.1.0 to 4.1.2
+- Bump @biomejs/biome from 2.4.8 to 2.4.9
+- Merge pull request #130 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/brace-expansion-5.0.5
+- Merge pull request #129 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/brace-expansion-5.0.5
+- Bump brace-expansion
+- Bump brace-expansion in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #128 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/picomatch-4.0.4
+- Merge pull request #127 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/picomatch-4.0.4
+- Merge pull request #126 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/picomatch-4.0.4
+- Merge pull request #125 from anephenix/dependabot/npm_and_yarn/picomatch-4.0.4
+- Merge pull request #124 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/picomatch-4.0.4
+- Merge pull request #123 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/fastify-5.8.3
+- Bump picomatch
+- Bump picomatch in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Bump picomatch from 4.0.3 to 4.0.4 in /test/e2e_apps/app_for_magic_links
+- Merge pull request #122 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/fastify-5.8.3
+- Bump picomatch from 4.0.3 to 4.0.4
+- Merge pull request #121 from anephenix/dependabot/npm_and_yarn/fastify-5.8.4
+- Bump picomatch in /test/e2e_apps/app_for_password_in_separate_table
+- Merge pull request #120 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/fastify-5.8.3
+- Merge pull request #119 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_with_auth_and_sessions_implemented/fastify-5.8.3
+- Bump fastify from 5.8.2 to 5.8.3 in /test/e2e_apps/app_for_mfa_totp
+- Bump fastify from 5.8.2 to 5.8.3 in /test/e2e_apps/app_for_mfa_sms_code
+- Bump fastify from 5.8.2 to 5.8.4
+- Bump fastify from 5.8.2 to 5.8.3 in /test/e2e_apps/app_for_magic_links
+- Bump fastify in /test/e2e_apps/app_with_auth_and_sessions_implemented
+- Merge pull request #118 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.8
+- Bump @biomejs/biome from 2.4.7 to 2.4.8
+- Updated sqlite3 dependency across E2E tests
+- Updated dependencies, added a format command, and applied linting fixes
+- Merge pull request #117 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/multi-637a44619b
+- Merge pull request #113 from anephenix/dependabot/npm_and_yarn/types/node-25.5.0
+- Bump @types/node from 25.4.0 to 25.5.0
+- Merge pull request #115 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.1.0
+- Bump @vitest/coverage-v8 from 4.0.18 to 4.1.0
+- Bump tar and sqlite3
+- Merge pull request #114 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.7
+- Bump @biomejs/biome from 2.4.6 to 2.4.7
+- Updated dependencies
+- Merge pull request #112 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.6
+- Bump @biomejs/biome from 2.4.4 to 2.4.6
+- Updated dependencies
+- Merge pull request #111 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/fastify-5.8.1
+- Bump fastify from 5.7.4 to 5.8.1 in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #109 from anephenix/dependabot/npm_and_yarn/publint-0.3.18
+- Bump publint from 0.3.17 to 0.3.18
+- Merge pull request #108 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.7.0
+- Merge pull request #110 from anephenix/dependabot/npm_and_yarn/nyc-18.0.0
+- Merge pull request #107 from anephenix/dependabot/npm_and_yarn/types/node-25.3.3
+- Bump nyc from 17.1.0 to 18.0.0
+- Bump @cucumber/cucumber from 12.6.0 to 12.7.0
+- Bump @types/node from 25.3.0 to 25.3.3
+- Updated dependencies
+- Merge pull request #106 from anephenix/dependabot/npm_and_yarn/rollup-4.59.0
+- Bump rollup from 4.57.1 to 4.59.0
+- Merge pull request #104 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/rollup-4.59.0
+- Merge pull request #105 from anephenix/dependabot/npm_and_yarn/multi-1ce7acca3d
+- Bump minimatch
+- Bump rollup
+- Merge pull request #103 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_separate_table/minimatch-3.1.5
+- Merge pull request #102 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/rollup-4.59.0
+- Merge pull request #98 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/rollup-4.59.0
+- Bump minimatch in /test/e2e_apps/app_for_password_in_separate_table
+- Bump rollup in /test/e2e_apps/app_for_password_in_users_table
+- Merge pull request #100 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/rollup-4.59.0
+- Merge pull request #101 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_magic_links/minimatch-3.1.5
+- Bump minimatch from 3.1.2 to 3.1.5 in /test/e2e_apps/app_for_magic_links
+- Bump rollup from 4.57.1 to 4.59.0 in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #99 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/minimatch-3.1.5
+- Bump minimatch in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #97 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/minimatch-3.1.5
+- Bump rollup from 4.57.1 to 4.59.0 in /test/e2e_apps/app_for_mfa_totp
+- Bump minimatch from 3.1.2 to 3.1.5 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #96 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/minimatch-3.1.4
+- Bump minimatch in /test/e2e_apps/app_for_password_in_users_table
+- Merge pull request #95 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_forgotten_password_and_reset_password_flows/ajv-8.18.0
+- Bump ajv
+- Merge pull request #93 from anephenix/dependabot/npm_and_yarn/types/node-25.3.0
+- Merge pull request #94 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.4
+- Bump @biomejs/biome from 2.4.0 to 2.4.4
+- Bump @types/node from 25.2.3 to 25.3.0
+- Merge pull request #92 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_totp/ajv-8.18.0
+- Bump ajv from 8.17.1 to 8.18.0 in /test/e2e_apps/app_for_mfa_totp
+- Merge pull request #91 from anephenix/dependabot/npm_and_yarn/types/node-25.2.3
+- Merge pull request #90 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.4.0
+- Bump @types/node from 25.2.2 to 25.2.3
+- Bump @biomejs/biome from 2.3.14 to 2.4.0
+- Merge pull request #89 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.14
+- Merge pull request #88 from anephenix/dependabot/npm_and_yarn/types/node-25.2.2
+- Bump @biomejs/biome from 2.3.13 to 2.3.14
+- Bump @types/node from 25.2.0 to 25.2.2
+- Updated a bunch of dependencies
+- Merge pull request #82 from anephenix/dependabot/npm_and_yarn/types/node-25.2.0
+- Bump @types/node from 25.0.9 to 25.2.0
+- Merge pull request #80 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.12
+- Bump @biomejs/biome from 2.3.11 to 2.3.12
+- Merge pull request #81 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.18
+- Merge pull request #77 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.6.0
+- Merge pull request #78 from anephenix/dependabot/npm_and_yarn/publint-0.3.17
+- Bump @vitest/coverage-v8 from 4.0.17 to 4.0.18
+- Bump publint from 0.3.16 to 0.3.17
+- Bump @cucumber/cucumber from 12.5.0 to 12.6.0
+- Updated dependencies
+- Merge pull request #76 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_mfa_sms_code/lodash-4.17.23
+- Bump lodash in /test/e2e_apps/app_for_mfa_sms_code
+- Merge pull request #75 from anephenix/dependabot/npm_and_yarn/test/e2e_apps/app_for_password_in_users_table/lodash-4.17.23
+- Bump lodash in /test/e2e_apps/app_for_password_in_users_table
+- Some more updates
+- Updates
+- Merge pull request #74 from anephenix/dependabot/npm_and_yarn/types/node-25.0.9
+- Bump @types/node from 25.0.6 to 25.0.9
+- Merge pull request #72 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.17
+- Bump @vitest/coverage-v8 from 4.0.16 to 4.0.17
+- Updated dependencies
+- Merge pull request #71 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.11
+- Merge branch 'main' into HEAD
+- Merge pull request #70 from anephenix/dependabot/npm_and_yarn/anephenix/fastify-resource-0.0.11
+- Bump @biomejs/biome from 2.3.10 to 2.3.11
+- Bump @anephenix/fastify-resource from 0.0.10 to 0.0.11
+- Merge pull request #69 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.5.0
+- Bump @cucumber/cucumber from 12.4.0 to 12.5.0
+- Merge pull request #66 from anephenix/dependabot/npm_and_yarn/vitest/coverage-v8-4.0.16
+- Bump @vitest/coverage-v8 from 4.0.15 to 4.0.16
+- Merge pull request #68 from anephenix/dependabot/npm_and_yarn/vitest-4.0.16
+- Bump vitest from 4.0.15 to 4.0.16
+- Merge pull request #67 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.10
+- Merge pull request #65 from anephenix/dependabot/npm_and_yarn/types/node-25.0.3
+- Bump @biomejs/biome from 2.3.8 to 2.3.10
+- Bump @types/node from 25.0.2 to 25.0.3
+- Merge pull request #62 from anephenix/dependabot/npm_and_yarn/types/node-25.0.2
+- Updated dependencies
+- Merge branch 'main' of github.com:anephenix/auth into dependabot/npm_and_yarn/types/node-25.0.2
+- Merge pull request #63 from anephenix/dependabot/npm_and_yarn/publint-0.3.16
+- Merge pull request #64 from anephenix/dependabot/npm_and_yarn/cucumber/cucumber-12.4.0
+- Updated dependencies
+- Bump publint from 0.3.15 to 0.3.16
+- Bump @cucumber/cucumber from 12.3.0 to 12.4.0
+- Merge pull request #61 from anephenix/dependabot/npm_and_yarn/size-limit-12.0.0
+- Bump @types/node from 24.10.1 to 25.0.2
+- Bump size-limit from 11.2.0 to 12.0.0
+- Updated size-limit dependencies to the new major version
+- Updated dependencies
+- Merge pull request #57 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.3.8
+- Bump @biomejs/biome from 2.3.7 to 2.3.8
+- Merge pull request #60 from anephenix/dependabot/npm_and_yarn/anephenix/fastify-resource-0.0.10
+- Bump @anephenix/fastify-resource from 0.0.9 to 0.0.10
+- Updated changelog
+
 ### 0.0.7 - Wednesday 3rd December, 2025
 
 - 0.0.6
