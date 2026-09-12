@@ -616,7 +616,7 @@ describe("E2E Tests for MFA TOTP", () => {
 
 				expect(disableMfaRequest.status).toBe(400);
 				const disableMfaResponse = await disableMfaRequest.json();
-				expect(disableMfaResponse.error).toBe("Password incorrect");
+				expect(disableMfaResponse.error).toBe("Invalid credentials");
 			});
 		});
 

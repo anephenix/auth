@@ -15,14 +15,15 @@
 - [x] Look at supporting MFA (QR Code & app)
 - [x] Look at supporting forgot password flow
 - [x] Look at supporting reset password flow
+- [x] Implement a way to ensure that username lookup timing attacks can't happen (establish that a username is valid within a system)
+- [x] Implement the same principle for passwords
 
 ## Now
 
-- [ ] Implement a way to ensure that username lookup timing attacks can't happen (establish that a username is valid within a system)
+- [ ] Add rate limiting / brute force protection to the e2e app login flows using `auth.checkRateLimit`
 
 ## Next
 
-- [ ] Implement the same principle for passwords
 - [ ] Look at updating username flow
 - [ ] Look at updating email flow
 - [ ] Look at building the web frontend part to these flows so that you can write E2E tests with them

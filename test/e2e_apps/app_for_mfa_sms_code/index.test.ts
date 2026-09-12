@@ -128,7 +128,7 @@ describe("app for mfa sms code", () => {
 				expect(response.status).toBe(401);
 				const responseBody = await response.json();
 				expect(responseBody).toEqual({
-					error: "Password incorrect",
+					error: "Invalid credentials",
 				});
 				const smsCode = await SmsCode.query().findOne({ user_id: user.id });
 				expect(smsCode).toBeUndefined();
@@ -153,7 +153,7 @@ describe("app for mfa sms code", () => {
 				expect(response.status).toBe(401);
 				const responseBody = await response.json();
 				expect(responseBody).toEqual({
-					error: "User not found",
+					error: "Invalid credentials",
 				});
 				const smsCode = await SmsCode.query();
 				expect(smsCode.length).toBe(0);

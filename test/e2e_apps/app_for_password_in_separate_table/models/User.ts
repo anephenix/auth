@@ -48,8 +48,7 @@ export class User extends Model {
 		const key = isEmail(normalizedIdentifier) ? "email" : "username";
 		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
-		if (!user) throw new Error("User not found");
-		/* 
+		/*
 			I discovered that the created_at field's timestamps are accurate to the second,
 			which means that we cannot reliably use them in a unit test to determine the most recent password.
 
@@ -58,24 +57,24 @@ export class User extends Model {
 
 			In reality, we'd need to use a more precise timestamp (to the millisecond or nanosecond) to help pass the unit tests
 		*/
-		const passwordRecord = (await user
-			.$relatedQuery("passwords")
-			.orderBy("id", "desc")
-			.limit(1)
-			.first()) as Password;
-		if (!passwordRecord) throw new Error("Password not found for user");
-		const isAuthenticated = await auth.verifyPassword(
+		const passwordRecord = user
+			? ((await user
+					.$relatedQuery("passwords")
+					.orderBy("id", "desc")
+					.limit(1)
+					.first()) as Password)
+			: undefined;
+		const isAuthenticated = await auth.verifyPasswordSafe(
 			password,
-			passwordRecord.hashed_password,
+			passwordRecord?.hashed_password,
 		);
-		if (isAuthenticated) {
-			return {
-				id: user.id,
-				username: user.username,
-			};
-		} else {
-			throw new Error("Password incorrect");
+		if (!isAuthenticated || !user) {
+			throw new Error("Invalid credentials");
 		}
+		return {
+			id: user.id,
+			username: user.username,
+		};
 	}
 }
 

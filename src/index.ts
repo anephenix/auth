@@ -10,11 +10,13 @@
 
 	It is designed to be flexible and extensible, allowing developers to customize the authentication process as needed.
 */
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import * as argon2 from "argon2";
 import type {
 	AuthOptions,
+	CheckRateLimitParams,
 	GenerateSessionProps,
+	RateLimitStatus,
 	SessionObject,
 } from "./types.js";
 
@@ -32,10 +34,13 @@ const DEFAULTS = {
 	smsCodeGenerator: () => randomBytes(3).toString("hex"),
 	smsCodeExpiresIn: 300, // Default to 5 minutes
 	maxMfaAttempts: 2, // Default to 2 attempts
+	maxLoginAttempts: 5, // Default to 5 attempts
+	loginWindowSeconds: 900, // Default to 15 minutes
 };
 
 export class Auth {
 	private options: AuthOptions;
+	private dummyHash?: string;
 
 	constructor(options: AuthOptions) {
 		this.options = options;
@@ -145,7 +150,59 @@ export class Auth {
 	}
 
 	/*
-		This function is normalizes a string value by removing 
+		Returns a fixed argon2 hash that no real password will ever match,
+		lazily generated once per Auth instance and cached from then on.
+
+		This is used by verifyPasswordSafe to keep hashing costs constant
+		when an identifier (username/email) lookup finds no matching user,
+		so that response timing can't be used to enumerate which identifiers
+		exist in the system.
+	*/
+	async getDummyHash(): Promise<string> {
+		if (!this.dummyHash) {
+			this.dummyHash = await argon2.hash(randomBytes(32).toString("hex"));
+		}
+		return this.dummyHash;
+	}
+
+	/*
+		This is a timing-attack-safe alternative to verifyPassword, intended
+		for use in login flows where the identifier (username/email) lookup
+		may or may not find a matching user.
+
+		If no hashedPassword is passed (e.g. because no user was found for
+		the supplied identifier), it still runs an argon2 verification
+		against a dummy hash, so that the response time is roughly the same
+		whether or not the identifier exists - preventing attackers from
+		using timing differences to enumerate valid usernames/emails.
+	*/
+	async verifyPasswordSafe(
+		password: string,
+		hashedPassword?: string | null,
+	): Promise<boolean> {
+		if (hashedPassword) {
+			return await this.verifyPassword(password, hashedPassword);
+		}
+		await argon2.verify(await this.getDummyHash(), password);
+		return false;
+	}
+
+	/*
+		Compares two strings for equality in a way that does not leak
+		information (including the strings' lengths) via timing, by first
+		hashing both values to a fixed-length digest before comparing them.
+
+		Useful for comparing secrets such as tokens or codes that aren't
+		already compared via a constant-time routine (e.g. argon2.verify).
+	*/
+	constantTimeCompare(a: string, b: string): boolean {
+		const hashedA = createHash("sha256").update(a).digest();
+		const hashedB = createHash("sha256").update(b).digest();
+		return timingSafeEqual(hashedA, hashedB);
+	}
+
+	/*
+		This function is normalizes a string value by removing
 		all whitespace and converting all characters to lowercase.
 
 		This helps to prevent attackers from using variations of the same
@@ -303,5 +360,53 @@ export class Auth {
 		return (
 			this.options?.mfaTokenOptions?.maxAttempts ?? DEFAULTS.maxMfaAttempts
 		); // Default to 2 attempts
+	}
+
+	get maxLoginAttempts(): number {
+		return this.options?.loginOptions?.maxAttempts ?? DEFAULTS.maxLoginAttempts; // Default to 5 attempts
+	}
+
+	get loginWindowSeconds(): number {
+		return (
+			this.options?.loginOptions?.windowSeconds ?? DEFAULTS.loginWindowSeconds
+		); // Default to 15 minutes
+	}
+
+	/*
+		This function determines whether an identifier (e.g. a username,
+		email, or IP address) should currently be rate limited, based on
+		the number of attempts made so far and when the first attempt in
+		the current window occurred.
+
+		The library does not store attempt counts itself - the consuming
+		app is responsible for tracking `attempts` and `firstAttemptAt`
+		(e.g. in a database row or a Redis key) and passing them in here,
+		the same way it already tracks `number_of_attempts` for MFA tokens.
+	*/
+	checkRateLimit({
+		attempts,
+		firstAttemptAt,
+	}: CheckRateLimitParams): RateLimitStatus {
+		const windowMs = this.loginWindowSeconds * 1000;
+		const windowExpiresAt = new Date(firstAttemptAt).getTime() + windowMs;
+		const now = Date.now();
+
+		// The window has elapsed, so previous attempts no longer count.
+		if (now >= windowExpiresAt) {
+			return { blocked: false, remainingAttempts: this.maxLoginAttempts };
+		}
+
+		if (attempts >= this.maxLoginAttempts) {
+			return {
+				blocked: true,
+				remainingAttempts: 0,
+				retryAfter: Math.ceil((windowExpiresAt - now) / 1000),
+			};
+		}
+
+		return {
+			blocked: false,
+			remainingAttempts: this.maxLoginAttempts - attempts,
+		};
 	}
 }

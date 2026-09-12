@@ -102,19 +102,17 @@ export class User extends Model {
 		const key = isEmail(normalizedIdentifier) ? "email" : "username";
 		params[key] = normalizedIdentifier;
 		const user = await User.query().where(params).limit(1).first();
-		if (!user) throw new Error("User not found");
-		const isAuthenticated = await auth.verifyPassword(
+		const isAuthenticated = await auth.verifyPasswordSafe(
 			password,
-			user.hashed_password,
+			user?.hashed_password,
 		);
-		if (isAuthenticated) {
-			return {
-				id: user.id,
-				username: user.username,
-				mobile_number: user.mobile_number,
-			};
-		} else {
-			throw new Error("Password incorrect");
+		if (!isAuthenticated || !user) {
+			throw new Error("Invalid credentials");
 		}
+		return {
+			id: user.id,
+			username: user.username,
+			mobile_number: user.mobile_number,
+		};
 	}
 }

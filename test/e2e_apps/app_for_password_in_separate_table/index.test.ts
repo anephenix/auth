@@ -138,7 +138,7 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 						identifier: "testuser",
 						password: "WrongPassword!",
 					}),
-				).rejects.toThrowError("Password incorrect");
+				).rejects.toThrowError("Invalid credentials");
 			});
 		});
 
@@ -149,7 +149,7 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 						identifier: "nonexistentuser",
 						password: "SomePassword!",
 					}),
-				).rejects.toThrowError("User not found");
+				).rejects.toThrowError("Invalid credentials");
 			});
 		});
 
@@ -192,7 +192,7 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 				};
 
 				await expect(attemptToUseFirstPassword()).rejects.toThrowError(
-					"Password incorrect",
+					"Invalid credentials",
 				);
 			});
 		});
@@ -212,7 +212,7 @@ describe("E2E Tests for User Creation and Password Handling with passwords store
 					identifier: "testuser",
 					password: "SomePassword!",
 				}),
-			).rejects.toThrowError("Password not found for user");
+			).rejects.toThrowError("Invalid credentials");
 		});
 	});
 

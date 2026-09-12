@@ -213,13 +213,13 @@ describe("User model", () => {
 							identifier: null,
 							password: "ValidPassword123!",
 						}),
-					).rejects.toThrowError("User not found");
+					).rejects.toThrowError("Invalid credentials");
 					await expect(
 						User.authenticate({
 							identifier: "*",
 							password: "ValidPassword123!",
 						}),
-					).rejects.toThrowError("User not found");
+					).rejects.toThrowError("Invalid credentials");
 				});
 				it("should throw an error if the user is not found", async () => {
 					await expect(
@@ -227,7 +227,7 @@ describe("User model", () => {
 							identifier: "nonexistentuser",
 							password: "ValidPassword123!",
 						}),
-					).rejects.toThrowError("User not found");
+					).rejects.toThrowError("Invalid credentials");
 				});
 			});
 		});

@@ -199,6 +199,149 @@ describe("Auth class", () => {
 		});
 	});
 
+	describe("getDummyHash", () => {
+		it("should return a valid argon2 hash that does not verify against any real password", async () => {
+			const auth = new Auth({});
+			const dummyHash = await auth.getDummyHash();
+			expect(isHashed(dummyHash)).toBe(true);
+			const isValid = await auth.verifyPassword("anyPassword", dummyHash);
+			expect(isValid).toBe(false);
+		});
+
+		it("should cache the dummy hash across calls", async () => {
+			const auth = new Auth({});
+			const first = await auth.getDummyHash();
+			const second = await auth.getDummyHash();
+			expect(first).toBe(second);
+		});
+	});
+
+	describe("verifyPasswordSafe", () => {
+		it("should verify a password against a hashed password when one is provided", async () => {
+			const auth = new Auth({});
+			const plaintextPassword = "plaintextPassword";
+			const hashedPassword = await auth.hashPassword(plaintextPassword);
+			const isValid = await auth.verifyPasswordSafe(
+				plaintextPassword,
+				hashedPassword,
+			);
+			expect(isValid).toBe(true);
+		});
+
+		it("should return false for an incorrect password when a hash is provided", async () => {
+			const auth = new Auth({});
+			const hashedPassword = await auth.hashPassword("correctPassword");
+			const isValid = await auth.verifyPasswordSafe(
+				"wrongPassword",
+				hashedPassword,
+			);
+			expect(isValid).toBe(false);
+		});
+
+		it("should return false without throwing when no hashed password is provided", async () => {
+			const auth = new Auth({});
+			const isValid = await auth.verifyPasswordSafe("somePassword", undefined);
+			expect(isValid).toBe(false);
+		});
+
+		it("should take a comparable amount of time whether or not a matching user is found", async () => {
+			const auth = new Auth({});
+			const hashedPassword = await auth.hashPassword("correctPassword");
+			// Warm up the dummy hash cache so its generation cost isn't measured.
+			await auth.getDummyHash();
+
+			const timeCall = async (hash?: string) => {
+				const start = performance.now();
+				await auth.verifyPasswordSafe("wrongPassword", hash);
+				return performance.now() - start;
+			};
+
+			// Average over several runs to smooth out scheduler jitter on CI.
+			const runs = 5;
+			let foundUserTotal = 0;
+			let noUserTotal = 0;
+			for (let i = 0; i < runs; i++) {
+				foundUserTotal += await timeCall(hashedPassword);
+				noUserTotal += await timeCall(undefined);
+			}
+			const foundUserAvg = foundUserTotal / runs;
+			const noUserAvg = noUserTotal / runs;
+
+			// Both paths run exactly one argon2.verify call under the hood,
+			// so their durations should be within the same order of
+			// magnitude - generous slack keeps this from being flaky on CI.
+			const ratio =
+				Math.max(foundUserAvg, noUserAvg) / Math.min(foundUserAvg, noUserAvg);
+			expect(ratio).toBeLessThan(3);
+		});
+	});
+
+	describe("constantTimeCompare", () => {
+		it("should return true for two identical strings", () => {
+			const auth = new Auth({});
+			expect(auth.constantTimeCompare("secretToken", "secretToken")).toBe(true);
+		});
+
+		it("should return false for two different strings", () => {
+			const auth = new Auth({});
+			expect(auth.constantTimeCompare("secretToken", "otherToken")).toBe(false);
+		});
+
+		it("should return false for strings of different lengths without throwing", () => {
+			const auth = new Auth({});
+			expect(() =>
+				auth.constantTimeCompare("short", "muchLongerString"),
+			).not.toThrow();
+			expect(auth.constantTimeCompare("short", "muchLongerString")).toBe(false);
+		});
+	});
+
+	describe("checkRateLimit", () => {
+		it("should not block when attempts are below the maximum", () => {
+			const auth = new Auth({ loginOptions: { maxAttempts: 5 } });
+			const status = auth.checkRateLimit({
+				attempts: 2,
+				firstAttemptAt: new Date(),
+			});
+			expect(status.blocked).toBe(false);
+			expect(status.remainingAttempts).toBe(3);
+			expect(status.retryAfter).toBeUndefined();
+		});
+
+		it("should block once attempts reach the maximum within the window", () => {
+			const auth = new Auth({
+				loginOptions: { maxAttempts: 5, windowSeconds: 900 },
+			});
+			const status = auth.checkRateLimit({
+				attempts: 5,
+				firstAttemptAt: new Date(),
+			});
+			expect(status.blocked).toBe(true);
+			expect(status.remainingAttempts).toBe(0);
+			expect(status.retryAfter).toBeGreaterThan(0);
+			expect(status.retryAfter).toBeLessThanOrEqual(900);
+		});
+
+		it("should not block once the window has expired, even if attempts exceeded the maximum", () => {
+			const auth = new Auth({
+				loginOptions: { maxAttempts: 5, windowSeconds: 60 },
+			});
+			const longAgo = new Date(Date.now() - 120 * 1000);
+			const status = auth.checkRateLimit({
+				attempts: 10,
+				firstAttemptAt: longAgo,
+			});
+			expect(status.blocked).toBe(false);
+			expect(status.remainingAttempts).toBe(5);
+		});
+
+		it("should use default maxAttempts and windowSeconds when not configured", () => {
+			const auth = new Auth({});
+			expect(auth.maxLoginAttempts).toBe(5);
+			expect(auth.loginWindowSeconds).toBe(900);
+		});
+	});
+
 	describe("#generateSession", () => {
 		it("should generate a session with an access token, refresh token, and default expiration times for both tokens", () => {
 			const auth = new Auth({});

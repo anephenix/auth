@@ -437,7 +437,7 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(response.status).toBe(401);
 				const data = await response.json();
 				expect(data).toHaveProperty("error");
-				expect(data.error).toBe("User not found");
+				expect(data.error).toBe("Invalid credentials");
 			});
 			it("should return an error if the password is incorrect", async () => {
 				await User.query().insert({
@@ -460,7 +460,7 @@ describe("App with Auth and Sessions Implemented", () => {
 				expect(response.status).toBe(401);
 				const data = await response.json();
 				expect(data).toHaveProperty("error");
-				expect(data.error).toBe("Password incorrect");
+				expect(data.error).toBe("Invalid credentials");
 			});
 		});
 	});

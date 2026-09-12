@@ -108,7 +108,7 @@ describe("E2E Tests for User Creation and Password Handling with the password st
 						identifier: "testuser",
 						password: "WrongPassword!",
 					}),
-				).rejects.toThrowError("Password incorrect");
+				).rejects.toThrowError("Invalid credentials");
 			});
 		});
 
@@ -119,7 +119,7 @@ describe("E2E Tests for User Creation and Password Handling with the password st
 						identifier: "nonexistentuser",
 						password: "SomePassword!",
 					}),
-				).rejects.toThrowError("User not found");
+				).rejects.toThrowError("Invalid credentials");
 			});
 		});
 	});
