@@ -6,3 +6,6 @@ dist
 esbuild-why.html
 database.sqlite
 dump.rdb
+
+# Private session notes (not the tracked design docs in notes/)
+notes/session-*.md
