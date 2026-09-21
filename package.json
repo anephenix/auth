@@ -46,7 +46,7 @@
 		"@biomejs/biome": "2.5.14",
 		"@cucumber/cucumber": "^13.2.1",
 		"@size-limit/esbuild": "^13.0.1",
-		"@size-limit/esbuild-why": "^13.0.1",
+		"@size-limit/esbuild-why": "^14.0.0",
 		"@size-limit/file": "^13.0.1",
 		"@types/node": "^26.6.1",
 		"@vitest/coverage-v8": "^5.0.0",
