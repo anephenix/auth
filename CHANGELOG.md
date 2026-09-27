@@ -1,5 +1,19 @@
 # CHANGELOG
 
+### 0.0.8 - Sunday 27th September, 2026
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Merge pull request #258 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.14
+- Merge pull request #259 from anephenix/dependabot/npm_and_yarn/types/node-26.6.1
+- Bump @types/node from 26.5.1 to 26.6.1
+- Bump @biomejs/biome from 2.5.13 to 2.5.14
+- Merge pull request #256 from anephenix/dependabot/npm_and_yarn/types/node-26.5.1
+- Merge pull request #257 from anephenix/dependabot/npm_and_yarn/biomejs/biome-2.5.13
+- Bump @biomejs/biome from 2.5.12 to 2.5.13
+- Bump @types/node from 26.5.0 to 26.5.1
+
 ### 0.0.7 - Saturday 12th September, 2026
 
 - Wire rate limiting into e2e app login flows
