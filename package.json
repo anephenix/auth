@@ -45,7 +45,7 @@
 		"@anephenix/fastify-resource": "^0.0.15",
 		"@biomejs/biome": "2.6.2",
 		"@cucumber/cucumber": "^13.2.1",
-		"@size-limit/esbuild": "^14.2.0",
+		"@size-limit/esbuild": "^14.3.0",
 		"@size-limit/esbuild-why": "^14.2.0",
 		"@size-limit/file": "^14.2.0",
 		"@types/node": "^26.6.5",
