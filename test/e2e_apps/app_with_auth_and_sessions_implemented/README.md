@@ -3,21 +3,20 @@
 ## Introduction
 
 This app is testing the use case of using Auth with:
-
 - password authentication enabled
 - the password is stored in the users table
 - the sessions are stored in a sessions table in the same database, rather than
   in Redis.
 
-The idea being that this is an app that can run as a self-contained app with no 
+The idea being that this is an app that can run as a self-contained app with no
 dependencies other than Node.js
 
-So in theory, you could install and run in one go - no need to run other 
+So in theory, you could install and run in one go - no need to run other
 3rd-party tools like Redis.
 
-I'm curious to see how well this would work - say for an application used 
-internally, as opposed to an app on the web that is serving many customers 
-(I don't think that sqlite would be able to handle that, especially if it is 
+I'm curious to see how well this would work - say for an application used
+internally, as opposed to an app on the web that is serving many customers
+(I don't think that sqlite would be able to handle that, especially if it is
 handling the sessions as well).
 
 ## What do you need to build in order for this to work

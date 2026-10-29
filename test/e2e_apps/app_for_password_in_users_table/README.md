@@ -3,7 +3,6 @@
 ## Introduction
 
 This app is testing the use case of using Auth with:
-
 - password authentication enabled
 - the password is stored in the users table
 - this is a simple setup
@@ -16,7 +15,7 @@ Perhaps they would instantiate the instance of Auth in a separate file to start 
 import { Auth } from "@anephenix/auth";
 
 const auth = new Auth({
-    // Options would be set here
+	// Options would be set here
 });
 
 export default auth;
@@ -41,7 +40,6 @@ try {
 ```
 
 The code in the User model will do the following:
-
 - Validate the password according to the password validation rules
 - Hash the password and store it in the hashed_password field
 - Clear the plaintext password so it is no longer in memory (and there is no field to store it in anyway)
