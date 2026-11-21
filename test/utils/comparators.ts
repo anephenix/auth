@@ -2,8 +2,8 @@ const isRandomString = (str: string) => {
 	return /^[a-f0-9]{64}$/.test(str);
 };
 
-const isHashed = (str: string) => {
-	return /^\$argon2id\$v=(?:16|19)\$m=\d{1,10},p=\d{1,3},t=\d{1,10}(?:,keyid=[A-Za-z0-9+/]{0,11}(?:,data=[A-Za-z0-9+/]{0,43})?)?\$[A-Za-z0-9+/]{11,64}\$[A-Za-z0-9+/]{16,86}$/i.test(
+const isHashed = (str: string): boolean => {
+	return /^\$argon2id\$v=(?:16|19)\$m=\d{1,10},t=\d{1,10},p=\d{1,3}(?:,keyid=[A-Za-z0-9+/]{0,11}(?:,data=[A-Za-z0-9+/]{0,43})?)?\$[A-Za-z0-9+/]{11,64}\$[A-Za-z0-9+/]{16,86}$/i.test(
 		str,
 	);
 };

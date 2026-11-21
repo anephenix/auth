@@ -3,6 +3,7 @@
 ## Introduction
 
 This app is testing the use case of using Auth with:
+
 - password authentication enabled
 - the password is stored in the users table
 - this is a simple setup
@@ -41,6 +42,7 @@ try {
 ```
 
 The code in the User model will do the following:
+
 - Validate the password according to the password validation rules
 - Hash the password and store it in the hashed_password field
 - Clear the plaintext password so it is no longer in memory (and there is no field to store it in anyway)

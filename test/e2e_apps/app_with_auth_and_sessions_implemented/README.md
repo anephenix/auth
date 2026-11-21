@@ -3,6 +3,7 @@
 ## Introduction
 
 This app is testing the use case of using Auth with:
+
 - password authentication enabled
 - the password is stored in the users table
 - the sessions are stored in a sessions table in the same database, rather than
